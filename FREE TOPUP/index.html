@@ -3,82 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Offer TopUp - Game Topup Site</title>
+    <title>Offer TopUp - Best Gaming Shop</title>
     
-    <!-- Tailwind CSS (CDN) -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Vue.js 3 (CDN) -->
+    <!-- Vue.js 3 -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Swiper CSS (স্লাইডারের জন্য) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
 
-    <!-- আপনার কাস্টম CSS লিংক -->
+    <!-- কাস্টম CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
+<body class="bg-slate-50">
 
-    <div id="app">
+    <div id="app" v-cloak>
         <!-- Header -->
-        <nav class="header px-4 py-3 shadow-sm">
+        <nav class="header px-4 py-3 sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm">
             <div class="container mx-auto flex justify-between items-center max-w-6xl">
                 <a href="#" @click.prevent="currentPage = 'home'" class="flex items-center gap-2">
-                    <span class="text-2xl font-bold font-primary text-gray-800">Offer<span style="color:var(--primary-color)">TopUp</span></span>
+                    <!-- লোগো -->
+                    <img src="https://cdn-icons-png.flaticon.com/512/3408/3408506.png" class="w-8 h-8" alt="Logo">
+                    <span class="text-2xl font-primary font-bold text-gray-800">Offer<span style="color:#ff6702">TopUp</span></span>
                 </a>
-                <div class="hidden md:flex gap-6 font-medium text-gray-600">
-                    <a href="#" @click.prevent="currentPage = 'home'" class="hover:text-purple-600">Home</a>
-                    <a href="#" @click.prevent="currentPage = 'topup'" class="hover:text-purple-600">Top Up</a>
-                </div>
+                
                 <div class="hidden md:block">
-                    <button @click="currentPage = 'login'" class="btn-pro"><i class="fa-solid fa-user mr-2"></i> Login</button>
+                    <button @click="currentPage = 'login'" class="btn-gradient rounded-full px-6 py-2 text-white font-bold shadow-lg">
+                        <i class="fa-solid fa-user mr-2"></i> Login
+                    </button>
                 </div>
             </div>
         </nav>
 
         <!-- Main Content -->
-        <main class="min-h-screen pb-20">
-            <!-- Home Page -->
+        <main class="min-h-screen pb-24">
+            
+            <!-- HOME PAGE -->
             <div v-if="currentPage === 'home'">
-                <div class="marquee-container">
-                    <div class="marquee-content font-primary">{{ noticeMessage }}</div>
+                <!-- Notice Bar -->
+                <div class="bg-gradient-to-r from-orange-500 to-pink-600 text-white py-2 px-4 shadow-md">
+                    <div class="container mx-auto flex items-center gap-2">
+                        <span class="bg-white text-orange-600 px-2 py-0.5 rounded text-xs font-bold">NOTICE</span>
+                        <marquee class="text-sm font-primary">{{ noticeMessage }}</marquee>
+                    </div>
                 </div>
+
+                <!-- Slider Section -->
+                <div class="container mx-auto mt-4 px-2 max-w-6xl">
+                    <div class="swiper mySwiper rounded-xl overflow-hidden shadow-lg border border-gray-200">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide" v-for="banner in banners" :key="banner">
+                                <img :src="banner" class="w-full h-40 md:h-80 object-cover" alt="Banner">
+                            </div>
+                        </div>
+                        <div class="swiper-pagination"></div>
+                    </div>
+                </div>
+
                 <!-- Games Grid -->
                 <div class="container mx-auto mt-8 px-4 max-w-6xl">
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                        <div v-for="game in games" :key="game.id" class="game-card cursor-pointer" @click="openGame(game)">
-                            <div class="relative">
-                                <img :src="game.image" class="w-full h-32 md:h-40 object-cover">
+                    <div class="flex items-center gap-2 mb-6">
+                        <div class="h-8 w-1 bg-orange-500 rounded"></div>
+                        <h2 class="text-2xl font-bold text-gray-800 font-primary">Popular Games</h2>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 md:gap-6">
+                        <div v-for="game in games" :key="game.id" 
+                             class="game-card group bg-white rounded-xl border border-gray-100 p-2 cursor-pointer hover:shadow-xl transition-all duration-300"
+                             @click="openGame(game)">
+                            <div class="relative overflow-hidden rounded-lg">
+                                <img :src="game.image" class="w-full h-28 md:h-40 object-cover group-hover:scale-110 transition-transform duration-500">
+                                <div class="absolute top-0 right-0 bg-red-600 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">HOT</div>
                             </div>
-                            <div class="p-3 text-center">
-                                <h3 class="font-bold text-gray-800 text-sm">{{ game.name }}</h3>
-                                <button class="mt-2 w-full text-xs border border-purple-600 text-purple-600 py-1 rounded">Top Up</button>
+                            <div class="mt-2 text-center">
+                                <h3 class="font-bold text-gray-800 text-xs md:text-sm line-clamp-1">{{ game.name }}</h3>
+                                <button class="mt-2 w-full text-[10px] md:text-xs border border-orange-500 text-orange-500 py-1 rounded-full group-hover:bg-orange-500 group-hover:text-white transition">
+                                    Top Up
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Login Page -->
-            <div v-if="currentPage === 'login'" class="flex items-center justify-center py-10 px-4">
-                <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md border border-purple-100">
-                    <h2 class="text-2xl font-bold text-center mb-6">Login</h2>
-                    <form @submit.prevent="handleLogin">
-                        <input type="text" v-model="loginForm.email" class="form-input mb-4" placeholder="Email">
-                        <input type="password" v-model="loginForm.password" class="form-input mb-6" placeholder="Password">
-                        <button type="submit" class="btn-pro w-full py-3 rounded">LOGIN</button>
-                    </form>
+            <!-- DETAILS PAGE (Product Selection) -->
+            <div v-if="currentPage === 'details'" class="container mx-auto mt-4 px-4 max-w-4xl animate-fade-in">
+                <button @click="currentPage = 'home'" class="mb-4 flex items-center gap-2 text-gray-600 font-bold bg-white px-4 py-2 rounded-full shadow-sm">
+                    <i class="fa-solid fa-arrow-left"></i> Back
+                </button>
+
+                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                    <!-- Product Header -->
+                    <div class="relative h-32 md:h-48">
+                        <img :src="selectedGame.image" class="w-full h-full object-cover blur-sm opacity-50">
+                        <div class="absolute inset-0 flex items-center p-6 gap-4">
+                            <img :src="selectedGame.image" class="w-20 h-20 rounded-xl shadow-lg border-2 border-white">
+                            <div>
+                                <h1 class="text-2xl font-bold font-primary text-gray-800">{{ selectedGame.name }}</h1>
+                                <p class="text-sm text-gray-600"><i class="fa-solid fa-bolt text-orange-500"></i> Instant Delivery</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 md:p-8">
+                        <!-- Step 1 -->
+                        <div class="mb-8">
+                            <h3 class="flex items-center gap-2 text-lg font-bold text-gray-800 mb-4">
+                                <span class="bg-orange-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
+                                Select Recharge
+                            </h3>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                <div v-for="pack in packages" :key="pack.id" 
+                                     class="border rounded-lg p-3 text-center cursor-pointer transition relative overflow-hidden"
+                                     :class="selectedPackage === pack.id ? 'border-orange-500 bg-orange-50 ring-1 ring-orange-500' : 'hover:border-orange-300'"
+                                     @click="selectedPackage = pack.id">
+                                    <div class="font-bold text-gray-700 text-sm">{{ pack.amount }}</div>
+                                    <div class="text-orange-600 font-black mt-1">৳ {{ pack.price }}</div>
+                                    <i v-if="selectedPackage === pack.id" class="fa-solid fa-circle-check absolute top-1 right-1 text-orange-500 text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="mb-8">
+                            <h3 class="flex items-center gap-2 text-lg font-bold text-gray-800 mb-4">
+                                <span class="bg-orange-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
+                                Player ID
+                            </h3>
+                            <input type="text" placeholder="Enter Player ID (UID)" class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition">
+                            <p class="text-xs text-gray-400 mt-2">Make sure the UID is correct.</p>
+                        </div>
+
+                        <!-- Buy Button -->
+                        <div class="sticky bottom-0 bg-white p-4 border-t shadow-inner -mx-4 -mb-4 md:static md:border-0 md:shadow-none md:p-0">
+                            <button class="btn-gradient w-full py-3.5 rounded-full text-white font-bold text-lg shadow-lg hover:opacity-90 transition transform active:scale-95 flex justify-center items-center gap-2">
+                                <span>Buy Now</span>
+                                <span v-if="selectedPackage" class="bg-white/20 px-2 py-0.5 rounded text-sm">৳ {{ getPrice(selectedPackage) }}</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <!-- LOGIN PAGE -->
+            <div v-if="currentPage === 'login'" class="flex items-center justify-center min-h-[80vh] px-4">
+                <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-sm border border-gray-100">
+                    <div class="text-center mb-6">
+                        <h2 class="text-2xl font-bold font-primary text-gray-800">Welcome Back</h2>
+                        <p class="text-gray-500 text-sm">Sign in to continue</p>
+                    </div>
+                    <form @submit.prevent>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-xs font-bold text-gray-600 uppercase">Phone / Email</label>
+                                <input type="text" class="w-full border rounded-lg p-2.5 mt-1 focus:border-orange-500 focus:outline-none bg-gray-50">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-gray-600 uppercase">Password</label>
+                                <input type="password" class="w-full border rounded-lg p-2.5 mt-1 focus:border-orange-500 focus:outline-none bg-gray-50">
+                            </div>
+                            <button class="btn-gradient w-full py-2.5 rounded-lg text-white font-bold shadow-md">LOGIN</button>
+                        </div>
+                    </form>
+                    <div class="mt-6 text-center">
+                        <button @click="currentPage = 'home'" class="text-sm text-gray-500 hover:text-orange-500">Skip for now</button>
+                    </div>
+                </div>
+            </div>
+
         </main>
 
-        <!-- Footer -->
-        <footer class="footer-bg pt-10 pb-24 md:pb-10 text-center">
-            <p>© 2026 Offer TopUp. All Rights Reserved.</p>
-        </footer>
+        <!-- Mobile Bottom Nav -->
+        <div class="fixed bottom-0 w-full bg-white border-t border-gray-200 md:hidden z-50 pb-safe">
+            <div class="grid grid-cols-4 h-16">
+                <div @click="currentPage = 'home'" :class="currentPage === 'home' ? 'text-orange-600' : 'text-gray-400'" class="flex flex-col items-center justify-center cursor-pointer">
+                    <i class="fa-solid fa-house text-lg mb-1"></i>
+                    <span class="text-[10px] font-bold">Home</span>
+                </div>
+                <div @click="currentPage = 'topup'" :class="currentPage === 'topup' ? 'text-orange-600' : 'text-gray-400'" class="flex flex-col items-center justify-center cursor-pointer">
+                    <i class="fa-solid fa-gamepad text-lg mb-1"></i>
+                    <span class="text-[10px] font-bold">Games</span>
+                </div>
+                <div class="relative flex justify-center items-center">
+                    <div class="absolute -top-6 bg-gradient-to-r from-orange-500 to-pink-600 p-3.5 rounded-full border-4 border-gray-50 shadow-lg cursor-pointer">
+                        <i class="fa-solid fa-cart-shopping text-white text-xl"></i>
+                    </div>
+                </div>
+                <div @click="currentPage = 'login'" :class="currentPage === 'login' ? 'text-orange-600' : 'text-gray-400'" class="flex flex-col items-center justify-center cursor-pointer">
+                    <i class="fa-solid fa-user text-lg mb-1"></i>
+                    <span class="text-[10px] font-bold">Account</span>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <!-- আপনার কাস্টম JS লিংক -->
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <!-- Custom JS -->
     <script src="assets/js/main.js"></script>
 </body>
 </html>
