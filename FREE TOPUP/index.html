@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offer TopUp - Game Topup Site</title>
+    
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vue.js 3 (CDN) -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- আপনার কাস্টম CSS লিংক -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <div id="app">
+        <!-- Header -->
+        <nav class="header px-4 py-3 shadow-sm">
+            <div class="container mx-auto flex justify-between items-center max-w-6xl">
+                <a href="#" @click.prevent="currentPage = 'home'" class="flex items-center gap-2">
+                    <span class="text-2xl font-bold font-primary text-gray-800">Offer<span style="color:var(--primary-color)">TopUp</span></span>
+                </a>
+                <div class="hidden md:flex gap-6 font-medium text-gray-600">
+                    <a href="#" @click.prevent="currentPage = 'home'" class="hover:text-purple-600">Home</a>
+                    <a href="#" @click.prevent="currentPage = 'topup'" class="hover:text-purple-600">Top Up</a>
+                </div>
+                <div class="hidden md:block">
+                    <button @click="currentPage = 'login'" class="btn-pro"><i class="fa-solid fa-user mr-2"></i> Login</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="min-h-screen pb-20">
+            <!-- Home Page -->
+            <div v-if="currentPage === 'home'">
+                <div class="marquee-container">
+                    <div class="marquee-content font-primary">{{ noticeMessage }}</div>
+                </div>
+                <!-- Games Grid -->
+                <div class="container mx-auto mt-8 px-4 max-w-6xl">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        <div v-for="game in games" :key="game.id" class="game-card cursor-pointer" @click="openGame(game)">
+                            <div class="relative">
+                                <img :src="game.image" class="w-full h-32 md:h-40 object-cover">
+                            </div>
+                            <div class="p-3 text-center">
+                                <h3 class="font-bold text-gray-800 text-sm">{{ game.name }}</h3>
+                                <button class="mt-2 w-full text-xs border border-purple-600 text-purple-600 py-1 rounded">Top Up</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login Page -->
+            <div v-if="currentPage === 'login'" class="flex items-center justify-center py-10 px-4">
+                <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md border border-purple-100">
+                    <h2 class="text-2xl font-bold text-center mb-6">Login</h2>
+                    <form @submit.prevent="handleLogin">
+                        <input type="text" v-model="loginForm.email" class="form-input mb-4" placeholder="Email">
+                        <input type="password" v-model="loginForm.password" class="form-input mb-6" placeholder="Password">
+                        <button type="submit" class="btn-pro w-full py-3 rounded">LOGIN</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer-bg pt-10 pb-24 md:pb-10 text-center">
+            <p>© 2026 Offer TopUp. All Rights Reserved.</p>
+        </footer>
+    </div>
+
+    <!-- আপনার কাস্টম JS লিংক -->
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

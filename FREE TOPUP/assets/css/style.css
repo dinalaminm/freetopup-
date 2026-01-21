@@ -1,0 +1,74 @@
+:root {
+    --primary-color: #663cbc;
+    --secondary-color: #081149;
+    --bg-gray: #f3f4f6;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--bg-gray);
+}
+
+.font-primary {
+    font-family: 'Bree Serif', serif;
+}
+
+/* Header */
+.header {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.9);
+    border-bottom: 1px solid #e3e6ed;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+/* Custom Buttons */
+.btn-pro {
+    background-image: linear-gradient(150deg, #fd6825 0%, #e41659 100%);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+/* Game Card */
+.game-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.footer-bg {
+    background: var(--secondary-color);
+    color: #d1d5db;
+}
+
+/* Marquee */
+.marquee-container {
+    background: var(--primary-color);
+    color: white;
+    padding: 8px 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.marquee-content {
+    display: inline-block;
+    animation: marquee 15s linear infinite;
+}
+@keyframes marquee {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+.form-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    outline: none;
+}
