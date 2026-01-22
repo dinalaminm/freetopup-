@@ -14,7 +14,6 @@
     <!-- Global CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
 
-    <!-- Page Specific CSS -->
     <style>
         .step-circle {
             width: 24px; height: 24px; background-color: #583cb3; color: white;
@@ -44,14 +43,13 @@
                     <span>Back</span>
                 </a>
                 <div class="font-serif font-bold text-lg text-[#1e3a8a]">Purchase</div>
-                <div class="w-8"></div> <!-- Spacer for center alignment -->
+                <div class="w-8"></div>
             </div>
         </header>
 
         <!-- Main Content -->
         <main class="pb-24 px-3 container mx-auto max-w-md mt-4">
             
-            <!-- Loading State -->
             <div v-if="loading" class="flex flex-col justify-center items-center h-64">
                 <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-700 mb-4"></div>
                 <p class="text-gray-500 text-sm">প্রোডাক্ট লোড হচ্ছে...</p>
@@ -96,8 +94,8 @@
                     <div class="mb-2">
                         <label class="text-xs font-bold text-gray-600 block mb-1">Player ID (UID)</label>
                         <input v-model="playerId" type="tel" placeholder="Enter UID (e.g. 12345678)" 
-                               class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition font-bold tracking-wide">
-                        <p class="text-[10px] text-gray-400 mt-1"><i class="fa-solid fa-circle-info"></i> সঠিক প্লেয়ার আইডি দিন, ভুল হলে রিফান্ড পাবেন না।</p>
+                               class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-purple-500 transition font-bold tracking-wide">
+                        <p class="text-[10px] text-gray-400 mt-1"><i class="fa-solid fa-circle-info"></i> সঠিক প্লেয়ার আইডি দিন।</p>
                     </div>
                 </div>
 
@@ -108,12 +106,12 @@
                     </h3>
                     
                     <div class="grid grid-cols-2 gap-3">
-                        <!-- Wallet Option -->
+                        <!-- 🔥 Wallet Option Updated -->
                         <div @click="paymentMethod = 'wallet'" :class="paymentMethod === 'wallet' ? 'active-package' : 'border-gray-200'" class="border rounded-lg p-3 text-center cursor-pointer relative">
                             <div v-if="paymentMethod === 'wallet'" class="check-icon"><i class="fa-solid fa-check"></i></div>
                             <i class="fa-solid fa-wallet text-2xl text-orange-500 mb-1"></i>
                             <div class="text-xs font-bold">Wallet Balance</div>
-                            <div class="text-[10px] text-gray-500">Available: 0 ৳</div>
+                            <div class="text-[10px] text-gray-500">Available: {{ userBalance }} ৳</div>
                         </div>
 
                         <!-- Instant Pay Option -->
@@ -150,29 +148,14 @@
             </div>
         </main>
 
-        <!-- Fixed Bottom Nav (Same as Index) -->
+        <!-- Fixed Bottom Nav -->
         <div class="fixed bottom-0 w-full bg-white border-t border-gray-200 z-50 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
             <div class="grid grid-cols-5 h-16 max-w-md mx-auto">
-                <a href="index.html" class="nav-item">
-                    <i class="fa-solid fa-house"></i>
-                    <span>Home</span>
-                </a>
-                <a href="add-money.html" class="nav-item">
-                    <i class="fa-solid fa-wallet"></i>
-                    <span>Add Money</span>
-                </a>
-                <a href="orders.html" class="nav-item">
-                    <i class="fa-solid fa-file-invoice"></i>
-                    <span>My Orders</span>
-                </a>
-                <a href="codes.html" class="nav-item">
-                    <i class="fa-solid fa-gift"></i>
-                    <span>My Codes</span>
-                </a>
-                <a href="account.html" class="nav-item">
-                    <i class="fa-solid fa-user"></i>
-                    <span>Account</span>
-                </a>
+                <a href="index.html" class="nav-item"><i class="fa-solid fa-house"></i><span>Home</span></a>
+                <a href="add-money.html" class="nav-item"><i class="fa-solid fa-wallet"></i><span>Add Money</span></a>
+                <a href="orders.html" class="nav-item"><i class="fa-solid fa-file-invoice"></i><span>My Orders</span></a>
+                <a href="codes.html" class="nav-item"><i class="fa-solid fa-gift"></i><span>My Codes</span></a>
+                <a href="account.html" class="nav-item"><i class="fa-solid fa-user"></i><span>Account</span></a>
             </div>
         </div>
 
@@ -181,7 +164,7 @@
     <!-- Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, addDoc, updateDoc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { createApp, ref, onMounted } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
         const firebaseConfig = {
@@ -204,8 +187,11 @@
                 const playerId = ref('');
                 const paymentMethod = ref('instant');
                 const packages = ref([]);
+                const userBalance = ref(0); // 🔥 ব্যালেন্স ভেরিয়েবল
+                
+                const userId = localStorage.getItem('userId');
 
-                // Generate Dummy Packages based on Base Price
+                // Generate Dummy Packages
                 const generatePackages = (basePrice) => {
                     const price = Number(basePrice) || 100;
                     packages.value = [
@@ -218,11 +204,8 @@
                 };
 
                 const fetchProduct = async () => {
-                    // Get ID from URL
                     const params = new URLSearchParams(window.location.search);
                     const id = params.get('id');
-
-                    console.log("Fetching Product ID:", id); // Debugging
 
                     if (!id) {
                         alert("Product ID Missing!");
@@ -236,29 +219,62 @@
 
                         if (docSnap.exists()) {
                             product.value = docSnap.data();
-                            // Generate packages using the price from DB
                             generatePackages(product.value.price);
                         } else {
-                            alert("দুঃখিত, এই প্রোডাক্টটি পাওয়া যায়নি।");
+                            alert("প্রোডাক্ট পাওয়া যায়নি।");
                             window.location.href = 'index.html';
                         }
                     } catch (error) {
                         console.error("Error:", error);
-                        alert("ডাটা লোড করতে সমস্যা হয়েছে।");
                     } finally {
                         loading.value = false;
                     }
                 };
 
-                const handleBuy = () => {
-                    if(!selectedPackage.value) return alert("দয়া করে একটি প্যাকেজ সিলেক্ট করুন।");
-                    if(!playerId.value) return alert("দয়া করে Player ID দিন।");
+                // 🔥 ব্যালেন্স আনার ফাংশন
+                const fetchUserBalance = async () => {
+                    if (!userId) return;
+                    try {
+                        const userDoc = await getDoc(doc(db, "users", userId));
+                        if (userDoc.exists()) {
+                            userBalance.value = userDoc.data().balance || 0;
+                        }
+                    } catch (e) { console.error(e); }
+                };
+
+                // 🔥 অর্ডার প্রসেস
+                const handleBuy = async () => {
+                    if(!selectedPackage.value) return alert("প্যাকেজ সিলেক্ট করুন।");
+                    if(!playerId.value) return alert("Player ID দিন।");
                     
-                    if(paymentMethod.value === 'instant') {
-                        // Redirect to Payment Gateway or Logic
-                        alert(`বিকাশ/নগদ পেমেন্ট গেটওয়ে আসছে...\nঅর্ডার: ${selectedPackage.value.name}\nদাম: ${selectedPackage.value.price} টাকা`);
+                    if(paymentMethod.value === 'wallet') {
+                        if (userBalance.value < selectedPackage.value.price) {
+                            alert("ওয়ালেটে পর্যাপ্ত টাকা নেই। দয়া করে Add Money করুন।");
+                            return;
+                        }
+
+                        if(confirm(`আপনি কি ${selectedPackage.value.price} টাকা দিয়ে এই প্যাকেজটি কিনতে চান?`)) {
+                            // ১. অর্ডার তৈরি
+                            await addDoc(collection(db, "orders"), {
+                                userId: userId,
+                                packageName: selectedPackage.value.name,
+                                price: selectedPackage.value.price,
+                                playerId: playerId.value,
+                                status: 'pending',
+                                createdAt: serverTimestamp()
+                            });
+
+                            // ২. ব্যালেন্স কাটা
+                            const userRef = doc(db, "users", userId);
+                            await updateDoc(userRef, {
+                                balance: increment(-selectedPackage.value.price)
+                            });
+
+                            alert("অর্ডার সফল হয়েছে! হিস্টোরি চেক করুন।");
+                            window.location.href = 'orders.html';
+                        }
                     } else {
-                        alert("আপনার ওয়ালেটে পর্যাপ্ত ব্যালেন্স নেই।");
+                        alert("বিকাশ/নগদ অটো পেমেন্ট গেটওয়ে শীঘ্রই আসছে...");
                     }
                 };
 
@@ -268,11 +284,12 @@
 
                 onMounted(() => {
                     fetchProduct();
+                    fetchUserBalance(); // পেজ লোড হলে ব্যালেন্স আনবে
                 });
 
                 return {
                     loading, product, packages, selectedPackage, 
-                    playerId, paymentMethod, handleBuy, handleImageError
+                    playerId, paymentMethod, userBalance, handleBuy, handleImageError
                 };
             }
         }).mount('#app');

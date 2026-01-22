@@ -36,8 +36,9 @@
                 
                 <!-- Wallet & Profile -->
                 <div class="flex items-center gap-2">
+                    <!-- 🔥 UPDATED: Balance Display -->
                     <a href="add-money.html" class="bg-[#583cb3] text-white px-3 py-1 rounded-md text-sm font-bold flex items-center gap-2 shadow-sm no-underline">
-                        <i class="fa-solid fa-wallet"></i> ০ ৳
+                        <i class="fa-solid fa-wallet"></i> {{ userBalance }} ৳
                     </a>
                     <a href="account.html" class="w-8 h-8 rounded-full overflow-hidden border border-gray-300">
                         <img src="https://i.pravatar.cc/150?img=12" class="w-full h-full object-cover">
@@ -140,24 +141,6 @@
                     </div>
                 </div>
 
-                <!-- LATEST ORDERS -->
-                <div v-if="latestOrders.length > 0" class="mt-8 bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
-                    <h2 class="text-center font-serif text-lg font-bold text-[#1e3a8a] mb-1">Latest Orders</h2>
-                    <p class="text-center text-[10px] text-gray-500 mb-4">সাম্প্রতিক সম্পন্ন হওয়া অর্ডারগুলো</p>
-                    <div class="space-y-3">
-                        <div v-for="order in latestOrders" :key="order.id" class="flex items-center justify-between border-b border-gray-50 pb-2 last:border-0 last:pb-0">
-                            <div class="flex items-center gap-3">
-                                <div :class="order.bgColor" class="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm">{{ order.avatar }}</div>
-                                <div>
-                                    <h4 class="font-bold text-xs text-gray-800 flex items-center gap-1">{{ order.name }} <i v-if="order.verified" class="fa-solid fa-circle-check text-blue-500 text-[10px]"></i></h4>
-                                    <p class="text-[9px] text-gray-400">{{ order.item }} • {{ order.time }}</p>
-                                </div>
-                            </div>
-                            <span class="bg-green-100 text-green-700 border border-green-200 text-[9px] font-bold px-2 py-0.5 rounded-full">Completed</span>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- DOWNLOAD APP -->
                 <div class="mt-8 mb-6 text-center">
                     <h3 class="font-bold text-gray-600 text-xs mb-3 tracking-widest">DOWNLOAD OUR MOBILE APP</h3>
@@ -172,59 +155,31 @@
                 <h3 class="font-serif font-bold text-sm mb-4 tracking-widest text-gray-400">STAY CONNECTED</h3>
                 <div class="flex justify-center gap-4 mb-8">
                     <a href="#" class="social-icon bg-white/5 hover:bg-white/10"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="#" class="social-icon bg-white/5 hover:bg-white/10"><i class="fa-brands fa-youtube"></i></a>
                     <a href="#" class="social-icon bg-white/5 hover:bg-white/10"><i class="fa-brands fa-telegram"></i></a>
                 </div>
-                <h3 class="font-serif font-bold text-sm mb-3 tracking-widest text-gray-400">SUPPORT CENTER</h3>
-                <div class="space-y-3 px-4">
-                    <a href="#" class="support-btn group"><i class="fa-brands fa-telegram text-2xl group-hover:scale-110 transition"></i><div class="text-left"><div class="text-[9px] opacity-60">Help Line (10AM-12PM)</div><div class="font-bold text-sm">টেলিগ্রাম সাপোর্ট</div></div></a>
-                    <a href="#" class="support-btn group"><i class="fa-brands fa-whatsapp text-2xl group-hover:scale-110 transition"></i><div class="text-left"><div class="text-[9px] opacity-60">Help Line (10AM-12PM)</div><div class="font-bold text-sm">হোয়াটসঅ্যাপ সাপোর্ট</div></div></a>
-                </div>
-                <p class="text-[10px] text-gray-600 mt-8">© FREE TOPUP PRO 2026 | All Rights Reserved</p>
+                <p class="text-[10px] text-gray-600 mt-8">© FREE TOPUP PRO 2026</p>
             </div>
         </footer>
-
-        <!-- Floating Help Button -->
-        <div class="fixed bottom-20 right-4 z-40 flex items-center gap-2">
-            <span class="bg-[#dc2626] text-white text-[10px] font-bold px-2 py-1 rounded shadow animate-bounce">সাহায্য লাগবে ?</span>
-            <button class="bg-[#dc2626] text-white w-11 h-11 rounded-full shadow-lg flex items-center justify-center hover:bg-red-700 transition active:scale-95"><i class="fa-solid fa-headset text-lg"></i></button>
-        </div>
 
         <!-- FIXED BOTTOM NAVIGATION -->
         <div class="fixed bottom-0 w-full bg-white border-t border-gray-200 z-50 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
             <div class="grid grid-cols-5 h-16 max-w-md mx-auto">
-                <a href="index.html" class="nav-item active">
-                    <i class="fa-solid fa-house"></i>
-                    <span>Home</span>
-                </a>
-                <a href="add-money.html" class="nav-item">
-                    <i class="fa-solid fa-wallet"></i>
-                    <span>Add Money</span>
-                </a>
-                <a href="orders.html" class="nav-item">
-                    <i class="fa-solid fa-file-invoice"></i>
-                    <span>My Orders</span>
-                </a>
-                <a href="codes.html" class="nav-item">
-                    <i class="fa-solid fa-gift"></i>
-                    <span>My Codes</span>
-                </a>
-                <a href="account.html" class="nav-item">
-                    <i class="fa-solid fa-user"></i>
-                    <span>Account</span>
-                </a>
+                <a href="index.html" class="nav-item active"><i class="fa-solid fa-house"></i><span>Home</span></a>
+                <a href="add-money.html" class="nav-item"><i class="fa-solid fa-wallet"></i><span>Add Money</span></a>
+                <a href="orders.html" class="nav-item"><i class="fa-solid fa-file-invoice"></i><span>My Orders</span></a>
+                <a href="codes.html" class="nav-item"><i class="fa-solid fa-gift"></i><span>My Codes</span></a>
+                <a href="account.html" class="nav-item"><i class="fa-solid fa-user"></i><span>Account</span></a>
             </div>
         </div>
-
     </div>
 
     <!-- Swiper JS -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
 
-    <!-- Main Logic with Caching System -->
+    <!-- Main Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { createApp, ref, onMounted, nextTick } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
         // Firebase Config
@@ -243,6 +198,7 @@
         createApp({
             setup() {
                 const loading = ref(true);
+                const userBalance = ref(0); // 🔥 ব্যালেন্স ভেরিয়েবল
                 const noticeMessage = ref("");
                 const banners = ref([]);
                 const mysteryBoxes = ref([]);
@@ -251,35 +207,35 @@
                 const ingameItems = ref([]);
                 const subscriptions = ref([]);
                 
-                const latestOrders = ref([
-                    { id: 1, name: 'Md Solim', avatar: 'MS', bgColor: 'bg-purple-500', item: '115 Diamonds', time: '1 min ago', verified: true },
-                    { id: 2, name: 'Rakibul', avatar: 'R', bgColor: 'bg-orange-500', item: 'Weekly Plus', time: '3 min ago', verified: true },
-                    { id: 3, name: 'Hasan', avatar: 'H', bgColor: 'bg-blue-500', item: 'Level Up Pass', time: '5 min ago', verified: true }
-                ]);
+                const userId = localStorage.getItem('userId');
 
                 // Go To Details Page
                 const goToDetails = (id) => {
-                    if (id) {
-                        window.location.href = `details.html?id=${id}`;
-                    } else {
-                        alert("Product ID not found!");
-                    }
+                    if (id) window.location.href = `details.html?id=${id}`;
                 };
 
                 const handleImageError = (e) => {
                     e.target.src = "https://placehold.co/400x400?text=No+Image";
                 };
 
-                // === SMART DATA FETCHING (CACHE SYSTEM) ===
+                // 🔥 নতুন: ইউজারের ব্যালেন্স আনার ফাংশন
+                const fetchUserBalance = async () => {
+                    if (!userId) return;
+                    try {
+                        const userDoc = await getDoc(doc(db, "users", userId));
+                        if (userDoc.exists()) {
+                            userBalance.value = userDoc.data().balance || 0;
+                        }
+                    } catch (error) {
+                        console.error("Balance Error:", error);
+                    }
+                };
+
                 const fetchData = async () => {
-                    
-                    // ১. ব্রাউজারে সেভ করা ডাটা আছে কিনা চেক করা
                     const cachedData = sessionStorage.getItem('homePageData');
                     
                     if (cachedData) {
-                        // ডাটা থাকলে লোডিং বন্ধ করে ডাটা দেখাবে
                         const parsedData = JSON.parse(cachedData);
-                        
                         noticeMessage.value = parsedData.notice;
                         mysteryBoxes.value = parsedData.mystery;
                         specialOffers.value = parsedData.special;
@@ -287,15 +243,12 @@
                         ingameItems.value = parsedData.ingame;
                         subscriptions.value = parsedData.subs;
                         banners.value = parsedData.banners;
-                        
                         loading.value = false;
-                        initSlider(); // স্লাইডার চালু
+                        initSlider();
                     }
 
-                    // ২. ব্যাকগ্রাউন্ডে ফ্রেশ ডাটা আনা (Firebase থেকে)
                     try {
                         const productsSnap = await getDocs(collection(db, "products"));
-                        
                         let tmpMystery = [], tmpSpecial = [], tmpFreeFire = [], tmpIngame = [], tmpSubs = [];
 
                         productsSnap.forEach((doc) => {
@@ -311,12 +264,14 @@
                         try {
                             const bannerSnap = await getDocs(collection(db, "banners"));
                             tmpBanners = bannerSnap.docs.map(doc => doc.data().image);
-                        } catch(e) {
-                             if(!cachedData) tmpBanners = ["https://placehold.co/600x250/583cb3/FFF?text=Welcome+Offer"];
-                        }
+                        } catch(e) {}
 
-                        // ৩. নতুন ডাটা আপডেট করা
-                        noticeMessage.value = "আসসালামু আলাইকুম। আমাদের সাইটে বিকাশ, নগদ এবং রকেটের মাধ্যমে পেমেন্ট করতে পারবেন। সকাল ১০টা থেকে রাত ১০টা পর্যন্ত অর্ডার কমপ্লিট করা হয়।";
+                        // Notice Text from Firestore or fallback
+                        try {
+                           const nSnap = await getDoc(doc(db, "settings", "notice"));
+                           noticeMessage.value = nSnap.exists() ? nSnap.data().text : "Welcome to Free TopUp Pro!";
+                        } catch(e) { noticeMessage.value = "Welcome to Free TopUp Pro!"; }
+
                         mysteryBoxes.value = tmpMystery;
                         specialOffers.value = tmpSpecial;
                         freeFireItems.value = tmpFreeFire;
@@ -324,7 +279,6 @@
                         subscriptions.value = tmpSubs;
                         if(tmpBanners.length > 0) banners.value = tmpBanners;
 
-                        // ৪. ডাটা ব্রাউজারে সেভ করে রাখা
                         const dataToSave = {
                             notice: noticeMessage.value,
                             mystery: tmpMystery,
@@ -341,7 +295,6 @@
 
                     } catch (error) {
                         console.error("Data Load Error:", error);
-                        if(!cachedData) noticeMessage.value = "ইন্টারনেট কানেকশন চেক করুন!";
                         loading.value = false;
                     }
                 };
@@ -360,12 +313,13 @@
 
                 onMounted(() => {
                     fetchData();
+                    fetchUserBalance(); // 🔥 পেজ লোড হলে ব্যালেন্স চেক করবে
                 });
 
                 return {
-                    loading, noticeMessage, banners,
+                    loading, userBalance, noticeMessage, banners,
                     mysteryBoxes, specialOffers, freeFireItems, ingameItems, subscriptions,
-                    latestOrders, goToDetails, handleImageError
+                    goToDetails, handleImageError
                 };
             }
         }).mount('#app');
