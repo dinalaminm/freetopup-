@@ -11,34 +11,63 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Roboto:wght@400;500;700&family=Noto+Serif+Bengali:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- Global CSS -->
-    <link rel="stylesheet" href="assets/css/style.css">
-
     <style>
-        .step-circle {
-            width: 24px; height: 24px; background-color: #583cb3; color: white;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 12px; font-weight: bold; margin-right: 8px; flex-shrink: 0;
-        }
-        .active-package { 
-            border: 2px solid #583cb3 !important; 
-            background-color: #f3f0ff; 
-            position: relative; 
-        }
-        .check-icon {
-            position: absolute; top: -8px; right: -8px; background: #583cb3;
-            color: white; border-radius: 50%; padding: 2px; font-size: 10px; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center;
-        }
+        body { font-family: 'Roboto', sans-serif; background-color: #f0f5ff; }
+        [v-cloak] { display: none !important; }
+        .step-circle { width: 24px; height: 24px; background-color: #583cb3; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; margin-right: 8px; flex-shrink: 0; }
+        .active-package { border: 2px solid #583cb3 !important; background-color: #f3f0ff; position: relative; }
+        .check-icon { position: absolute; top: -8px; right: -8px; background: #583cb3; color: white; border-radius: 50%; padding: 2px; font-size: 10px; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; color: #64748b; text-decoration: none; }
+        .nav-item i { font-size: 18px; margin-bottom: 4px; }
+        .nav-item.active { color: #583cb3; font-weight: 700; }
+        
+        /* Modal Animation */
+        .pop-enter-active { transition: all 0.3s ease-out; }
+        .pop-leave-active { transition: all 0.2s ease-in; }
+        .pop-enter-from, .pop-leave-to { opacity: 0; transform: scale(0.9); }
     </style>
 </head>
 <body class="bg-[#f0f5ff]">
 
-    <div id="app" v-cloak>
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen relative flex flex-col">
         
-        <!-- Header with Back Button -->
+        <!-- 🔥 CUSTOM POPUP MODAL 🔥 -->
+        <transition name="pop">
+            <div v-if="popup.show" class="fixed inset-0 z-[100] flex items-center justify-center px-6">
+                <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="closePopup"></div>
+                <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm relative z-10 text-center transform transition-all">
+                    
+                    <div v-if="popup.type === 'success'" class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-500">
+                        <i class="fa-solid fa-check text-3xl"></i>
+                    </div>
+                    <div v-else-if="popup.type === 'confirm'" class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500">
+                        <i class="fa-solid fa-cart-shopping text-3xl"></i>
+                    </div>
+                    <div v-else class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-red-500">
+                        <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">{{ popup.title }}</h3>
+                    <p class="text-sm text-gray-500 mb-6 leading-relaxed">{{ popup.msg }}</p>
+                    
+                    <div v-if="popup.type === 'confirm'" class="flex gap-3">
+                        <button @click="closePopup" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-bold">Cancel</button>
+                        <button @click="confirmPurchaseAction" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg">Confirm</button>
+                    </div>
+                    <button v-else @click="closePopup" 
+                        :class="popup.type === 'success' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'"
+                        class="w-full text-white py-3 rounded-xl font-bold transition shadow-lg active:scale-95">
+                        {{ popup.btnText }}
+                    </button>
+                </div>
+            </div>
+        </transition>
+
+        <!-- Header -->
         <header class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200">
             <div class="container mx-auto px-3 py-3 flex justify-between items-center max-w-md">
-                <a href="index.html" class="flex items-center gap-2 text-gray-700 font-bold hover:text-purple-700 transition">
+                <a href="index.html" class="flex items-center gap-2 text-gray-700 font-bold hover:text-purple-700 transition no-underline">
                     <i class="fa-solid fa-arrow-left text-lg"></i>
                     <span>Back</span>
                 </a>
@@ -70,15 +99,12 @@
                     <h3 class="flex items-center font-bold text-gray-800 mb-3 border-b pb-2">
                         <div class="step-circle">1</div> Select Package
                     </h3>
-                    
                     <div class="grid grid-cols-2 gap-3">
                         <div v-for="pack in packages" :key="pack.id" 
                              @click="selectedPackage = pack"
                              :class="selectedPackage?.id === pack.id ? 'active-package' : 'border border-gray-200'"
                              class="p-3 rounded-lg text-center cursor-pointer hover:border-purple-300 transition relative bg-gray-50">
-                            
                             <div v-if="selectedPackage?.id === pack.id" class="check-icon"><i class="fa-solid fa-check"></i></div>
-                            
                             <div class="font-bold text-sm text-gray-700">{{ pack.name }}</div>
                             <div class="text-[#583cb3] font-bold text-base mt-1">৳ {{ pack.price }}</div>
                         </div>
@@ -90,7 +116,6 @@
                     <h3 class="flex items-center font-bold text-gray-800 mb-3 border-b pb-2">
                         <div class="step-circle">2</div> Account Info
                     </h3>
-                    
                     <div class="mb-2">
                         <label class="text-xs font-bold text-gray-600 block mb-1">Player ID (UID)</label>
                         <input v-model="playerId" type="tel" placeholder="Enter UID (e.g. 12345678)" 
@@ -99,22 +124,18 @@
                     </div>
                 </div>
 
-                <!-- STEP 3: Select Payment -->
+                <!-- STEP 3: Payment Method -->
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-4">
                     <h3 class="flex items-center font-bold text-gray-800 mb-3 border-b pb-2">
                         <div class="step-circle">3</div> Payment Method
                     </h3>
-                    
                     <div class="grid grid-cols-2 gap-3">
-                        <!-- 🔥 Wallet Option Updated -->
                         <div @click="paymentMethod = 'wallet'" :class="paymentMethod === 'wallet' ? 'active-package' : 'border-gray-200'" class="border rounded-lg p-3 text-center cursor-pointer relative">
                             <div v-if="paymentMethod === 'wallet'" class="check-icon"><i class="fa-solid fa-check"></i></div>
                             <i class="fa-solid fa-wallet text-2xl text-orange-500 mb-1"></i>
                             <div class="text-xs font-bold">Wallet Balance</div>
                             <div class="text-[10px] text-gray-500">Available: {{ userBalance }} ৳</div>
                         </div>
-
-                        <!-- Instant Pay Option -->
                         <div @click="paymentMethod = 'instant'" :class="paymentMethod === 'instant' ? 'active-package' : 'border-gray-200'" class="border rounded-lg p-3 text-center cursor-pointer relative">
                             <div v-if="paymentMethod === 'instant'" class="check-icon"><i class="fa-solid fa-check"></i></div>
                             <div class="flex justify-center gap-2 mb-2 items-center h-7">
@@ -126,7 +147,6 @@
                         </div>
                     </div>
 
-                    <!-- Checkout Section -->
                     <div class="mt-6 pt-4 border-t border-dashed border-gray-300">
                         <div class="flex justify-between text-sm font-bold text-gray-600 mb-1">
                             <span>Package Price:</span>
@@ -140,7 +160,7 @@
                         <button @click="handleBuy" 
                                 :disabled="!selectedPackage || !playerId"
                                 :class="(!selectedPackage || !playerId) ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#583cb3] hover:bg-purple-800 shadow-lg shadow-purple-200'"
-                                class="w-full text-white py-3.5 rounded-xl font-bold text-base transition flex justify-center items-center gap-2">
+                                class="w-full text-white py-3.5 rounded-xl font-bold text-base transition flex justify-center items-center gap-2 active:scale-95">
                             <span>Confirm Purchase</span> <i class="fa-solid fa-arrow-right"></i>
                         </button>
                     </div>
@@ -148,7 +168,7 @@
             </div>
         </main>
 
-        <!-- Fixed Bottom Nav -->
+        <!-- Bottom Nav -->
         <div class="fixed bottom-0 w-full bg-white border-t border-gray-200 z-50 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
             <div class="grid grid-cols-5 h-16 max-w-md mx-auto">
                 <a href="index.html" class="nav-item"><i class="fa-solid fa-house"></i><span>Home</span></a>
@@ -158,7 +178,6 @@
                 <a href="account.html" class="nav-item"><i class="fa-solid fa-user"></i><span>Account</span></a>
             </div>
         </div>
-
     </div>
 
     <!-- Logic -->
@@ -187,11 +206,22 @@
                 const playerId = ref('');
                 const paymentMethod = ref('instant');
                 const packages = ref([]);
-                const userBalance = ref(0); // 🔥 ব্যালেন্স ভেরিয়েবল
+                const userBalance = ref(0);
+                
+                // 🔥 POPUP STATE
+                const popup = ref({ show: false, type: '', title: '', msg: '', btnText: 'OK' });
                 
                 const userId = localStorage.getItem('userId');
 
-                // Generate Dummy Packages
+                // Helper Functions
+                const showPopup = (type, title, msg, btnText = "OK") => {
+                    popup.value = { show: true, type, title, msg, btnText };
+                };
+                const closePopup = () => {
+                    if (popup.value.type === 'success') window.location.href = 'orders.html';
+                    else popup.value.show = false;
+                };
+
                 const generatePackages = (basePrice) => {
                     const price = Number(basePrice) || 100;
                     packages.value = [
@@ -206,90 +236,72 @@
                 const fetchProduct = async () => {
                     const params = new URLSearchParams(window.location.search);
                     const id = params.get('id');
-
-                    if (!id) {
-                        alert("Product ID Missing!");
-                        window.location.href = 'index.html';
-                        return;
-                    }
-
+                    if (!id) { window.location.href = 'index.html'; return; }
+                    
                     try {
                         const docRef = doc(db, "products", id);
                         const docSnap = await getDoc(docRef);
-
                         if (docSnap.exists()) {
                             product.value = docSnap.data();
                             generatePackages(product.value.price);
-                        } else {
-                            alert("প্রোডাক্ট পাওয়া যায়নি।");
-                            window.location.href = 'index.html';
                         }
-                    } catch (error) {
-                        console.error("Error:", error);
-                    } finally {
-                        loading.value = false;
-                    }
+                    } catch (e) { console.error(e); } 
+                    finally { loading.value = false; }
                 };
 
-                // 🔥 ব্যালেন্স আনার ফাংশন
                 const fetchUserBalance = async () => {
                     if (!userId) return;
                     try {
                         const userDoc = await getDoc(doc(db, "users", userId));
-                        if (userDoc.exists()) {
-                            userBalance.value = userDoc.data().balance || 0;
-                        }
+                        if (userDoc.exists()) userBalance.value = userDoc.data().balance || 0;
                     } catch (e) { console.error(e); }
                 };
 
-                // 🔥 অর্ডার প্রসেস
-                const handleBuy = async () => {
-                    if(!selectedPackage.value) return alert("প্যাকেজ সিলেক্ট করুন।");
-                    if(!playerId.value) return alert("Player ID দিন।");
-                    
+                const handleBuy = () => {
+                    if(!selectedPackage.value) return showPopup('error', 'Select Package', 'Please select a package first.');
+                    if(!playerId.value) return showPopup('error', 'Missing UID', 'Please enter your Player ID.');
+
                     if(paymentMethod.value === 'wallet') {
                         if (userBalance.value < selectedPackage.value.price) {
-                            alert("ওয়ালেটে পর্যাপ্ত টাকা নেই। দয়া করে Add Money করুন।");
+                            showPopup('error', 'Insufficient Balance', 'Please add money to your wallet.', 'Add Money');
                             return;
                         }
-
-                        if(confirm(`আপনি কি ${selectedPackage.value.price} টাকা দিয়ে এই প্যাকেজটি কিনতে চান?`)) {
-                            // ১. অর্ডার তৈরি
-                            await addDoc(collection(db, "orders"), {
-                                userId: userId,
-                                packageName: selectedPackage.value.name,
-                                price: selectedPackage.value.price,
-                                playerId: playerId.value,
-                                status: 'pending',
-                                createdAt: serverTimestamp()
-                            });
-
-                            // ২. ব্যালেন্স কাটা
-                            const userRef = doc(db, "users", userId);
-                            await updateDoc(userRef, {
-                                balance: increment(-selectedPackage.value.price)
-                            });
-
-                            alert("অর্ডার সফল হয়েছে! হিস্টোরি চেক করুন।");
-                            window.location.href = 'orders.html';
-                        }
+                        // Show Confirmation Modal
+                        showPopup('confirm', 'Confirm Order', `Pay ${selectedPackage.value.price} Tk for ${selectedPackage.value.name}?`, 'Confirm');
                     } else {
-                        alert("বিকাশ/নগদ অটো পেমেন্ট গেটওয়ে শীঘ্রই আসছে...");
+                        showPopup('error', 'Coming Soon', 'Mobile Banking Auto Payment is coming soon!', 'OK');
                     }
                 };
 
-                const handleImageError = (e) => {
-                    e.target.src = "https://placehold.co/400x400?text=No+Image";
+                const confirmPurchaseAction = async () => {
+                    try {
+                        await addDoc(collection(db, "orders"), {
+                            userId: userId,
+                            packageName: selectedPackage.value.name,
+                            price: selectedPackage.value.price,
+                            playerId: playerId.value,
+                            status: 'pending',
+                            createdAt: serverTimestamp()
+                        });
+                        const userRef = doc(db, "users", userId);
+                        await updateDoc(userRef, { balance: increment(-selectedPackage.value.price) });
+                        
+                        showPopup('success', 'Order Successful', 'Your order has been placed successfully!', 'Go to Orders');
+                    } catch (e) {
+                        showPopup('error', 'Failed', 'Something went wrong. Try again.');
+                    }
                 };
+
+                const handleImageError = (e) => e.target.src = "https://placehold.co/400x400?text=No+Image";
 
                 onMounted(() => {
                     fetchProduct();
-                    fetchUserBalance(); // পেজ লোড হলে ব্যালেন্স আনবে
+                    fetchUserBalance();
                 });
 
                 return {
-                    loading, product, packages, selectedPackage, 
-                    playerId, paymentMethod, userBalance, handleBuy, handleImageError
+                    loading, product, packages, selectedPackage, playerId, paymentMethod, userBalance, 
+                    handleBuy, handleImageError, popup, closePopup, confirmPurchaseAction
                 };
             }
         }).mount('#app');
