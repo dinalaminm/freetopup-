@@ -21,15 +21,39 @@
         .nav-item i { font-size: 18px; margin-bottom: 4px; }
         .nav-item.active { color: #583cb3; font-weight: 700; }
 
-        /* Animation */
+        /* Page Transition */
         .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
         .fade-enter-from, .fade-leave-to { opacity: 0; }
+
+        /* 🔥 POPUP ANIMATION 🔥 */
+        .pop-enter-active, .pop-leave-active { transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        .pop-enter-from, .pop-leave-to { opacity: 0; transform: scale(0.8); }
     </style>
 </head>
 <body class="bg-[#f0f5ff]">
 
     <div id="app" v-cloak class="max-w-md mx-auto min-h-screen relative flex flex-col">
         
+        <!-- 🔥 CUSTOM ALERT POPUP 🔥 -->
+        <transition name="pop">
+            <div v-if="alertState.show" class="fixed inset-0 z-[100] flex items-center justify-center px-6">
+                <!-- Backdrop -->
+                <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" @click="alertState.show = false"></div>
+                
+                <!-- Modal Card -->
+                <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm relative z-10 text-center transform transition-all">
+                    <div class="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-red-500">
+                        <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">Attention!</h3>
+                    <p class="text-sm text-gray-500 mb-6 leading-relaxed">{{ alertState.msg }}</p>
+                    <button @click="alertState.show = false" class="w-full bg-[#583cb3] text-white py-3 rounded-xl font-bold hover:bg-purple-700 transition shadow-lg">
+                        OK, Got it
+                    </button>
+                </div>
+            </div>
+        </transition>
+
         <!-- HEADER -->
         <header class="bg-white shadow-sm border-b p-3 flex items-center sticky top-0 z-50">
             <a v-if="step === 1" href="index.html" class="mr-3 text-gray-600"><i class="fa-solid fa-arrow-left text-lg"></i></a>
@@ -77,24 +101,21 @@
                 <div v-if="step === 2">
                     <h2 class="font-bold text-gray-700 mb-4">Select Payment Method</h2>
                     <div class="space-y-3">
-                        <!-- Bkash -->
-                        <div @click="selectMethod('bkash')" class="bg-white p-4 rounded-xl border border-gray-200 flex items-center justify-between cursor-pointer hover:border-pink-500 shadow-sm">
+                        <div @click="selectMethod('bkash')" class="bg-white p-4 rounded-xl border border-gray-200 flex items-center justify-between cursor-pointer hover:border-pink-500 shadow-sm transition">
                             <div class="flex items-center gap-4">
                                 <img src="https://seeklogo.com/images/B/bkash-logo-FBB258B90F-seeklogo.com.png" class="w-10">
                                 <span class="font-bold text-gray-700">bKash</span>
                             </div>
                             <i class="fa-solid fa-chevron-right text-gray-400"></i>
                         </div>
-                        <!-- Nagad -->
-                        <div @click="selectMethod('nagad')" class="bg-white p-4 rounded-xl border border-gray-200 flex items-center justify-between cursor-pointer hover:border-orange-500 shadow-sm">
+                        <div @click="selectMethod('nagad')" class="bg-white p-4 rounded-xl border border-gray-200 flex items-center justify-between cursor-pointer hover:border-orange-500 shadow-sm transition">
                             <div class="flex items-center gap-4">
                                 <img src="https://seeklogo.com/images/N/nagad-logo-7A70CCFEE0-seeklogo.com.png" class="w-10">
                                 <span class="font-bold text-gray-700">Nagad</span>
                             </div>
                             <i class="fa-solid fa-chevron-right text-gray-400"></i>
                         </div>
-                        <!-- Rocket -->
-                        <div @click="selectMethod('rocket')" class="bg-white p-4 rounded-xl border border-gray-200 flex items-center justify-between cursor-pointer hover:border-purple-500 shadow-sm">
+                        <div @click="selectMethod('rocket')" class="bg-white p-4 rounded-xl border border-gray-200 flex items-center justify-between cursor-pointer hover:border-purple-500 shadow-sm transition">
                             <div class="flex items-center gap-4">
                                 <img src="https://seeklogo.com/images/D/dutch-bangla-rocket-logo-B4D1CC458D-seeklogo.com.png" class="w-10">
                                 <span class="font-bold text-gray-700">Rocket</span>
@@ -109,10 +130,10 @@
             <transition name="fade">
                 <div v-if="step === 3" class="h-full">
                     
-                    <!-- Dynamic Header based on Method -->
-                    <div :class="gatewayColor" class="rounded-t-2xl p-4 text-white flex items-center justify-between shadow-md">
+                    <!-- Dynamic Header -->
+                    <div :class="gatewayColor" class="rounded-t-2xl p-4 text-white flex items-center justify-between shadow-md transition-colors duration-300">
                         <div class="flex items-center gap-3">
-                            <div class="bg-white p-1 rounded">
+                            <div class="bg-white p-1 rounded shadow-sm">
                                 <img :src="methodLogo" class="w-8 h-8 object-contain">
                             </div>
                             <div>
@@ -129,43 +150,38 @@
                     <!-- Payment Body -->
                     <div class="bg-white p-5 rounded-b-2xl shadow-sm border-x border-b border-gray-200">
                         
-                        <!-- To Info -->
                         <div class="mb-6 text-center">
                             <p class="text-xs text-gray-500 mb-1">Send Money To (Personal)</p>
                             <div class="flex items-center justify-center gap-2 bg-gray-50 p-2 rounded-lg border border-dashed border-gray-300">
                                 <span class="font-mono font-bold text-lg text-gray-800 tracking-wide select-all">{{ adminNumber }}</span>
-                                <button @click="copyNumber" class="text-xs bg-gray-200 px-2 py-1 rounded hover:bg-gray-300 font-bold"><i class="fa-regular fa-copy"></i></button>
+                                <button @click="copyNumber" class="text-xs bg-gray-200 px-2 py-1 rounded hover:bg-gray-300 font-bold active:scale-90 transition"><i class="fa-regular fa-copy"></i></button>
                             </div>
                         </div>
 
-                        <!-- Instructions -->
                         <div class="text-[10px] text-gray-500 mb-6 bg-yellow-50 p-2 rounded border border-yellow-100">
                             <i class="fa-solid fa-circle-info text-yellow-600"></i> 
                             আপনার {{ method }} অ্যাপ থেকে উপরের নাম্বারে <b>Send Money</b> করুন। এরপর নিচের বক্সে TrxID দিন।
                         </div>
 
-                        <!-- Inputs -->
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-xs font-bold text-gray-600 mb-1">Account Number (Sender)</label>
-                                <input v-model="senderNumber" type="tel" placeholder="017xxxxxxxx" class="w-full border border-gray-300 p-3 rounded-lg text-sm outline-none focus:border-gray-400 transition bg-gray-50">
+                                <input v-model="senderNumber" type="tel" placeholder="017xxxxxxxx" class="w-full border border-gray-300 p-3 rounded-lg text-sm outline-none focus:border-gray-400 transition bg-gray-50 focus:bg-white">
                             </div>
                             
                             <div>
                                 <label class="block text-xs font-bold text-gray-600 mb-1">Transaction ID (TrxID)</label>
-                                <input v-model="trxId" type="text" placeholder="e.g. 9H7G6..." class="w-full border border-gray-300 p-3 rounded-lg text-sm outline-none focus:border-gray-400 transition uppercase bg-gray-50 font-mono">
+                                <input v-model="trxId" type="text" placeholder="e.g. 9H7G6..." class="w-full border border-gray-300 p-3 rounded-lg text-sm outline-none focus:border-gray-400 transition uppercase bg-gray-50 font-mono focus:bg-white">
                             </div>
                         </div>
 
-                        <!-- Submit Btn -->
-                        <button @click="submitPayment" :disabled="loading" :class="gatewayButtonColor" class="w-full text-white py-3 rounded-lg font-bold shadow-lg mt-8 transition flex justify-center items-center gap-2">
+                        <button @click="submitPayment" :disabled="loading" :class="gatewayButtonColor" class="w-full text-white py-3 rounded-lg font-bold shadow-lg mt-8 transition flex justify-center items-center gap-2 active:scale-95">
                             <span v-if="loading" class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
                             <span v-else>CONFIRM PAYMENT</span>
                         </button>
 
                     </div>
                     
-                    <!-- Safety Badge -->
                     <div class="mt-6 flex justify-center items-center gap-2 text-gray-400 text-[10px]">
                         <i class="fa-solid fa-shield-halved"></i>
                         <span>100% Secure & Encrypted Payment</span>
@@ -192,7 +208,7 @@
     <!-- Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { createApp, ref, computed, onMounted } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
         const firebaseConfig = {
@@ -217,19 +233,24 @@
                 const loading = ref(false);
                 const adminNumber = ref('Loading...');
                 
-                // User check
+                // 🔥 NEW ALERT STATE
+                const alertState = ref({ show: false, msg: '' });
+
                 const userId = localStorage.getItem('userId');
                 if(!userId) window.location.href = 'login.html';
 
-                // Fetch Admin Number
+                // 🔥 NEW CUSTOM ALERT FUNCTION
+                const showError = (message) => {
+                    alertState.value.msg = message;
+                    alertState.value.show = true;
+                };
+
                 const fetchNumber = async () => {
-                    // For now using static or fetch from settings
-                    // You can create a settings/payment doc in firestore
                     adminNumber.value = "01700000000"; 
                 };
 
                 const goToMethod = () => {
-                    if(!amount.value || amount.value < 10) return alert("Minimum amount 10 BDT");
+                    if(!amount.value || amount.value < 10) return showError("Minimum amount is 10 BDT!");
                     step.value = 2;
                 };
 
@@ -238,11 +259,10 @@
                     step.value = 3;
                 };
 
-                // Dynamic Styles based on method
                 const gatewayColor = computed(() => {
                     if(method.value === 'bkash') return 'bg-[#e2136e]';
                     if(method.value === 'nagad') return 'bg-[#ec1c24]';
-                    return 'bg-[#8c3494]'; // rocket
+                    return 'bg-[#8c3494]';
                 });
 
                 const gatewayButtonColor = computed(() => {
@@ -259,11 +279,11 @@
 
                 const copyNumber = () => {
                     navigator.clipboard.writeText(adminNumber.value);
-                    alert("Number Copied!");
+                    // Optional: Small toast instead of alert, but for now safe to ignore or use modal
                 };
 
                 const submitPayment = async () => {
-                    if(!senderNumber.value || !trxId.value) return alert("Please fill all fields");
+                    if(!senderNumber.value || !trxId.value) return showError("Please fill Sender Number and TrxID!");
                     
                     loading.value = true;
                     try {
@@ -276,11 +296,11 @@
                             status: "pending",
                             createdAt: serverTimestamp()
                         });
-                        alert("Deposit Request Submitted! Please wait for approval.");
+                        alert("Deposit Request Submitted!"); // You can change this to showError for success too
                         window.location.href = "account.html";
                     } catch (e) {
                         console.error(e);
-                        alert("Submission Failed");
+                        showError("Something went wrong! Try again.");
                     } finally {
                         loading.value = false;
                     }
@@ -292,7 +312,9 @@
 
                 return {
                     step, amount, method, senderNumber, trxId, loading, adminNumber,
-                    goToMethod, selectMethod, gatewayColor, gatewayButtonColor, methodLogo, copyNumber, submitPayment
+                    goToMethod, selectMethod, gatewayColor, gatewayButtonColor, methodLogo, copyNumber, submitPayment,
+                    // Exports for Alert
+                    alertState, showError
                 };
             }
         }).mount('#app');
