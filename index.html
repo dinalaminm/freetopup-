@@ -10,19 +10,22 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Roboto:wght@400;500;700&family=Noto+Serif+Bengali:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Roboto:wght@300;400;500;700&family=Noto+Serif+Bengali:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
+        /* আপনার দেওয়া CSS */
         body {
             font-family: 'Roboto', 'Noto Serif Bengali', sans-serif;
-            background-color: #f0f5ff;
             -webkit-tap-highlight-color: transparent;
+            background-color: #f0f5ff;
         }
+
         [v-cloak] { display: none !important; }
-        
+
         /* ফন্ট স্টাইল */
         .font-serif { font-family: 'Bree Serif', serif; letter-spacing: 0.5px; }
-        
+        .font-bengali { font-family: 'Noto Serif Bengali', serif; }
+
         /* সেকশন টাইটেল */
         .section-title {
             text-align: center;
@@ -32,30 +35,48 @@
             font-weight: 700;
             margin-bottom: 1rem;
             text-transform: uppercase;
+            position: relative;
+            display: inline-block;
+            width: 100%;
             padding-top: 1rem;
         }
 
-        /* সোয়াইপার ডট */
+        /* স্লাইডার ডটস */
+        .swiper-pagination-bullet {
+            width: 6px; height: 6px;
+            background: #000; opacity: 0.2;
+            transition: 0.3s;
+        }
         .swiper-pagination-bullet-active {
-            background: #583cb3 !important;
+            background: #583cb3 !important; opacity: 1;
             width: 18px; border-radius: 4px;
         }
 
-        /* কার্ড হোভার ইফেক্ট */
+        /* প্রোডাক্ট কার্ড */
         .product-card {
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            overflow: hidden;
+            background: white;
         }
         .product-card:active { transform: scale(0.95); }
 
         /* বটম নেভিগেশন */
         .nav-item {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-size: 10px; font-weight: 500; color: #64748b; text-decoration: none;
-            transition: color 0.2s;
+            font-size: 10px; font-weight: 500; color: #64748b; cursor: pointer;
+            text-decoration: none; transition: color 0.2s ease;
         }
         .nav-item i { font-size: 18px; margin-bottom: 4px; }
         .nav-item.active { color: #583cb3; font-weight: 700; }
+        .nav-item:active { transform: scale(0.9); }
         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+        /* সাপোর্ট বাটন এনিমেশন */
+        .slide-up-enter-active, .slide-up-leave-active { transition: all 0.3s ease; }
+        .slide-up-enter-from, .slide-up-leave-to { opacity: 0; transform: translateY(20px); }
+        .fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
+        .fade-enter-from, .fade-leave-to { opacity: 0; }
+        .animate-bounce-slow { animation: bounce 2s infinite; }
     </style>
 </head>
 <body class="bg-[#f0f5ff]">
@@ -117,8 +138,6 @@
                     </div>
                 </div>
 
-                <!-- NOTE: Garena Button Removed Here As Requested -->
-
                 <!-- MYSTERY BOX -->
                 <div v-if="mysteryBoxes.length > 0">
                     <h2 class="section-title">MYSTERY BOX</h2>
@@ -171,14 +190,13 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- Extra Space -->
+
                 <div class="h-6"></div>
             </div>
         </main>
 
         <!-- Footer -->
-        <footer class="bg-[#0f172a] text-white pt-8 pb-24 rounded-t-3xl mt-auto">
+        <footer class="bg-[#0f172a] text-white pt-8 pb-32 rounded-t-3xl mt-auto">
             <div class="text-center">
                 <h3 class="font-serif font-bold text-sm mb-4 tracking-widest text-gray-400">STAY CONNECTED</h3>
                 <div class="flex justify-center gap-4 mb-8">
@@ -188,6 +206,34 @@
                 <p class="text-[10px] text-gray-600">© FREE TOPUP PRO 2026</p>
             </div>
         </footer>
+
+        <!-- 🔥 FLOATING SUPPORT WIDGET 🔥 -->
+        <div class="fixed bottom-20 right-4 z-50 flex flex-col items-end gap-3">
+            <transition name="slide-up">
+                <div v-if="showSupport" class="flex flex-col gap-3 items-center">
+                    <a href="https://m.me/YOUR_PAGE" target="_blank" class="w-12 h-12 bg-[#0084ff] rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 transition duration-200">
+                        <i class="fa-brands fa-facebook-messenger text-2xl"></i>
+                    </a>
+                    <a href="https://t.me/YOUR_TELEGRAM" target="_blank" class="w-12 h-12 bg-[#0088cc] rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 transition duration-200">
+                        <i class="fa-brands fa-telegram text-2xl"></i>
+                    </a>
+                </div>
+            </transition>
+
+            <div class="flex items-center gap-2">
+                <transition name="fade">
+                    <div v-if="!showSupport" @click="showSupport = true" class="bg-[#dc2626] text-white text-[10px] font-bold px-3 py-1.5 rounded-l-full rounded-r-lg shadow-md cursor-pointer animate-pulse">
+                        সাহায্য লাগবে ?
+                    </div>
+                </transition>
+                <button @click="showSupport = !showSupport" 
+                    class="w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg transition-transform duration-300 active:scale-90"
+                    :class="showSupport ? 'bg-[#dc2626] rotate-90' : 'bg-[#dc2626]'">
+                    <i v-if="showSupport" class="fa-solid fa-xmark text-xl"></i>
+                    <i v-else class="fa-solid fa-phone text-xl animate-bounce-slow"></i>
+                </button>
+            </div>
+        </div>
 
         <!-- FIXED BOTTOM NAVIGATION -->
         <div class="fixed bottom-0 w-full bg-white border-t border-gray-200 z-50 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
@@ -210,7 +256,7 @@
         import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { createApp, ref, onMounted, nextTick } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
-        // Firebase Config
+        // আপনার Firebase Config
         const firebaseConfig = {
           apiKey: "AIzaSyACUK207BRvtR5yc1UhYLS9FlMitVVlrrE",
           authDomain: "freetopup-fd263.firebaseapp.com",
@@ -226,26 +272,29 @@
         createApp({
             setup() {
                 const loading = ref(true);
-                const userBalance = ref(0);
-                const noticeMessage = ref("Welcome to Free TopUp Pro!");
+                const userBalance = ref(0); // ব্যালেন্স ভেরিয়েবল
+                const noticeMessage = ref("লোড হচ্ছে...");
                 const banners = ref([]);
                 const mysteryBoxes = ref([]);
                 const specialOffers = ref([]);
                 const freeFireItems = ref([]);
                 const ingameItems = ref([]);
+                const subscriptions = ref([]);
+                const showSupport = ref(false); // সাপোর্ট বাটন স্টেট
                 
                 const userId = localStorage.getItem('userId');
 
-                // Go To Details Page
+                // লিংক ওপেন করা
                 const goToDetails = (id) => {
                     if (id) window.location.href = `details.html?id=${id}`;
                 };
 
+                // ইমেজ এরর হ্যান্ডলার
                 const handleImageError = (e) => {
                     e.target.src = "https://placehold.co/400x400?text=No+Image";
                 };
 
-                // ব্যালেন্স ফেচ করা
+                // ব্যালেন্স চেক (হেডারের জন্য)
                 const fetchUserBalance = async () => {
                     if (!userId) return;
                     try {
@@ -258,83 +307,49 @@
                     }
                 };
 
-                // মূল ডাটা ফেচ করা
+                // ডাটা ফেচিং
                 const fetchData = async () => {
                     try {
-                        // ক্যাশ চেক (অপশনাল)
-                        const cachedData = sessionStorage.getItem('homePageData');
-                        if (cachedData) {
-                            const parsed = JSON.parse(cachedData);
-                            mysteryBoxes.value = parsed.mystery;
-                            specialOffers.value = parsed.special;
-                            freeFireItems.value = parsed.freefire;
-                            ingameItems.value = parsed.ingame;
-                            banners.value = parsed.banners;
-                            noticeMessage.value = parsed.notice;
-                            loading.value = false;
-                            initSlider();
-                        }
+                        // নোটিশ সেট করা
+                        noticeMessage.value = "আসসালামু আলাইকুম। আমাদের সাইটে বিকাশ, নগদ এবং রকেটের মাধ্যমে পেমেন্ট করতে পারবেন।";
 
-                        // লাইভ ডাটা আনা
+                        // প্রোডাক্ট আনা
                         const productsSnap = await getDocs(collection(db, "products"));
-                        let tmpMystery = [], tmpSpecial = [], tmpFreeFire = [], tmpIngame = [];
+                        
+                        mysteryBoxes.value = [];
+                        specialOffers.value = [];
+                        freeFireItems.value = [];
+                        ingameItems.value = [];
+                        subscriptions.value = [];
 
                         productsSnap.forEach((doc) => {
                             const item = { id: doc.id, ...doc.data() };
-                            if (item.category === 'mystery') tmpMystery.push(item);
-                            else if (item.category === 'special') tmpSpecial.push(item);
-                            else if (item.category === 'freefire') tmpFreeFire.push(item);
-                            else if (item.category === 'ingame') tmpIngame.push(item);
+                            
+                            if (item.category === 'mystery') mysteryBoxes.value.push(item);
+                            else if (item.category === 'special') specialOffers.value.push(item);
+                            else if (item.category === 'freefire') freeFireItems.value.push(item);
+                            else if (item.category === 'ingame') ingameItems.value.push(item);
+                            else if (item.category === 'subscription') subscriptions.value.push(item);
                         });
 
                         // ব্যানার আনা
-                        let tmpBanners = [];
-                        try {
-                            const bannerSnap = await getDocs(collection(db, "banners"));
-                            tmpBanners = bannerSnap.docs.map(doc => doc.data().image);
-                        } catch(e) {}
+                        const bannerSnap = await getDocs(collection(db, "banners"));
+                        banners.value = bannerSnap.docs.map(doc => doc.data().image);
 
-                        // নোটিশ আনা
-                        try {
-                           const nSnap = await getDoc(doc(db, "settings", "notice"));
-                           if (nSnap.exists()) noticeMessage.value = nSnap.data().text;
-                        } catch(e) {}
-
-                        // ডাটা সেট করা
-                        mysteryBoxes.value = tmpMystery;
-                        specialOffers.value = tmpSpecial;
-                        freeFireItems.value = tmpFreeFire;
-                        ingameItems.value = tmpIngame;
-                        if(tmpBanners.length > 0) banners.value = tmpBanners;
-
-                        // সেশনে সেভ করা
-                        sessionStorage.setItem('homePageData', JSON.stringify({
-                            mystery: tmpMystery,
-                            special: tmpSpecial,
-                            freefire: tmpFreeFire,
-                            ingame: tmpIngame,
-                            banners: banners.value,
-                            notice: noticeMessage.value
-                        }));
-
-                        if (!cachedData) loading.value = false;
-                        initSlider();
-
-                    } catch (error) {
-                        console.error("Data Load Error:", error);
                         loading.value = false;
-                    }
-                };
 
-                const initSlider = async () => {
-                    await nextTick();
-                    const swiperEl = document.querySelector('.mySwiper');
-                    if (swiperEl && !swiperEl.swiper) {
+                        // স্লাইডার ইনিশিয়ালাইজ
+                        await nextTick();
                         new Swiper(".mySwiper", {
                             loop: true,
                             autoplay: { delay: 3000, disableOnInteraction: false },
                             pagination: { el: ".swiper-pagination", clickable: true },
                         });
+
+                    } catch (error) {
+                        console.error("Error:", error);
+                        noticeMessage.value = "ডাটা লোড সমস্যা! (ইন্টারনেট কানেকশন চেক করুন)";
+                        loading.value = false;
                     }
                 };
 
@@ -344,9 +359,9 @@
                 });
 
                 return {
-                    loading, userBalance, noticeMessage, banners,
-                    mysteryBoxes, specialOffers, freeFireItems, ingameItems,
-                    goToDetails, handleImageError
+                    loading, noticeMessage, banners, userBalance,
+                    mysteryBoxes, specialOffers, freeFireItems, ingameItems, subscriptions,
+                    goToDetails, handleImageError, showSupport
                 };
             }
         }).mount('#app');
