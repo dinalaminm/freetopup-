@@ -22,7 +22,7 @@
         <!-- Header -->
         <header class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200">
             <div class="container mx-auto px-3 py-2 flex justify-between items-center max-w-md">
-                <!-- Logo Click Reloads Home -->
+                <!-- Logo -->
                 <a href="index.html" class="flex items-center gap-1 cursor-pointer no-underline">
                     <div class="w-8 h-8 bg-black rounded-full flex items-center justify-center text-white font-bold text-xl relative">
                         <span class="z-10">F</span>
@@ -221,7 +221,7 @@
     <!-- Swiper JS -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
 
-    <!-- Main Logic -->
+    <!-- Main Logic with Caching System -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -243,7 +243,7 @@
         createApp({
             setup() {
                 const loading = ref(true);
-                const noticeMessage = ref("লোড হচ্ছে...");
+                const noticeMessage = ref("");
                 const banners = ref([]);
                 const mysteryBoxes = ref([]);
                 const specialOffers = ref([]);
@@ -270,57 +270,91 @@
                     e.target.src = "https://placehold.co/400x400?text=No+Image";
                 };
 
+                // === SMART DATA FETCHING (CACHE SYSTEM) ===
                 const fetchData = async () => {
-                    try {
-                        noticeMessage.value = "আসসালামু আলাইকুম। আমাদের সাইটে বিকাশ, নগদ এবং রকেটের মাধ্যমে পেমেন্ট করতে পারবেন। সকাল ১০টা থেকে রাত ১০টা পর্যন্ত অর্ডার কমপ্লিট করা হয়।";
+                    
+                    // ১. ব্রাউজারে সেভ করা ডাটা আছে কিনা চেক করা
+                    const cachedData = sessionStorage.getItem('homePageData');
+                    
+                    if (cachedData) {
+                        // ডাটা থাকলে লোডিং বন্ধ করে ডাটা দেখাবে
+                        const parsedData = JSON.parse(cachedData);
+                        
+                        noticeMessage.value = parsedData.notice;
+                        mysteryBoxes.value = parsedData.mystery;
+                        specialOffers.value = parsedData.special;
+                        freeFireItems.value = parsedData.freefire;
+                        ingameItems.value = parsedData.ingame;
+                        subscriptions.value = parsedData.subs;
+                        banners.value = parsedData.banners;
+                        
+                        loading.value = false;
+                        initSlider(); // স্লাইডার চালু
+                    }
 
-                        // Fetch Products from Firestore
+                    // ২. ব্যাকগ্রাউন্ডে ফ্রেশ ডাটা আনা (Firebase থেকে)
+                    try {
                         const productsSnap = await getDocs(collection(db, "products"));
                         
-                        mysteryBoxes.value = [];
-                        specialOffers.value = [];
-                        freeFireItems.value = [];
-                        ingameItems.value = [];
-                        subscriptions.value = [];
+                        let tmpMystery = [], tmpSpecial = [], tmpFreeFire = [], tmpIngame = [], tmpSubs = [];
 
                         productsSnap.forEach((doc) => {
                             const item = { id: doc.id, ...doc.data() };
-                            
-                            if (item.category === 'mystery') mysteryBoxes.value.push(item);
-                            else if (item.category === 'special') specialOffers.value.push(item);
-                            else if (item.category === 'freefire') freeFireItems.value.push(item);
-                            else if (item.category === 'ingame') ingameItems.value.push(item);
-                            else if (item.category === 'subscription') subscriptions.value.push(item);
+                            if (item.category === 'mystery') tmpMystery.push(item);
+                            else if (item.category === 'special') tmpSpecial.push(item);
+                            else if (item.category === 'freefire') tmpFreeFire.push(item);
+                            else if (item.category === 'ingame') tmpIngame.push(item);
+                            else if (item.category === 'subscription') tmpSubs.push(item);
                         });
 
-                        // Fetch Banners (Optional: If banners collection exists)
+                        let tmpBanners = [];
                         try {
                             const bannerSnap = await getDocs(collection(db, "banners"));
-                            banners.value = bannerSnap.docs.map(doc => doc.data().image);
+                            tmpBanners = bannerSnap.docs.map(doc => doc.data().image);
                         } catch(e) {
-                            // Fallback Banners if DB empty
-                            if(banners.value.length === 0) {
-                                banners.value = [
-                                    "https://placehold.co/600x250/583cb3/FFF?text=Welcome+Offer",
-                                    "https://placehold.co/600x250/orange/FFF?text=New+Topup",
-                                ];
-                            }
+                             if(!cachedData) tmpBanners = ["https://placehold.co/600x250/583cb3/FFF?text=Welcome+Offer"];
                         }
 
-                        loading.value = false;
+                        // ৩. নতুন ডাটা আপডেট করা
+                        noticeMessage.value = "আসসালামু আলাইকুম। আমাদের সাইটে বিকাশ, নগদ এবং রকেটের মাধ্যমে পেমেন্ট করতে পারবেন। সকাল ১০টা থেকে রাত ১০টা পর্যন্ত অর্ডার কমপ্লিট করা হয়।";
+                        mysteryBoxes.value = tmpMystery;
+                        specialOffers.value = tmpSpecial;
+                        freeFireItems.value = tmpFreeFire;
+                        ingameItems.value = tmpIngame;
+                        subscriptions.value = tmpSubs;
+                        if(tmpBanners.length > 0) banners.value = tmpBanners;
 
-                        // Initialize Swiper after DOM update
-                        await nextTick();
+                        // ৪. ডাটা ব্রাউজারে সেভ করে রাখা
+                        const dataToSave = {
+                            notice: noticeMessage.value,
+                            mystery: tmpMystery,
+                            special: tmpSpecial,
+                            freefire: tmpFreeFire,
+                            ingame: tmpIngame,
+                            subs: tmpSubs,
+                            banners: banners.value
+                        };
+                        sessionStorage.setItem('homePageData', JSON.stringify(dataToSave));
+
+                        loading.value = false;
+                        if (!cachedData) initSlider();
+
+                    } catch (error) {
+                        console.error("Data Load Error:", error);
+                        if(!cachedData) noticeMessage.value = "ইন্টারনেট কানেকশন চেক করুন!";
+                        loading.value = false;
+                    }
+                };
+
+                const initSlider = async () => {
+                    await nextTick();
+                    const swiperEl = document.querySelector('.mySwiper');
+                    if (swiperEl && !swiperEl.swiper) {
                         new Swiper(".mySwiper", {
                             loop: true,
                             autoplay: { delay: 3000, disableOnInteraction: false },
                             pagination: { el: ".swiper-pagination", clickable: true },
                         });
-
-                    } catch (error) {
-                        console.error("Error fetching data:", error);
-                        noticeMessage.value = "ডাটা লোড সমস্যা! ইন্টারনেট কানেকশন চেক করুন।";
-                        loading.value = false;
                     }
                 };
 

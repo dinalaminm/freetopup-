@@ -2,26 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Product Details - FREE TOPUP PRO</title>
     
+    <!-- CDNs -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Roboto:wght@400;500;700&family=Noto+Serif+Bengali:wght@400;700&display=swap" rel="stylesheet">
     
+    <!-- Global CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
+
+    <!-- Page Specific CSS -->
     <style>
-        [v-cloak] { display: none !important; }
         .step-circle {
             width: 24px; height: 24px; background-color: #583cb3; color: white;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 12px; font-weight: bold; margin-right: 8px;
+            font-size: 12px; font-weight: bold; margin-right: 8px; flex-shrink: 0;
         }
-        .active-package { border: 2px solid #583cb3; background-color: #f3f0ff; position: relative; }
+        .active-package { 
+            border: 2px solid #583cb3 !important; 
+            background-color: #f3f0ff; 
+            position: relative; 
+        }
         .check-icon {
             position: absolute; top: -8px; right: -8px; background: #583cb3;
-            color: white; border-radius: 50%; padding: 2px; font-size: 10px;
+            color: white; border-radius: 50%; padding: 2px; font-size: 10px; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center;
         }
     </style>
 </head>
@@ -29,36 +36,25 @@
 
     <div id="app" v-cloak>
         
-        <!-- Header -->
+        <!-- Header with Back Button -->
         <header class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200">
-            <div class="container mx-auto px-3 py-2 flex justify-between items-center">
-                <a href="index.html" class="flex items-center gap-1 cursor-pointer">
-                    <div class="w-8 h-8 bg-black rounded-full flex items-center justify-center text-white font-bold text-xl relative">
-                        <span class="z-10">F</span>
-                        <div class="absolute w-2 h-2 bg-purple-500 rounded-full top-0 right-0"></div>
-                    </div>
-                    <div class="flex flex-col leading-none">
-                        <span class="font-black text-lg tracking-tight text-black">FREE</span>
-                        <span class="font-bold text-[10px] text-purple-700 tracking-widest">TOPUP PRO</span>
-                    </div>
+            <div class="container mx-auto px-3 py-3 flex justify-between items-center max-w-md">
+                <a href="index.html" class="flex items-center gap-2 text-gray-700 font-bold hover:text-purple-700 transition">
+                    <i class="fa-solid fa-arrow-left text-lg"></i>
+                    <span>Back</span>
                 </a>
-                <div class="flex items-center gap-3">
-                    <button class="bg-[#583cb3] text-white px-4 py-1.5 rounded-full text-sm font-bold flex items-center gap-2 shadow-md">
-                        <i class="fa-solid fa-wallet"></i> ০ ৳
-                    </button>
-                    <div class="w-9 h-9 rounded-full overflow-hidden border-2 border-purple-200">
-                        <img src="https://i.pravatar.cc/150?img=12" class="w-full h-full object-cover">
-                    </div>
-                </div>
+                <div class="font-serif font-bold text-lg text-[#1e3a8a]">Purchase</div>
+                <div class="w-8"></div> <!-- Spacer for center alignment -->
             </div>
         </header>
 
         <!-- Main Content -->
         <main class="pb-24 px-3 container mx-auto max-w-md mt-4">
             
-            <div v-if="loading" class="text-center py-10">
-                <i class="fa-solid fa-spinner fa-spin text-purple-600 text-3xl"></i>
-                <p class="text-gray-500 mt-2">লোড হচ্ছে...</p>
+            <!-- Loading State -->
+            <div v-if="loading" class="flex flex-col justify-center items-center h-64">
+                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-700 mb-4"></div>
+                <p class="text-gray-500 text-sm">প্রোডাক্ট লোড হচ্ছে...</p>
             </div>
 
             <div v-else>
@@ -66,87 +62,123 @@
                 <div class="bg-white p-3 rounded-xl shadow-sm border border-gray-200 flex gap-4 items-center mb-4">
                     <img :src="product.image" class="w-20 h-20 rounded-lg object-cover border border-gray-100" @error="handleImageError">
                     <div>
-                        <h1 class="font-bold text-lg text-gray-800">{{ product.name }}</h1>
-                        <p class="text-xs text-gray-500 capitalize">Category: {{ product.category }}</p>
+                        <h1 class="font-bold text-lg text-gray-800 leading-tight">{{ product.name }}</h1>
+                        <p class="text-xs text-gray-500 capitalize mt-1">Category: <span class="text-purple-600 font-bold">{{ product.category }}</span></p>
                     </div>
                 </div>
 
                 <!-- STEP 1: Select Recharge -->
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-4">
-                    <h3 class="flex items-center font-bold text-gray-800 mb-3">
-                        <div class="step-circle">1</div> Select Recharge
+                    <h3 class="flex items-center font-bold text-gray-800 mb-3 border-b pb-2">
+                        <div class="step-circle">1</div> Select Package
                     </h3>
                     
                     <div class="grid grid-cols-2 gap-3">
                         <div v-for="pack in packages" :key="pack.id" 
                              @click="selectedPackage = pack"
                              :class="selectedPackage?.id === pack.id ? 'active-package' : 'border border-gray-200'"
-                             class="p-3 rounded-lg text-center cursor-pointer hover:border-purple-300 transition">
-                            <i v-if="selectedPackage?.id === pack.id" class="fa-solid fa-check check-icon"></i>
+                             class="p-3 rounded-lg text-center cursor-pointer hover:border-purple-300 transition relative bg-gray-50">
+                            
+                            <div v-if="selectedPackage?.id === pack.id" class="check-icon"><i class="fa-solid fa-check"></i></div>
+                            
                             <div class="font-bold text-sm text-gray-700">{{ pack.name }}</div>
-                            <div class="text-[#583cb3] font-bold text-xs mt-1">BDT {{ pack.price }}</div>
+                            <div class="text-[#583cb3] font-bold text-base mt-1">৳ {{ pack.price }}</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- STEP 2: Account Info -->
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-4">
-                    <h3 class="flex items-center font-bold text-gray-800 mb-3">
+                    <h3 class="flex items-center font-bold text-gray-800 mb-3 border-b pb-2">
                         <div class="step-circle">2</div> Account Info
                     </h3>
-                    <label class="text-xs font-bold text-gray-600 block mb-1">এখানে প্লেয়ার আইডি বসান</label>
-                    <input v-model="playerId" type="text" placeholder="UID Example: 12345678" 
-                           class="w-full border border-gray-300 rounded-md p-2.5 text-sm focus:outline-none focus:border-purple-500 mb-3">
+                    
+                    <div class="mb-2">
+                        <label class="text-xs font-bold text-gray-600 block mb-1">Player ID (UID)</label>
+                        <input v-model="playerId" type="tel" placeholder="Enter UID (e.g. 12345678)" 
+                               class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition font-bold tracking-wide">
+                        <p class="text-[10px] text-gray-400 mt-1"><i class="fa-solid fa-circle-info"></i> সঠিক প্লেয়ার আইডি দিন, ভুল হলে রিফান্ড পাবেন না।</p>
+                    </div>
                 </div>
 
                 <!-- STEP 3: Select Payment -->
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-4">
-                    <h3 class="flex items-center font-bold text-gray-800 mb-3">
-                        <div class="step-circle">3</div> Select Payment
+                    <h3 class="flex items-center font-bold text-gray-800 mb-3 border-b pb-2">
+                        <div class="step-circle">3</div> Payment Method
                     </h3>
                     
                     <div class="grid grid-cols-2 gap-3">
-                        <div @click="paymentMethod = 'wallet'" :class="paymentMethod === 'wallet' ? 'border-red-500 bg-red-50' : 'border-gray-200'" class="border rounded-lg p-4 text-center cursor-pointer relative">
-                            <div v-if="paymentMethod === 'wallet'" class="absolute top-0 left-0 bg-red-500 text-white text-[10px] px-1 rounded-br">✔</div>
+                        <!-- Wallet Option -->
+                        <div @click="paymentMethod = 'wallet'" :class="paymentMethod === 'wallet' ? 'active-package' : 'border-gray-200'" class="border rounded-lg p-3 text-center cursor-pointer relative">
+                            <div v-if="paymentMethod === 'wallet'" class="check-icon"><i class="fa-solid fa-check"></i></div>
                             <i class="fa-solid fa-wallet text-2xl text-orange-500 mb-1"></i>
-                            <div class="text-xs font-bold">Wallet Pay</div>
+                            <div class="text-xs font-bold">Wallet Balance</div>
+                            <div class="text-[10px] text-gray-500">Available: 0 ৳</div>
                         </div>
-                        <div @click="paymentMethod = 'instant'" :class="paymentMethod === 'instant' ? 'border-red-500 bg-red-50' : 'border-gray-200'" class="border rounded-lg p-4 text-center cursor-pointer relative">
-                            <div v-if="paymentMethod === 'instant'" class="absolute top-0 left-0 bg-red-500 text-white text-[10px] px-1 rounded-br">✔</div>
-                            <div class="flex justify-center gap-1 mb-1">
-                                <img src="https://seeklogo.com/images/B/bkash-logo-FBB258B90F-seeklogo.com.png" class="h-4">
+
+                        <!-- Instant Pay Option -->
+                        <div @click="paymentMethod = 'instant'" :class="paymentMethod === 'instant' ? 'active-package' : 'border-gray-200'" class="border rounded-lg p-3 text-center cursor-pointer relative">
+                            <div v-if="paymentMethod === 'instant'" class="check-icon"><i class="fa-solid fa-check"></i></div>
+                            <div class="flex justify-center gap-2 mb-2 items-center h-7">
+                                <img src="https://seeklogo.com/images/B/bkash-logo-FBB258B90F-seeklogo.com.png" class="h-5">
                                 <img src="https://seeklogo.com/images/N/nagad-logo-7A70CCFEE0-seeklogo.com.png" class="h-4">
                             </div>
-                            <div class="text-xs font-bold">Instant Pay</div>
+                            <div class="text-xs font-bold">Mobile Banking</div>
+                            <div class="text-[10px] text-gray-500">Bkash / Nagad</div>
                         </div>
                     </div>
 
-                    <div class="mt-4 border-t pt-3">
-                        <div class="flex justify-between text-sm font-bold text-gray-700 mb-3">
-                            <span>Total Price:</span>
-                            <span class="text-purple-600">৳ {{ selectedPackage ? selectedPackage.price : 0 }}</span>
+                    <!-- Checkout Section -->
+                    <div class="mt-6 pt-4 border-t border-dashed border-gray-300">
+                        <div class="flex justify-between text-sm font-bold text-gray-600 mb-1">
+                            <span>Package Price:</span>
+                            <span>৳ {{ selectedPackage ? selectedPackage.price : 0 }}</span>
                         </div>
-                        <button @click="handleBuy" class="w-full bg-[#583cb3] text-white py-3 rounded-md font-bold text-base shadow-lg hover:bg-purple-800 transition">
-                            Buy Now
+                        <div class="flex justify-between text-base font-black text-gray-800 mb-4">
+                            <span>Total Payable:</span>
+                            <span class="text-purple-700">৳ {{ selectedPackage ? selectedPackage.price : 0 }}</span>
+                        </div>
+
+                        <button @click="handleBuy" 
+                                :disabled="!selectedPackage || !playerId"
+                                :class="(!selectedPackage || !playerId) ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#583cb3] hover:bg-purple-800 shadow-lg shadow-purple-200'"
+                                class="w-full text-white py-3.5 rounded-xl font-bold text-base transition flex justify-center items-center gap-2">
+                            <span>Confirm Purchase</span> <i class="fa-solid fa-arrow-right"></i>
                         </button>
                     </div>
                 </div>
             </div>
         </main>
 
-        <!-- Bottom Nav -->
+        <!-- Fixed Bottom Nav (Same as Index) -->
         <div class="fixed bottom-0 w-full bg-white border-t border-gray-200 z-50 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
             <div class="grid grid-cols-5 h-16 max-w-md mx-auto">
-                <a href="index.html" class="nav-item"><i class="fa-solid fa-house"></i><span>Home</span></a>
-                <div class="nav-item"><i class="fa-solid fa-wallet"></i><span>Add Money</span></div>
-                <div class="nav-item"><i class="fa-solid fa-file-invoice"></i><span>My Orders</span></div>
-                <div class="nav-item"><i class="fa-solid fa-gift"></i><span>My Codes</span></div>
-                <div class="nav-item"><i class="fa-solid fa-user"></i><span>Account</span></div>
+                <a href="index.html" class="nav-item">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Home</span>
+                </a>
+                <a href="add-money.html" class="nav-item">
+                    <i class="fa-solid fa-wallet"></i>
+                    <span>Add Money</span>
+                </a>
+                <a href="orders.html" class="nav-item">
+                    <i class="fa-solid fa-file-invoice"></i>
+                    <span>My Orders</span>
+                </a>
+                <a href="codes.html" class="nav-item">
+                    <i class="fa-solid fa-gift"></i>
+                    <span>My Codes</span>
+                </a>
+                <a href="account.html" class="nav-item">
+                    <i class="fa-solid fa-user"></i>
+                    <span>Account</span>
+                </a>
             </div>
         </div>
 
     </div>
 
+    <!-- Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -171,27 +203,29 @@
                 const selectedPackage = ref(null);
                 const playerId = ref('');
                 const paymentMethod = ref('instant');
-
-                // Dynamic Packages based on Price in DB (Logic)
                 const packages = ref([]);
 
+                // Generate Dummy Packages based on Base Price
                 const generatePackages = (basePrice) => {
                     const price = Number(basePrice) || 100;
                     packages.value = [
-                        { id: 1, name: 'Small Pack', price: price },
-                        { id: 2, name: 'Medium Pack', price: price * 2 },
-                        { id: 3, name: 'Big Pack', price: price * 5 },
+                        { id: 1, name: 'Small Pack (115 💎)', price: price },
+                        { id: 2, name: 'Medium Pack (240 💎)', price: Math.floor(price * 2.1) },
+                        { id: 3, name: 'Big Pack (610 💎)', price: Math.floor(price * 5.2) },
                         { id: 4, name: 'Weekly Membership', price: 160 },
                         { id: 5, name: 'Monthly Membership', price: 800 }
                     ];
                 };
 
                 const fetchProduct = async () => {
+                    // Get ID from URL
                     const params = new URLSearchParams(window.location.search);
                     const id = params.get('id');
 
+                    console.log("Fetching Product ID:", id); // Debugging
+
                     if (!id) {
-                        alert("Product not found!");
+                        alert("Product ID Missing!");
                         window.location.href = 'index.html';
                         return;
                     }
@@ -202,22 +236,30 @@
 
                         if (docSnap.exists()) {
                             product.value = docSnap.data();
+                            // Generate packages using the price from DB
                             generatePackages(product.value.price);
                         } else {
-                            alert("Product does not exist!");
+                            alert("দুঃখিত, এই প্রোডাক্টটি পাওয়া যায়নি।");
                             window.location.href = 'index.html';
                         }
                     } catch (error) {
                         console.error("Error:", error);
+                        alert("ডাটা লোড করতে সমস্যা হয়েছে।");
                     } finally {
                         loading.value = false;
                     }
                 };
 
                 const handleBuy = () => {
-                    if(!selectedPackage.value) return alert("Please select a package!");.
-                    if(!playerId.value) return alert("Please enter Player ID!");
-                    alert(`Order Successful!\nPackage: ${selectedPackage.value.name}\nPrice: ${selectedPackage.value.price} Tk`);
+                    if(!selectedPackage.value) return alert("দয়া করে একটি প্যাকেজ সিলেক্ট করুন।");
+                    if(!playerId.value) return alert("দয়া করে Player ID দিন।");
+                    
+                    if(paymentMethod.value === 'instant') {
+                        // Redirect to Payment Gateway or Logic
+                        alert(`বিকাশ/নগদ পেমেন্ট গেটওয়ে আসছে...\nঅর্ডার: ${selectedPackage.value.name}\nদাম: ${selectedPackage.value.price} টাকা`);
+                    } else {
+                        alert("আপনার ওয়ালেটে পর্যাপ্ত ব্যালেন্স নেই।");
+                    }
                 };
 
                 const handleImageError = (e) => {

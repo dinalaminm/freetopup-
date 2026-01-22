@@ -2,63 +2,146 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>My Account - FREE TOPUP PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body class="bg-[#f0f5ff] flex flex-col min-h-screen">
+<body class="bg-[#f0f5ff]">
 
-    <header class="bg-[#583cb3] text-white p-6 pb-12 rounded-b-[2rem] shadow-lg">
-        <div class="flex items-center gap-4">
-            <div class="w-16 h-16 rounded-full border-2 border-white overflow-hidden">
-                <img src="https://i.pravatar.cc/150?img=12" class="w-full h-full object-cover">
-            </div>
-            <div>
-                <h2 class="font-bold text-xl">Md User</h2>
-                <p class="text-xs opacity-80">+8801700000000</p>
-                <div class="mt-2 bg-white/20 px-3 py-1 rounded-full text-xs font-bold inline-block">
-                    Wallet: 0.00 ৳
+    <div id="app" v-cloak>
+        <!-- Header Profile -->
+        <header class="bg-[#583cb3] text-white p-6 pb-12 rounded-b-[2rem] shadow-lg relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-5 rounded-full -mr-10 -mt-10"></div>
+            
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="w-16 h-16 rounded-full border-2 border-white/50 overflow-hidden bg-white">
+                    <img src="https://i.pravatar.cc/150?img=12" class="w-full h-full object-cover">
+                </div>
+                <div>
+                    <h2 class="font-bold text-xl">{{ user.name || 'Guest User' }}</h2>
+                    <p class="text-xs opacity-80 mb-2">{{ user.phone || 'No phone number' }}</p>
+                    <div class="bg-white/20 px-4 py-1.5 rounded-full text-sm font-bold inline-flex items-center gap-2 backdrop-blur-sm border border-white/10">
+                        <i class="fa-solid fa-wallet"></i> Wallet: ৳ {{ user.balance || 0 }}
+                    </div>
                 </div>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <main class="flex-grow container mx-auto px-4 -mt-8 max-w-md">
-        <div class="bg-white rounded-xl shadow-sm border p-2">
-            <a href="orders.html" class="flex items-center gap-3 p-3 border-b hover:bg-gray-50">
-                <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center"><i class="fa-solid fa-list"></i></div>
-                <span class="font-bold text-sm text-gray-700">Order History</span>
-                <i class="fa-solid fa-chevron-right ml-auto text-gray-400 text-xs"></i>
-            </a>
-            <a href="#" class="flex items-center gap-3 p-3 border-b hover:bg-gray-50">
-                <div class="w-8 h-8 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center"><i class="fa-solid fa-lock"></i></div>
-                <span class="font-bold text-sm text-gray-700">Change Password</span>
-                <i class="fa-solid fa-chevron-right ml-auto text-gray-400 text-xs"></i>
-            </a>
-            <a href="#" class="flex items-center gap-3 p-3 border-b hover:bg-gray-50">
-                <div class="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center"><i class="fa-solid fa-headset"></i></div>
-                <span class="font-bold text-sm text-gray-700">Support</span>
-                <i class="fa-solid fa-chevron-right ml-auto text-gray-400 text-xs"></i>
-            </a>
-            <a href="#" class="flex items-center gap-3 p-3 hover:bg-red-50 text-red-500">
-                <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center"><i class="fa-solid fa-right-from-bracket"></i></div>
-                <span class="font-bold text-sm">Logout</span>
-            </a>
-        </div>
-    </main>
+        <!-- Main Content -->
+        <main class="container mx-auto px-4 -mt-8 max-w-md pb-24 relative z-20">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-2">
+                <a href="orders.html" class="flex items-center gap-3 p-4 border-b border-gray-50 hover:bg-gray-50 transition rounded-t-lg">
+                    <div class="w-9 h-9 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center shadow-sm"><i class="fa-solid fa-list-check"></i></div>
+                    <span class="font-bold text-sm text-gray-700">Order History</span>
+                    <i class="fa-solid fa-chevron-right ml-auto text-gray-300 text-xs"></i>
+                </a>
+                
+                <a href="add-money.html" class="flex items-center gap-3 p-4 border-b border-gray-50 hover:bg-gray-50 transition">
+                    <div class="w-9 h-9 bg-green-100 text-green-600 rounded-full flex items-center justify-center shadow-sm"><i class="fa-solid fa-circle-dollar-to-slot"></i></div>
+                    <span class="font-bold text-sm text-gray-700">Add Money Request</span>
+                    <i class="fa-solid fa-chevron-right ml-auto text-gray-300 text-xs"></i>
+                </a>
 
-    <!-- Bottom Nav -->
-    <div class="bg-white border-t border-gray-200">
-        <div class="grid grid-cols-5 h-16 max-w-md mx-auto">
-            <a href="index.html" class="nav-item"><i class="fa-solid fa-house"></i><span>Home</span></a>
-            <a href="add-money.html" class="nav-item"><i class="fa-solid fa-wallet"></i><span>Add Money</span></a>
-            <a href="orders.html" class="nav-item"><i class="fa-solid fa-file-invoice"></i><span>My Orders</span></a>
-            <a href="codes.html" class="nav-item"><i class="fa-solid fa-gift"></i><span>My Codes</span></a>
-            <a href="account.html" class="nav-item active text-blue-600"><i class="fa-solid fa-user"></i><span>Account</span></a>
+                <a href="#" class="flex items-center gap-3 p-4 border-b border-gray-50 hover:bg-gray-50 transition">
+                    <div class="w-9 h-9 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center shadow-sm"><i class="fa-solid fa-lock"></i></div>
+                    <span class="font-bold text-sm text-gray-700">Change Password</span>
+                    <i class="fa-solid fa-chevron-right ml-auto text-gray-300 text-xs"></i>
+                </a>
+                
+                <a href="#" class="flex items-center gap-3 p-4 border-b border-gray-50 hover:bg-gray-50 transition">
+                    <div class="w-9 h-9 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center shadow-sm"><i class="fa-solid fa-headset"></i></div>
+                    <span class="font-bold text-sm text-gray-700">Support Center</span>
+                    <i class="fa-solid fa-chevron-right ml-auto text-gray-300 text-xs"></i>
+                </a>
+                
+                <div @click="logout" class="flex items-center gap-3 p-4 hover:bg-red-50 text-red-500 cursor-pointer transition rounded-b-lg">
+                    <div class="w-9 h-9 bg-red-100 rounded-full flex items-center justify-center shadow-sm"><i class="fa-solid fa-right-from-bracket"></i></div>
+                    <span class="font-bold text-sm">Logout (Clear Data)</span>
+                </div>
+            </div>
+            
+            <p class="text-center text-[10px] text-gray-400 mt-6">App Version 1.0.0</p>
+        </main>
+
+        <!-- Bottom Nav -->
+        <div class="fixed bottom-0 w-full bg-white border-t border-gray-200 z-50 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <div class="grid grid-cols-5 h-16 max-w-md mx-auto">
+                <a href="index.html" class="nav-item"><i class="fa-solid fa-house"></i><span>Home</span></a>
+                <a href="add-money.html" class="nav-item"><i class="fa-solid fa-wallet"></i><span>Add Money</span></a>
+                <a href="orders.html" class="nav-item"><i class="fa-solid fa-file-invoice"></i><span>My Orders</span></a>
+                <a href="codes.html" class="nav-item"><i class="fa-solid fa-gift"></i><span>My Codes</span></a>
+                <a href="account.html" class="nav-item active"><i class="fa-solid fa-user"></i><span>Account</span></a>
+            </div>
         </div>
     </div>
 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { createApp, ref, onMounted } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyACUK207BRvtR5yc1UhYLS9FlMitVVlrrE",
+          authDomain: "freetopup-fd263.firebaseapp.com",
+          projectId: "freetopup-fd263",
+          storageBucket: "freetopup-fd263.firebasestorage.app",
+          messagingSenderId: "756173302110",
+          appId: "1:756173302110:web:14227664f6b5d14d9047cf"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        createApp({
+            setup() {
+                const user = ref({});
+                const userId = localStorage.getItem('userId');
+
+                const fetchUser = async () => {
+                    if(!userId) {
+                        // Create dummy user for demo
+                        user.value = { name: 'New User', phone: '01xxxxxxxxx', balance: 0 };
+                        return;
+                    }
+
+                    try {
+                        const docRef = doc(db, "users", userId);
+                        const docSnap = await getDoc(docRef);
+
+                        if (docSnap.exists()) {
+                            user.value = docSnap.data();
+                        } else {
+                            // If user doesn't exist in DB, create one (Auto Register for Demo)
+                            const newUser = {
+                                name: 'Demo User',
+                                phone: '01700000000',
+                                balance: 0,
+                                createdAt: new Date()
+                            };
+                            await setDoc(docRef, newUser);
+                            user.value = newUser;
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                    }
+                };
+
+                const logout = () => {
+                    if(confirm("Are you sure you want to logout?")) {
+                        localStorage.removeItem('userId'); // Clear ID
+                        sessionStorage.clear(); // Clear Cache
+                        window.location.reload();
+                    }
+                };
+
+                onMounted(fetchUser);
+
+                return { user, logout };
+            }
+        }).mount('#app');
+    </script>
 </body>
 </html>
