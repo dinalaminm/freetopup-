@@ -20,7 +20,6 @@
         [v-cloak] { display: none !important; }
         .font-serif { font-family: 'Bree Serif', serif; }
         
-        /* ইনপুট ফিল্ড ফোকাস এফেক্ট */
         .input-field:focus {
             border-color: #583cb3;
             outline: none;
@@ -52,7 +51,7 @@
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
             
             <!-- Google Login Button -->
-            <button @click="handleGoogleLogin" class="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 py-2.5 rounded-lg hover:bg-gray-50 transition font-medium mb-6 relative">
+            <button @click="handleGoogleLogin" type="button" class="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 py-2.5 rounded-lg hover:bg-gray-50 transition font-medium mb-6 relative">
                 <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
                 <span>Login with Google</span>
             </button>
@@ -109,14 +108,13 @@
 
     </div>
 
-    <!-- Vue Logic -->
+    <!-- Vue & Firebase Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { createApp, ref } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
-        // আপনার Firebase Config (index.html থেকে নেওয়া)
         const firebaseConfig = {
           apiKey: "AIzaSyACUK207BRvtR5yc1UhYLS9FlMitVVlrrE",
           authDomain: "freetopup-fd263.firebaseapp.com",
@@ -136,46 +134,48 @@
                 const password = ref("");
                 const loading = ref(false);
 
-                // সফল লগইন হ্যান্ডলার
-                const onLoginSuccess = async (user) => {
-                    localStorage.setItem('userId', user.uid); // লোকাল স্টোরেজে আইডি সেভ
-                    
-                    // ইউজারের ডাটাবেস চেক করা, না থাকলে তৈরি করা
-                    const userRef = doc(db, "users", user.uid);
-                    const userSnap = await getDoc(userRef);
-                    
-                    if (!userSnap.exists()) {
-                        await setDoc(userRef, {
-                            email: user.email,
-                            name: user.displayName || "User",
-                            balance: 0,
-                            joinedAt: new Date()
-                        });
-                    }
-                    
-                    // হোমপেজে রিডাইরেক্ট
-                    window.location.href = "index.html";
-                };
-
-                // গুগল লগইন
+                // Google Login Logic
                 const handleGoogleLogin = async () => {
                     try {
                         const provider = new GoogleAuthProvider();
                         const result = await signInWithPopup(auth, provider);
-                        onLoginSuccess(result.user);
+                        const user = result.user;
+
+                        // Check User in Firestore
+                        const userRef = doc(db, "users", user.uid);
+                        const userSnap = await getDoc(userRef);
+
+                        if (!userSnap.exists()) {
+                            // Create New User if not exists
+                            await setDoc(userRef, {
+                                uid: user.uid,
+                                name: user.displayName || "User",
+                                email: user.email,
+                                photoURL: user.photoURL || "https://i.pravatar.cc/150?img=12",
+                                balance: 0,
+                                phone: "",
+                                joinedAt: new Date().toISOString()
+                            });
+                        }
+
+                        // Login Success
+                        localStorage.setItem('userId', user.uid);
+                        window.location.href = "index.html";
+
                     } catch (error) {
                         console.error("Google Login Error:", error);
                         alert("Google Login Failed: " + error.message);
                     }
                 };
 
-                // ইমেইল পাসওয়ার্ড লগইন
+                // Email Login Logic
                 const handleEmailLogin = async () => {
                     if(!email.value || !password.value) return;
                     loading.value = true;
                     try {
                         const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
-                        onLoginSuccess(userCredential.user);
+                        localStorage.setItem('userId', userCredential.user.uid);
+                        window.location.href = "index.html";
                     } catch (error) {
                         console.error("Login Error:", error);
                         alert("Invalid Email or Password!");

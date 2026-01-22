@@ -20,7 +20,6 @@
         [v-cloak] { display: none !important; }
         .font-serif { font-family: 'Bree Serif', serif; }
         
-        /* ইনপুট ফিল্ড ফোকাস এফেক্ট */
         .input-field:focus {
             border-color: #583cb3;
             outline: none;
@@ -32,9 +31,8 @@
 
     <div id="app" v-cloak class="max-w-md mx-auto bg-[#f0f5ff] min-h-screen relative flex flex-col">
         
-        <!-- Header with Login Button -->
+        <!-- Header -->
         <header class="flex justify-between items-center p-4">
-            <!-- Logo -->
             <div class="flex items-center gap-1">
                 <div class="w-8 h-8 bg-black rounded-full flex items-center justify-center text-white font-bold text-xl relative">
                     <span class="z-10">F</span>
@@ -45,7 +43,6 @@
                     <span class="font-bold text-[10px] text-purple-700 tracking-widest">TOPUP PRO</span>
                 </div>
             </div>
-            <!-- Login Btn -->
             <a href="login.html" class="bg-[#583cb3] text-white px-4 py-1.5 rounded text-sm font-bold shadow hover:bg-purple-800 transition no-underline">
                 Login
             </a>
@@ -60,7 +57,7 @@
             <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-6">
                 
                 <!-- Google Button -->
-                <button @click="handleGoogleRegister" class="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 py-2.5 rounded-lg hover:bg-gray-50 transition font-medium mb-5 relative">
+                <button @click="handleGoogleRegister" type="button" class="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 py-2.5 rounded-lg hover:bg-gray-50 transition font-medium mb-5 relative">
                     <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
                     <span>Sign up with Google</span>
                 </button>
@@ -125,14 +122,13 @@
             </div>
         </div>
 
-        <!-- Footer Info -->
+        <!-- Footer -->
         <div class="bg-[#0f172a] text-white py-8 px-4 rounded-t-3xl mt-auto">
             <h3 class="font-serif font-bold text-sm mb-4 tracking-widest text-center text-gray-400">STAY CONNECTED</h3>
             <div class="flex justify-center gap-4 mb-6">
                 <a href="#" class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-blue-600 transition text-white"><i class="fa-brands fa-facebook-f"></i></a>
                 <a href="#" class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-blue-400 transition text-white"><i class="fa-brands fa-telegram"></i></a>
                 <a href="#" class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-red-500 transition text-white"><i class="fa-brands fa-youtube"></i></a>
-                <a href="#" class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-gray-500 transition text-white"><i class="fa-regular fa-envelope"></i></a>
             </div>
             
             <div class="border-t border-gray-700 pt-4 text-center">
@@ -149,7 +145,6 @@
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { createApp, ref, computed } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
-        // Firebase Config
         const firebaseConfig = {
           apiKey: "AIzaSyACUK207BRvtR5yc1UhYLS9FlMitVVlrrE",
           authDomain: "freetopup-fd263.firebaseapp.com",
@@ -172,30 +167,42 @@
                 const confirmPassword = ref("");
                 const loading = ref(false);
 
-                // পাসওয়ার্ড মিসম্যাচ চেক
                 const passwordMismatch = computed(() => {
                     return password.value && confirmPassword.value && password.value !== confirmPassword.value;
                 });
 
-                // ডাটাবেসে ইউজার সেভ করা
-                const saveUserToFirestore = async (user, additionalData = {}) => {
-                    const userRef = doc(db, "users", user.uid);
-                    const userSnap = await getDoc(userRef);
+                // Google Register Logic (Same as Login - Checks DB)
+                const handleGoogleRegister = async () => {
+                    try {
+                        const provider = new GoogleAuthProvider();
+                        const result = await signInWithPopup(auth, provider);
+                        const user = result.user;
 
-                    if (!userSnap.exists()) {
-                        await setDoc(userRef, {
-                            uid: user.uid,
-                            email: user.email,
-                            name: additionalData.name || user.displayName || "User",
-                            phone: additionalData.phone || "",
-                            balance: 0,
-                            photoURL: user.photoURL || "https://i.pravatar.cc/150?img=12",
-                            joinedAt: new Date().toISOString()
-                        });
+                        // Check & Create DB Entry
+                        const userRef = doc(db, "users", user.uid);
+                        const userSnap = await getDoc(userRef);
+
+                        if (!userSnap.exists()) {
+                            await setDoc(userRef, {
+                                uid: user.uid,
+                                name: user.displayName || "User",
+                                email: user.email,
+                                photoURL: user.photoURL || "https://i.pravatar.cc/150?img=12",
+                                balance: 0,
+                                phone: "",
+                                joinedAt: new Date().toISOString()
+                            });
+                        }
+
+                        localStorage.setItem('userId', user.uid);
+                        window.location.href = "index.html";
+                    } catch (error) {
+                        console.error("Google Auth Error:", error);
+                        alert("Google Sign In Failed: " + error.message);
                     }
                 };
 
-                // ইমেইল দিয়ে রেজিস্ট্রেশন
+                // Email Register Logic
                 const handleRegister = async () => {
                     if (passwordMismatch.value) return;
                     if (password.value.length < 6) {
@@ -205,17 +212,23 @@
 
                     loading.value = true;
                     try {
+                        // Create User
                         const result = await createUserWithEmailAndPassword(auth, email.value, password.value);
                         
-                        // প্রোফাইল আপডেট (ডিসপ্লে নেম)
+                        // Update Profile Name
                         await updateProfile(result.user, {
                             displayName: name.value
                         });
 
-                        // ডাটাবেসে সেভ
-                        await saveUserToFirestore(result.user, {
+                        // Save to Firestore
+                        await setDoc(doc(db, "users", result.user.uid), {
+                            uid: result.user.uid,
+                            email: email.value,
                             name: name.value,
-                            phone: phone.value
+                            phone: phone.value,
+                            balance: 0,
+                            photoURL: "https://i.pravatar.cc/150?img=12",
+                            joinedAt: new Date().toISOString()
                         });
 
                         localStorage.setItem('userId', result.user.uid);
@@ -229,22 +242,6 @@
                         alert(msg);
                     } finally {
                         loading.value = false;
-                    }
-                };
-
-                // গুগল দিয়ে রেজিস্ট্রেশন
-                const handleGoogleRegister = async () => {
-                    try {
-                        const provider = new GoogleAuthProvider();
-                        const result = await signInWithPopup(auth, provider);
-                        
-                        // ডাটাবেসে সেভ (যদি নতুন হয়)
-                        await saveUserToFirestore(result.user);
-                        
-                        localStorage.setItem('userId', result.user.uid);
-                        window.location.href = "index.html";
-                    } catch (error) {
-                        console.error("Google Auth Error:", error);
                     }
                 };
 
