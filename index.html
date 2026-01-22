@@ -117,20 +117,7 @@
                     </div>
                 </div>
 
-                <!-- Garena Topup Link (Shortcut) -->
-                <!-- আপনি যদি সরাসরি Garena পেজে নিতে চান তবে এটি ব্যবহার করতে পারেন -->
-                <div class="mt-4 grid grid-cols-1">
-                     <a href="topup.html" class="bg-gradient-to-r from-red-600 to-red-800 text-white p-3 rounded-xl shadow-lg flex justify-between items-center group">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-white/20 p-2 rounded-lg"><i class="fa-solid fa-fire text-yellow-300"></i></div>
-                            <div>
-                                <h3 class="font-bold text-sm">Garena Shell</h3>
-                                <p class="text-[10px] text-white/80">Official Topup Center</p>
-                            </div>
-                        </div>
-                        <i class="fa-solid fa-chevron-right group-hover:translate-x-1 transition"></i>
-                     </a>
-                </div>
+                <!-- NOTE: Garena Button Removed Here As Requested -->
 
                 <!-- MYSTERY BOX -->
                 <div v-if="mysteryBoxes.length > 0">
@@ -185,7 +172,7 @@
                     </div>
                 </div>
                 
-                <!-- Extra Space for Scrolling -->
+                <!-- Extra Space -->
                 <div class="h-6"></div>
             </div>
         </main>
@@ -195,8 +182,8 @@
             <div class="text-center">
                 <h3 class="font-serif font-bold text-sm mb-4 tracking-widest text-gray-400">STAY CONNECTED</h3>
                 <div class="flex justify-center gap-4 mb-8">
-                    <a href="#" class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center hover:bg-blue-600 transition"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="#" class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center hover:bg-blue-400 transition"><i class="fa-brands fa-telegram"></i></a>
+                    <a href="#" class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center hover:bg-blue-600 transition text-white"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center hover:bg-blue-400 transition text-white"><i class="fa-brands fa-telegram"></i></a>
                 </div>
                 <p class="text-[10px] text-gray-600">© FREE TOPUP PRO 2026</p>
             </div>
@@ -223,7 +210,7 @@
         import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { createApp, ref, onMounted, nextTick } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
-        // Firebase Config (আপনার দেওয়া কনফিগ)
+        // Firebase Config
         const firebaseConfig = {
           apiKey: "AIzaSyACUK207BRvtR5yc1UhYLS9FlMitVVlrrE",
           authDomain: "freetopup-fd263.firebaseapp.com",
@@ -274,7 +261,7 @@
                 // মূল ডাটা ফেচ করা
                 const fetchData = async () => {
                     try {
-                        // ক্যাশ থেকে ডাটা চেক করা (অপশনাল)
+                        // ক্যাশ চেক (অপশনাল)
                         const cachedData = sessionStorage.getItem('homePageData');
                         if (cachedData) {
                             const parsed = JSON.parse(cachedData);
@@ -320,7 +307,7 @@
                         ingameItems.value = tmpIngame;
                         if(tmpBanners.length > 0) banners.value = tmpBanners;
 
-                        // সেশন স্টোরেজে সেভ করা (দ্রুত লোডের জন্য)
+                        // সেশনে সেভ করা
                         sessionStorage.setItem('homePageData', JSON.stringify({
                             mystery: tmpMystery,
                             special: tmpSpecial,
