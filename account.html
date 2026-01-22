@@ -26,28 +26,23 @@
 
     <div id="app" v-cloak>
         
-        <!-- Header (Updated Logo) -->
+        <!-- Header -->
         <header class="bg-white shadow-sm sticky top-0 z-50">
             <div class="container mx-auto px-4 py-3 flex justify-between items-center max-w-md">
                 
-                <!-- 🔥 LOGO SECTION START -->
+                <!-- LOGO -->
                 <a href="index.html" class="flex items-center gap-3 no-underline">
-                    <!-- Icon -->
                     <div class="relative">
                         <div class="w-10 h-10 bg-black rounded-full flex items-center justify-center shadow-lg">
                             <span class="text-white font-bold text-2xl font-sans">F</span>
                         </div>
-                        <!-- Purple Dot -->
                         <div class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-[#a855f7] rounded-full border-2 border-white"></div>
                     </div>
-                    
-                    <!-- Text -->
                     <div class="flex flex-col justify-center leading-none">
                         <span class="font-black text-2xl tracking-tight text-black">FREE</span>
                         <span class="font-bold text-[11px] text-[#9333ea] tracking-widest uppercase">TOPUP PRO</span>
                     </div>
                 </a>
-                <!-- 🔥 LOGO SECTION END -->
                 
                 <!-- Wallet & Avatar -->
                 <div class="flex items-center gap-3">
@@ -78,27 +73,23 @@
                 </div>
             </div>
 
-            <!-- Stats Grid (4 Cards) -->
+            <!-- Stats Grid -->
             <div class="grid grid-cols-2 gap-3 px-4 mb-6">
-                <!-- Support Pin -->
                 <div class="bg-white border border-purple-300 rounded-lg p-4 text-center shadow-sm">
                     <div class="text-purple-700 font-bold text-lg leading-tight">{{ supportPin }}</div>
                     <div class="text-xs font-bold text-[#1e3a8a]">Support Pin</div>
                 </div>
                 
-                <!-- Weekly Spent -->
                 <div class="bg-white border border-purple-300 rounded-lg p-4 text-center shadow-sm">
                     <div class="text-purple-700 font-bold text-lg leading-tight">{{ stats.weeklySpent }} ৳</div>
                     <div class="text-xs font-bold text-[#1e3a8a]">Weekly Spent</div>
                 </div>
 
-                <!-- Total Spent -->
                 <div class="bg-white border border-purple-300 rounded-lg p-4 text-center shadow-sm">
                     <div class="text-purple-700 font-bold text-lg leading-tight">{{ stats.totalSpent }}</div>
                     <div class="text-xs font-bold text-[#1e3a8a]">Total Spent</div>
                 </div>
 
-                <!-- Total Order -->
                 <div class="bg-white border border-purple-300 rounded-lg p-4 text-center shadow-sm">
                     <div class="text-purple-700 font-bold text-lg leading-tight">{{ stats.totalOrders }}</div>
                     <div class="text-xs font-bold text-[#1e3a8a]">Total Order</div>
@@ -113,13 +104,11 @@
                 </div>
                 
                 <div class="p-4 space-y-4">
-                    <!-- Balance Card -->
                     <div class="bg-[#9333ea] rounded-lg p-4 text-center shadow-md">
                         <div class="text-white font-bold text-xl">{{ user.balance || 0 }}৳</div>
                         <div class="text-white/90 font-bold text-sm mt-1">Available Balance</div>
                     </div>
 
-                    <!-- Verified Card -->
                     <div class="border border-gray-100 rounded-lg p-6 text-center shadow-sm bg-white">
                         <i class="fa-solid fa-certificate text-4xl text-blue-500 mb-2"></i>
                         <div class="font-bold text-gray-800">Account Verified!</div>
@@ -127,7 +116,7 @@
                 </div>
             </div>
 
-            <!-- User Information -->
+            <!-- User Information & LOGOUT -->
             <div class="bg-white shadow-sm border border-gray-100 mx-4 rounded-lg mb-8 overflow-hidden">
                 <div class="p-3 border-b border-gray-100 flex items-center gap-2">
                     <i class="fa-solid fa-circle-info text-gray-700"></i>
@@ -139,16 +128,16 @@
                         <span class="font-bold text-black">Email : </span>
                         <span class="text-gray-600">{{ user.email || 'No email linked' }}</span>
                     </div>
-                    <div>
+                    <div class="mb-4">
                         <span class="font-bold text-black">Phone : </span>
                         <span class="text-gray-600">{{ user.phone || 'No phone linked' }}</span>
                     </div>
                 </div>
 
-                <!-- Logout Button -->
-                <div @click="logout" class="bg-red-50 p-3 text-center text-red-500 font-bold text-sm cursor-pointer hover:bg-red-100 transition border-t border-red-100">
-                    <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
-                </div>
+                <!-- 🔥 LOGOUT BUTTON ADDED HERE 🔥 -->
+                <button @click="handleLogout" class="w-full bg-red-50 text-red-500 py-3 font-bold text-sm border-t border-red-100 hover:bg-red-100 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout Account
+                </button>
             </div>
 
             <!-- Footer Section -->
@@ -158,28 +147,14 @@
                     <div class="flex justify-center gap-4 mb-8">
                         <a href="#" class="w-10 h-10 border border-white/20 rounded-lg flex items-center justify-center hover:bg-white/10 text-white transition"><i class="fa-brands fa-facebook-f"></i></a>
                         <a href="#" class="w-10 h-10 border border-white/20 rounded-lg flex items-center justify-center hover:bg-white/10 text-white transition"><i class="fa-brands fa-instagram"></i></a>
-                        <a href="#" class="w-10 h-10 border border-white/20 rounded-lg flex items-center justify-center hover:bg-white/10 text-white transition"><i class="fa-brands fa-youtube"></i></a>
-                        <a href="#" class="w-10 h-10 border border-white/20 rounded-lg flex items-center justify-center hover:bg-white/10 text-white transition"><i class="fa-regular fa-envelope"></i></a>
                     </div>
-
-                    <h3 class="font-bold text-sm mb-3 tracking-widest text-white uppercase">Support Center</h3>
-                    <div class="mx-4 bg-white/5 border border-white/10 rounded-lg p-3 flex items-center gap-4 mb-8">
-                        <div class="w-10 h-10 bg-white text-[#0f172a] rounded-full flex items-center justify-center text-lg">
-                            <i class="fa-solid fa-paper-plane"></i>
-                        </div>
-                        <div class="text-left">
-                            <div class="text-[10px] text-gray-400">Help line [9AM-12PM]</div>
-                            <div class="font-bold text-sm">টেলিগ্রামে সাপোর্ট</div>
-                        </div>
-                    </div>
-                    
                     <p class="text-[10px] text-gray-500 border-t border-gray-800 pt-4">© Free TopUp Pro 2026 | All Rights Reserved</p>
                 </div>
             </div>
 
         </main>
 
-        <!-- Fixed Bottom Nav -->
+        <!-- Bottom Nav -->
         <div class="fixed bottom-0 w-full bg-white border-t border-gray-200 z-50 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
             <div class="grid grid-cols-5 h-16 max-w-md mx-auto">
                 <a href="index.html" class="nav-item"><i class="fa-solid fa-house"></i><span>Home</span></a>
@@ -189,20 +164,15 @@
                 <a href="account.html" class="nav-item active"><i class="fa-solid fa-user"></i><span>Account</span></a>
             </div>
         </div>
-
-        <!-- Floating Call Button -->
-        <a href="#" class="fixed bottom-20 right-4 z-40 bg-[#dc2626] text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center hover:bg-red-700 transition animate-bounce">
-            <i class="fa-solid fa-phone"></i>
-        </a>
     </div>
 
     <!-- Logic Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"; // Auth Import
         import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { createApp, ref, onMounted } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
-        // Firebase Configuration
         const firebaseConfig = {
           apiKey: "AIzaSyACUK207BRvtR5yc1UhYLS9FlMitVVlrrE",
           authDomain: "freetopup-fd263.firebaseapp.com",
@@ -213,26 +183,20 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app); // Auth Init
         const db = getFirestore(app);
 
         createApp({
             setup() {
                 const user = ref({});
-                const stats = ref({
-                    totalSpent: 0,
-                    totalOrders: 0,
-                    weeklySpent: 0
-                });
+                const stats = ref({ totalSpent: 0, totalOrders: 0, weeklySpent: 0 });
                 const supportPin = ref('Loading...');
                 
                 const userId = localStorage.getItem('userId');
 
-                // 1. Fetch User Profile
                 const fetchUserData = async () => {
                     if (!userId) {
-                        // Dummy data for guest
-                        user.value = { name: 'Guest', balance: 0, email: 'Not logged in', phone: 'N/A' };
-                        supportPin.value = '------';
+                        window.location.href = 'login.html'; // ইউজার আইডি না থাকলে লগইনে পাঠান
                         return;
                     }
 
@@ -242,7 +206,6 @@
 
                         if (docSnap.exists()) {
                             user.value = docSnap.data();
-                            // Generate a static looking PIN from User ID
                             const uidStr = userId.toString().replace(/\D/g, ''); 
                             supportPin.value = uidStr.length > 5 ? uidStr.substring(0, 6) : Math.floor(100000 + Math.random() * 900000);
                         }
@@ -251,18 +214,12 @@
                     }
                 };
 
-                // 2. Fetch User Stats (Orders Calculation)
                 const fetchUserStats = async () => {
                     if (!userId) return;
-
                     try {
                         const q = query(collection(db, "orders"), where("userId", "==", userId));
                         const querySnapshot = await getDocs(q);
-                        
-                        let spent = 0;
-                        let count = 0;
-                        let weekly = 0;
-
+                        let spent = 0, count = 0, weekly = 0;
                         const oneWeekAgo = new Date();
                         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
@@ -272,28 +229,30 @@
                                 spent += Number(data.price || 0);
                                 count++;
                                 const orderDate = data.createdAt ? data.createdAt.toDate() : new Date();
-                                if (orderDate >= oneWeekAgo) {
-                                    weekly += Number(data.price || 0);
-                                }
+                                if (orderDate >= oneWeekAgo) weekly += Number(data.price || 0);
                             }
                         });
-
-                        stats.value = {
-                            totalSpent: spent,
-                            totalOrders: count,
-                            weeklySpent: weekly
-                        };
-
+                        stats.value = { totalSpent: spent, totalOrders: count, weeklySpent: weekly };
                     } catch (error) {
                         console.error("Error fetching stats:", error);
                     }
                 };
 
-                const logout = () => {
-                    if(confirm("Are you sure you want to logout?")) {
+                // 🔥 LOGOUT FUNCTION 🔥
+                const handleLogout = async () => {
+                    if(confirm("আপনি কি নিশ্চিত আপনি লগআউট করতে চান?")) {
+                        try {
+                            await signOut(auth); // ফায়ারবেস থেকে সাইন আউট
+                        } catch (e) {
+                            console.log("Firebase signout error (ignored):", e);
+                        }
+                        
+                        // লোকাল স্টোরেজ ক্লিয়ার
                         localStorage.removeItem('userId');
                         sessionStorage.clear();
-                        window.location.href = 'index.html'; 
+                        
+                        // লগইন পেজে রিডাইরেক্ট
+                        window.location.href = 'login.html';
                     }
                 };
 
@@ -302,7 +261,7 @@
                     fetchUserStats();
                 });
 
-                return { user, stats, supportPin, fetchUserData, logout };
+                return { user, stats, supportPin, fetchUserData, handleLogout };
             }
         }).mount('#app');
     </script>
