@@ -4,161 +4,171 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Garena Topup Center</title>
+    
+    <!-- CDNs -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: 'Roboto', sans-serif; background-color: #f3f4f6; }
+        body { font-family: 'Roboto', sans-serif; background-color: #f8fafc; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        [v-cloak] { display: none; }
+        [v-cloak] { display: none !important; }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+        /* Active States */
+        .game-active { border-color: #cd1213; background-color: #fff1f2; transform: scale(1.05); }
+        .pkg-active { border: 2px solid #cd1213; background-color: #fff1f2; position: relative; }
+        .check-badge { position: absolute; top: -8px; right: -8px; background: #cd1213; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
+        /* Modal Animation */
+        .pop-enter-active { transition: all 0.3s ease-out; }
+        .pop-leave-active { transition: all 0.2s ease-in; }
+        .pop-enter-from, .pop-leave-to { opacity: 0; transform: scale(0.9); }
     </style>
 </head>
 <body>
 
-    <div id="app" v-cloak class="pb-32 max-w-md mx-auto bg-white min-h-screen shadow-2xl relative">
+    <div id="app" v-cloak class="max-w-md mx-auto bg-white min-h-screen shadow-2xl relative flex flex-col">
         
-        <!-- Header -->
-        <header class="bg-[#cd1213] text-white p-3 flex items-center justify-between sticky top-0 z-50 shadow-md">
-            <div class="flex items-center gap-3">
-                <a href="javascript:history.back()" class="text-white text-lg"><i class="fa-solid fa-arrow-left"></i></a>
-                <span class="font-bold text-lg tracking-wide">Garena Topup Center</span>
+        <!-- 🔥 CUSTOM POPUP MODAL 🔥 -->
+        <transition name="pop">
+            <div v-if="popup.show" class="fixed inset-0 z-[100] flex items-center justify-center px-6">
+                <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="closePopup"></div>
+                <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm relative z-10 text-center">
+                    
+                    <div v-if="popup.type === 'success'" class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600">
+                        <i class="fa-solid fa-check text-3xl"></i>
+                    </div>
+                    <div v-else-if="popup.type === 'confirm'" class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-600">
+                        <i class="fa-solid fa-cart-shopping text-3xl"></i>
+                    </div>
+                    <div v-else class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-red-600">
+                        <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">{{ popup.title }}</h3>
+                    <p class="text-sm text-gray-500 mb-6 leading-relaxed">{{ popup.msg }}</p>
+                    
+                    <!-- Confirm Buttons -->
+                    <div v-if="popup.type === 'confirm'" class="flex gap-3">
+                        <button @click="closePopup" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-bold">Cancel</button>
+                        <button @click="confirmPurchase" class="flex-1 bg-[#cd1213] text-white py-3 rounded-xl font-bold shadow-lg">Confirm</button>
+                    </div>
+                    
+                    <!-- Single Button -->
+                    <button v-else @click="closePopup" 
+                        :class="popup.type === 'success' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'"
+                        class="w-full text-white py-3 rounded-xl font-bold transition shadow-lg">
+                        {{ popup.btnText }}
+                    </button>
+                </div>
             </div>
-            <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-               <i class="fa-solid fa-user text-sm"></i>
+        </transition>
+
+        <!-- Header -->
+        <header class="bg-[#cd1213] text-white p-4 flex items-center justify-between sticky top-0 z-50 shadow-md">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="text-white text-lg"><i class="fa-solid fa-arrow-left"></i></a>
+                <div>
+                    <span class="font-black text-lg tracking-wide uppercase block leading-none">Garena</span>
+                    <span class="text-[10px] font-medium opacity-80 tracking-widest uppercase">Topup Center</span>
+                </div>
+            </div>
+            <div class="bg-white/20 px-3 py-1 rounded-full flex items-center gap-2 border border-white/10">
+               <i class="fa-solid fa-wallet text-xs"></i>
+               <span class="font-bold text-sm">{{ userBalance }} ৳</span>
             </div>
         </header>
 
-        <!-- Loading Spinner -->
-        <div v-if="loading" class="flex flex-col justify-center items-center h-[80vh]">
-            <i class="fa-solid fa-circle-notch fa-spin text-4xl text-[#cd1213] mb-4"></i>
-            <p class="text-gray-500 font-bold animate-pulse">Loading Data...</p>
+        <!-- Loading State -->
+        <div v-if="loading" class="flex flex-col justify-center items-center flex-grow h-[80vh]">
+            <div class="animate-spin w-12 h-12 border-4 border-[#cd1213] border-t-transparent rounded-full mb-4"></div>
+            <p class="text-gray-500 font-bold text-sm animate-pulse">Loading Garena Center...</p>
         </div>
 
-        <div v-else>
-            <!-- Banner Area -->
-            <div class="relative bg-gray-50 p-4 pb-8 border-b">
-                <div class="flex justify-between items-center mb-4">
-                    <div class="flex items-center gap-2">
-                        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/8/86/Garena_logo.svg/1200px-Garena_logo.svg.png" class="h-5 opacity-70">
-                        <div class="text-[10px] font-bold text-gray-400 border-l-2 border-gray-300 pl-2 ml-1 uppercase leading-3">Official<br>Distributor</div>
-                    </div>
-                </div>
-                <h2 class="text-3xl font-black text-gray-800 uppercase leading-none italic">
-                    Brand <span class="text-[#cd1213]">New</span><br>
-                    <span class="text-sm text-gray-500 font-bold not-italic">SECURE • FAST • RELIABLE</span>
-                </h2>
-            </div>
-
-            <!-- Game Selection (From Firebase) -->
-            <div class="-mt-6 px-3 relative z-10">
-                <div class="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
+        <div v-else class="flex-grow pb-32">
+            
+            <!-- Games Slider -->
+            <div class="bg-white p-4 pb-2 border-b border-gray-100">
+                <h2 class="text-xs font-bold text-gray-500 uppercase mb-3 tracking-wider">Select Game</h2>
+                <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
                     
-                    <!-- Default Shell Item -->
-                    <div class="flex flex-col items-center min-w-[72px] cursor-pointer">
-                        <div class="w-[72px] h-[72px] rounded-2xl border-2 border-[#cd1213] bg-white p-1 relative shadow-lg transform scale-105 transition">
+                    <!-- Shells (Default) -->
+                    <div @click="selectGame(null)" class="flex flex-col items-center min-w-[70px] cursor-pointer group">
+                        <div :class="!selectedGame ? 'game-active shadow-md' : 'border-gray-200'" class="w-[70px] h-[70px] rounded-2xl border-2 bg-white p-1 transition duration-200">
                             <img src="https://cdn-icons-png.flaticon.com/512/12411/12411656.png" class="w-full h-full object-contain p-1">
-                            <div class="absolute -top-2 -right-1 bg-[#cd1213] text-white text-[9px] px-1.5 py-0.5 rounded-full shadow-sm font-bold">✓</div>
                         </div>
-                        <span class="text-[11px] font-bold text-[#cd1213] mt-2 text-center leading-3">Shell Top Up</span>
+                        <span :class="!selectedGame ? 'text-[#cd1213]' : 'text-gray-500'" class="text-[10px] font-bold mt-2 text-center transition">Shells</span>
                     </div>
 
-                    <!-- Games Loop -->
-                    <div v-for="game in games" :key="game.id" class="flex flex-col items-center min-w-[72px] group cursor-pointer opacity-70 hover:opacity-100 transition">
-                        <div class="w-[72px] h-[72px] rounded-2xl border border-gray-200 bg-white overflow-hidden shadow-sm group-hover:shadow-md transition">
+                    <!-- Games List -->
+                    <div v-for="game in games" :key="game.id" @click="selectGame(game)" class="flex flex-col items-center min-w-[70px] cursor-pointer group">
+                        <div :class="selectedGame?.id === game.id ? 'game-active shadow-md' : 'border-gray-200'" class="w-[70px] h-[70px] rounded-2xl border-2 bg-white overflow-hidden transition duration-200">
                             <img :src="game.image" @error="handleImageError" class="w-full h-full object-cover">
                         </div>
-                        <span class="text-[10px] font-bold text-gray-500 mt-2 text-center leading-3 group-hover:text-gray-800">{{ game.name }}</span>
+                        <span :class="selectedGame?.id === game.id ? 'text-[#cd1213]' : 'text-gray-500'" class="text-[10px] font-bold mt-2 text-center leading-3 transition">{{ game.name }}</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Red Info Card -->
-            <div class="mx-3 mt-2 bg-gradient-to-r from-[#cd1213] to-[#990000] rounded-t-xl p-3 flex justify-between items-center text-white shadow-lg">
-                <div class="flex items-center gap-3">
-                    <div class="bg-white/20 p-1.5 rounded-lg">
-                        <img src="https://cdn-icons-png.flaticon.com/512/12411/12411656.png" class="w-6 h-6 brightness-200">
-                    </div>
-                    <div>
-                        <h2 class="font-bold text-sm">Shell Top Up</h2>
-                        <div class="flex items-center text-[10px] opacity-90 gap-1">
-                            <i class="fa-solid fa-lock text-[8px]"></i> 100% Secure Payment
-                        </div>
-                    </div>
+            <!-- Banner Info -->
+            <div class="m-3 p-4 rounded-xl bg-gradient-to-r from-gray-900 to-gray-800 text-white shadow-lg flex justify-between items-center relative overflow-hidden">
+                <div class="absolute right-0 top-0 bottom-0 w-32 bg-white/5 skew-x-12"></div>
+                <div class="z-10">
+                    <h3 class="font-bold text-sm text-yellow-400 mb-1"><i class="fa-solid fa-bolt"></i> Instant Delivery</h3>
+                    <p class="text-[10px] text-gray-300">Official Garena Distributor</p>
+                </div>
+                <div class="z-10 text-right">
+                    <p class="text-xs text-gray-400">Selected</p>
+                    <p class="font-bold text-sm">{{ selectedGame ? selectedGame.name : 'Garena Shells' }}</p>
                 </div>
             </div>
 
-            <!-- Main Form Area -->
-            <div class="bg-white mx-3 p-4 shadow-md border border-gray-100 rounded-b-xl mb-6">
+            <!-- Packages Grid -->
+            <div class="px-3">
+                <h2 class="text-xs font-bold text-gray-500 uppercase mb-3 tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-tags"></i> Select Package
+                </h2>
                 
-                <!-- Packages Grid (From Firebase) -->
-                <div class="mb-6">
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="bg-[#cd1213] text-white w-5 h-5 flex items-center justify-center text-xs font-bold rounded">1</span>
-                        <h3 class="font-bold text-gray-800 text-sm">Select Amount</h3>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-2">
-                        <div v-for="pkg in packages" :key="pkg.id" 
-                             @click="selectedPkg = pkg"
-                             :class="selectedPkg && selectedPkg.id === pkg.id ? 'border-[#cd1213] bg-red-50 ring-1 ring-[#cd1213]' : 'border-gray-200 hover:border-gray-300'"
-                             class="border rounded-lg p-2 flex flex-col items-center cursor-pointer transition relative h-20 justify-center">
-                             
-                            <img src="https://cdn-icons-png.flaticon.com/512/12411/12411656.png" class="w-5 h-5 mb-1">
+                <div class="grid grid-cols-2 gap-3">
+                    <div v-for="pkg in packages" :key="pkg.id" 
+                         @click="selectedPkg = pkg"
+                         :class="selectedPkg?.id === pkg.id ? 'pkg-active shadow-md' : 'border-gray-200 hover:border-gray-300'"
+                         class="bg-white border rounded-xl p-3 flex items-center justify-between cursor-pointer transition h-16">
+                         
+                        <div class="flex items-center gap-2">
+                            <img src="https://cdn-icons-png.flaticon.com/512/12411/12411656.png" class="w-6 h-6">
                             <span class="font-black text-gray-800 text-sm">{{ pkg.amount }}</span>
-                            
-                            <div v-if="selectedPkg && selectedPkg.id === pkg.id" class="absolute top-1 right-1 text-[#cd1213] text-xs">
-                                <i class="fa-solid fa-circle-check"></i>
-                            </div>
                         </div>
-                    </div>
-                </div>
+                        
+                        <div class="flex flex-col items-end">
+                            <span class="text-[10px] text-gray-400 font-bold">BDT</span>
+                            <span class="text-[#cd1213] font-bold text-base">{{ pkg.price }}</span>
+                        </div>
 
-                <!-- Payment Method -->
-                <div>
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="bg-[#cd1213] text-white w-5 h-5 flex items-center justify-center text-xs font-bold rounded">2</span>
-                        <h3 class="font-bold text-gray-800 text-sm">Payment Method</h3>
-                    </div>
-
-                    <!-- Wallet Payment -->
-                    <div class="border border-[#cd1213] bg-red-50 rounded-lg p-3 relative cursor-pointer flex justify-between items-center transition">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-white p-1 rounded border border-gray-200">
-                                <i class="fa-solid fa-wallet text-purple-600 text-xl"></i>
-                            </div>
-                            <div>
-                                <p class="text-xs font-bold text-gray-500">My Wallet</p>
-                                <p class="font-bold text-gray-800 text-sm">Balance: {{ userBalance }} ৳</p>
-                            </div>
-                        </div>
-                        <div v-if="selectedPkg" class="text-right">
-                            <span class="text-[10px] text-gray-400">Cost</span>
-                            <p class="font-black text-[#cd1213] text-lg">{{ selectedPkg.price }} ৳</p>
-                        </div>
-                        <div v-else class="text-gray-400 text-sm">--</div>
+                        <div v-if="selectedPkg?.id === pkg.id" class="check-badge"><i class="fa-solid fa-check"></i></div>
                     </div>
                 </div>
             </div>
+
         </div>
 
-        <!-- Sticky Bottom Bar -->
-        <div class="fixed bottom-0 w-full bg-white border-t border-gray-200 p-3 pb-safe shadow-[0_-4px_10px_rgba(0,0,0,0.05)] max-w-md z-50">
-            <div class="flex justify-between items-center">
-                <div>
-                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Total Payment</p>
-                    <div class="flex items-center gap-1">
-                        <span class="font-black text-gray-800 text-xl">{{ selectedPkg ? selectedPkg.price : 0 }}</span>
-                        <span class="text-xs font-bold text-gray-400">BDT</span>
-                    </div>
+        <!-- Sticky Footer -->
+        <div class="fixed bottom-0 w-full bg-white border-t border-gray-200 p-3 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.05)] max-w-md z-40">
+            <div class="flex justify-between items-center gap-4">
+                <div class="flex flex-col">
+                    <span class="text-[10px] text-gray-500 font-bold uppercase">Total Payable</span>
+                    <span class="font-black text-2xl text-gray-900">৳ {{ selectedPkg ? selectedPkg.price : 0 }}</span>
                 </div>
 
-                <button @click="processPurchase" :disabled="!selectedPkg || purchasing" 
-                    :class="(!selectedPkg || purchasing) ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#cd1213] hover:bg-[#a30000] shadow-lg shadow-red-200'"
-                    class="text-white px-8 py-3 rounded-lg font-bold flex items-center gap-2 transition w-1/2 justify-center">
-                    <span v-if="purchasing"><i class="fa-solid fa-spinner fa-spin"></i> Processing</span>
-                    <span v-else>Buy Now</span>
+                <button @click="handleBuy" 
+                    :disabled="!selectedPkg"
+                    :class="!selectedPkg ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-[#cd1213] hover:bg-[#a30000] text-white shadow-lg shadow-red-200'"
+                    class="flex-1 py-3.5 rounded-xl font-bold text-sm transition flex justify-center items-center gap-2">
+                    <span>Buy Now</span> <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </div>
         </div>
@@ -186,90 +196,115 @@
         createApp({
             setup() {
                 const loading = ref(true);
-                const purchasing = ref(false);
                 const games = ref([]);
                 const packages = ref([]);
+                const selectedGame = ref(null);
                 const selectedPkg = ref(null);
                 const userBalance = ref(0);
+                const popup = ref({ show: false, type: '', title: '', msg: '', btnText: 'OK' });
+                
                 const userId = localStorage.getItem('userId');
 
-                // 1. Fetch Data from Firebase
+                // --- Popup Logic ---
+                const showPopup = (type, title, msg, btnText = "OK") => {
+                    popup.value = { show: true, type, title, msg, btnText };
+                };
+
+                const closePopup = () => {
+                    if (popup.value.btnText === 'Add Money') {
+                        window.location.href = 'add-money.html';
+                        return;
+                    }
+                    if (popup.value.type === 'success') {
+                        window.location.href = 'orders.html';
+                    } else {
+                        popup.value.show = false;
+                    }
+                };
+
+                // --- Data Fetching ---
                 const fetchData = async () => {
                     try {
-                        // Load User Balance
                         if(userId) {
                             const userSnap = await getDoc(doc(db, "users", userId));
                             if(userSnap.exists()) userBalance.value = userSnap.data().balance || 0;
                         }
 
-                        // Load Games
                         const gamesSnap = await getDocs(collection(db, "topup_games"));
                         games.value = gamesSnap.docs.map(d => ({id: d.id, ...d.data()}));
 
-                        // Load Packages
                         const pkgSnap = await getDocs(collection(db, "topup_packages"));
-                        // Sort packages by price (low to high)
-                        packages.value = pkgSnap.docs.map(d => ({id: d.id, ...d.data()}))
-                                        .sort((a, b) => a.price - b.price);
+                        packages.value = pkgSnap.docs.map(d => ({id: d.id, ...d.data()})).sort((a, b) => a.price - b.price);
 
                     } catch (e) {
-                        console.error("Error loading data:", e);
-                        alert("ডাটা লোড করতে সমস্যা হচ্ছে। ইন্টারনেট চেক করুন।");
+                        console.error(e);
+                        showPopup('error', 'Error', 'Failed to load data.');
                     } finally {
                         loading.value = false;
                     }
                 };
 
-                // 2. Process Purchase
-                const processPurchase = async () => {
-                    if (!userId) return alert("প্লিজ আগে লগইন করুন!");
+                const selectGame = (game) => {
+                    selectedGame.value = game;
+                    selectedPkg.value = null; // Reset package on game change
+                };
+
+                const handleImageError = (e) => e.target.src = "https://placehold.co/100x100?text=Game";
+
+                // --- Purchase Flow ---
+                const handleBuy = () => {
+                    if (!userId) return window.location.href = 'login.html';
                     if (!selectedPkg.value) return;
 
                     if (userBalance.value < selectedPkg.value.price) {
-                        return alert("অপর্যাপ্ত ব্যালেন্স! দয়া করে টাকা এড করুন।");
+                        showPopup('error', 'Insufficient Balance', 'Please add money to your wallet.', 'Add Money');
+                        return;
                     }
 
-                    if(!confirm(`আপনি কি ${selectedPkg.value.amount} Shells কিনতে চান ${selectedPkg.value.price} টাকা দিয়ে?`)) return;
+                    const itemName = selectedGame.value 
+                        ? `${selectedGame.value.name} - ${selectedPkg.value.amount} Shells`
+                        : `${selectedPkg.value.amount} Garena Shells`;
 
-                    purchasing.value = true;
+                    showPopup('confirm', 'Confirm Purchase', `Buy ${itemName} for ${selectedPkg.value.price} Tk?`, 'Confirm');
+                };
+
+                const confirmPurchase = async () => {
+                    // Close confirm modal & show loading state (optional UI enhancement)
+                    popup.value.show = false; 
+                    loading.value = true;
 
                     try {
-                        // ১. অর্ডার তৈরি করা
+                        const itemName = selectedGame.value 
+                            ? `${selectedGame.value.name} - ${selectedPkg.value.amount} Shells`
+                            : `${selectedPkg.value.amount} Garena Shells`;
+
                         await addDoc(collection(db, "orders"), {
                             userId: userId,
-                            itemName: `${selectedPkg.value.amount} Garena Shells`,
+                            itemName: itemName,
                             price: selectedPkg.value.price,
-                            type: 'code', // এটি একটি কোড আইটেম
-                            status: 'pending', // অথবা অটোমেটিক ডেলিভারি হলে 'completed'
+                            type: 'voucher',
+                            status: 'pending',
                             createdAt: serverTimestamp()
                         });
 
-                        // ২. টাকা কেটে নেওয়া
                         const userRef = doc(db, "users", userId);
-                        await updateDoc(userRef, {
-                            balance: increment(-selectedPkg.value.price)
-                        });
+                        await updateDoc(userRef, { balance: increment(-selectedPkg.value.price) });
 
-                        alert("সফলভাবে কেনা হয়েছে! My Orders পেজে চেক করুন।");
-                        window.location.href = "orders.html";
+                        showPopup('success', 'Purchase Successful', 'Your code will be delivered shortly!', 'Check Orders');
 
                     } catch (e) {
                         console.error(e);
-                        alert("কেনাকাটা ব্যর্থ হয়েছে। আবার চেষ্টা করুন।");
+                        showPopup('error', 'Failed', 'Transaction failed. Please try again.');
                     } finally {
-                        purchasing.value = false;
+                        loading.value = false;
                     }
-                };
-
-                const handleImageError = (e) => {
-                    e.target.src = "https://placehold.co/100x100?text=Game";
                 };
 
                 onMounted(fetchData);
 
                 return { 
-                    loading, purchasing, games, packages, selectedPkg, 
-                    userBalance, processPurchase, handleImageError 
+                    loading, games, packages, selectedGame, selectedPkg, userBalance, 
+                    selectGame, handleBuy, confirmPurchase, handleImageError, popup, closePopup 
                 };
             }
         }).mount('#app');
