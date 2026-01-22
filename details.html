@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - FREE TOPUP PRO</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Roboto:wght@400;500;700&family=Noto+Serif+Bengali:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        [v-cloak] { display: none !important; }
+        .step-circle {
+            width: 24px; height: 24px; background-color: #583cb3; color: white;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: bold; margin-right: 8px;
+        }
+        .active-package { border: 2px solid #583cb3; background-color: #f3f0ff; position: relative; }
+        .check-icon {
+            position: absolute; top: -8px; right: -8px; background: #583cb3;
+            color: white; border-radius: 50%; padding: 2px; font-size: 10px;
+        }
+    </style>
+</head>
+<body class="bg-[#f0f5ff]">
+
+    <div id="app" v-cloak>
+        
+        <!-- Header -->
+        <header class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200">
+            <div class="container mx-auto px-3 py-2 flex justify-between items-center">
+                <a href="index.html" class="flex items-center gap-1 cursor-pointer">
+                    <div class="w-8 h-8 bg-black rounded-full flex items-center justify-center text-white font-bold text-xl relative">
+                        <span class="z-10">F</span>
+                        <div class="absolute w-2 h-2 bg-purple-500 rounded-full top-0 right-0"></div>
+                    </div>
+                    <div class="flex flex-col leading-none">
+                        <span class="font-black text-lg tracking-tight text-black">FREE</span>
+                        <span class="font-bold text-[10px] text-purple-700 tracking-widest">TOPUP PRO</span>
+                    </div>
+                </a>
+                <div class="flex items-center gap-3">
+                    <button class="bg-[#583cb3] text-white px-4 py-1.5 rounded-full text-sm font-bold flex items-center gap-2 shadow-md">
+                        <i class="fa-solid fa-wallet"></i> ০ ৳
+                    </button>
+                    <div class="w-9 h-9 rounded-full overflow-hidden border-2 border-purple-200">
+                        <img src="https://i.pravatar.cc/150?img=12" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="pb-24 px-3 container mx-auto max-w-md mt-4">
+            
+            <div v-if="loading" class="text-center py-10">
+                <i class="fa-solid fa-spinner fa-spin text-purple-600 text-3xl"></i>
+                <p class="text-gray-500 mt-2">লোড হচ্ছে...</p>
+            </div>
+
+            <div v-else>
+                <!-- Product Header -->
+                <div class="bg-white p-3 rounded-xl shadow-sm border border-gray-200 flex gap-4 items-center mb-4">
+                    <img :src="product.image" class="w-20 h-20 rounded-lg object-cover border border-gray-100" @error="handleImageError">
+                    <div>
+                        <h1 class="font-bold text-lg text-gray-800">{{ product.name }}</h1>
+                        <p class="text-xs text-gray-500 capitalize">Category: {{ product.category }}</p>
+                    </div>
+                </div>
+
+                <!-- STEP 1: Select Recharge -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-4">
+                    <h3 class="flex items-center font-bold text-gray-800 mb-3">
+                        <div class="step-circle">1</div> Select Recharge
+                    </h3>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div v-for="pack in packages" :key="pack.id" 
+                             @click="selectedPackage = pack"
+                             :class="selectedPackage?.id === pack.id ? 'active-package' : 'border border-gray-200'"
+                             class="p-3 rounded-lg text-center cursor-pointer hover:border-purple-300 transition">
+                            <i v-if="selectedPackage?.id === pack.id" class="fa-solid fa-check check-icon"></i>
+                            <div class="font-bold text-sm text-gray-700">{{ pack.name }}</div>
+                            <div class="text-[#583cb3] font-bold text-xs mt-1">BDT {{ pack.price }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Account Info -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-4">
+                    <h3 class="flex items-center font-bold text-gray-800 mb-3">
+                        <div class="step-circle">2</div> Account Info
+                    </h3>
+                    <label class="text-xs font-bold text-gray-600 block mb-1">এখানে প্লেয়ার আইডি বসান</label>
+                    <input v-model="playerId" type="text" placeholder="UID Example: 12345678" 
+                           class="w-full border border-gray-300 rounded-md p-2.5 text-sm focus:outline-none focus:border-purple-500 mb-3">
+                </div>
+
+                <!-- STEP 3: Select Payment -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-4">
+                    <h3 class="flex items-center font-bold text-gray-800 mb-3">
+                        <div class="step-circle">3</div> Select Payment
+                    </h3>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div @click="paymentMethod = 'wallet'" :class="paymentMethod === 'wallet' ? 'border-red-500 bg-red-50' : 'border-gray-200'" class="border rounded-lg p-4 text-center cursor-pointer relative">
+                            <div v-if="paymentMethod === 'wallet'" class="absolute top-0 left-0 bg-red-500 text-white text-[10px] px-1 rounded-br">✔</div>
+                            <i class="fa-solid fa-wallet text-2xl text-orange-500 mb-1"></i>
+                            <div class="text-xs font-bold">Wallet Pay</div>
+                        </div>
+                        <div @click="paymentMethod = 'instant'" :class="paymentMethod === 'instant' ? 'border-red-500 bg-red-50' : 'border-gray-200'" class="border rounded-lg p-4 text-center cursor-pointer relative">
+                            <div v-if="paymentMethod === 'instant'" class="absolute top-0 left-0 bg-red-500 text-white text-[10px] px-1 rounded-br">✔</div>
+                            <div class="flex justify-center gap-1 mb-1">
+                                <img src="https://seeklogo.com/images/B/bkash-logo-FBB258B90F-seeklogo.com.png" class="h-4">
+                                <img src="https://seeklogo.com/images/N/nagad-logo-7A70CCFEE0-seeklogo.com.png" class="h-4">
+                            </div>
+                            <div class="text-xs font-bold">Instant Pay</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 border-t pt-3">
+                        <div class="flex justify-between text-sm font-bold text-gray-700 mb-3">
+                            <span>Total Price:</span>
+                            <span class="text-purple-600">৳ {{ selectedPackage ? selectedPackage.price : 0 }}</span>
+                        </div>
+                        <button @click="handleBuy" class="w-full bg-[#583cb3] text-white py-3 rounded-md font-bold text-base shadow-lg hover:bg-purple-800 transition">
+                            Buy Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Nav -->
+        <div class="fixed bottom-0 w-full bg-white border-t border-gray-200 z-50 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <div class="grid grid-cols-5 h-16 max-w-md mx-auto">
+                <a href="index.html" class="nav-item"><i class="fa-solid fa-house"></i><span>Home</span></a>
+                <div class="nav-item"><i class="fa-solid fa-wallet"></i><span>Add Money</span></div>
+                <div class="nav-item"><i class="fa-solid fa-file-invoice"></i><span>My Orders</span></div>
+                <div class="nav-item"><i class="fa-solid fa-gift"></i><span>My Codes</span></div>
+                <div class="nav-item"><i class="fa-solid fa-user"></i><span>Account</span></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { createApp, ref, onMounted } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyACUK207BRvtR5yc1UhYLS9FlMitVVlrrE",
+          authDomain: "freetopup-fd263.firebaseapp.com",
+          projectId: "freetopup-fd263",
+          storageBucket: "freetopup-fd263.firebasestorage.app",
+          messagingSenderId: "756173302110",
+          appId: "1:756173302110:web:14227664f6b5d14d9047cf"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        createApp({
+            setup() {
+                const loading = ref(true);
+                const product = ref({});
+                const selectedPackage = ref(null);
+                const playerId = ref('');
+                const paymentMethod = ref('instant');
+
+                // Dynamic Packages based on Price in DB (Logic)
+                const packages = ref([]);
+
+                const generatePackages = (basePrice) => {
+                    const price = Number(basePrice) || 100;
+                    packages.value = [
+                        { id: 1, name: 'Small Pack', price: price },
+                        { id: 2, name: 'Medium Pack', price: price * 2 },
+                        { id: 3, name: 'Big Pack', price: price * 5 },
+                        { id: 4, name: 'Weekly Membership', price: 160 },
+                        { id: 5, name: 'Monthly Membership', price: 800 }
+                    ];
+                };
+
+                const fetchProduct = async () => {
+                    const params = new URLSearchParams(window.location.search);
+                    const id = params.get('id');
+
+                    if (!id) {
+                        alert("Product not found!");
+                        window.location.href = 'index.html';
+                        return;
+                    }
+
+                    try {
+                        const docRef = doc(db, "products", id);
+                        const docSnap = await getDoc(docRef);
+
+                        if (docSnap.exists()) {
+                            product.value = docSnap.data();
+                            generatePackages(product.value.price);
+                        } else {
+                            alert("Product does not exist!");
+                            window.location.href = 'index.html';
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                    } finally {
+                        loading.value = false;
+                    }
+                };
+
+                const handleBuy = () => {
+                    if(!selectedPackage.value) return alert("Please select a package!");
+                    if(!playerId.value) return alert("Please enter Player ID!");
+                    alert(`Order Successful!\nPackage: ${selectedPackage.value.name}\nPrice: ${selectedPackage.value.price} Tk`);
+                };
+
+                const handleImageError = (e) => {
+                    e.target.src = "https://placehold.co/400x400?text=No+Image";
+                };
+
+                onMounted(() => {
+                    fetchProduct();
+                });
+
+                return {
+                    loading, product, packages, selectedPackage, 
+                    playerId, paymentMethod, handleBuy, handleImageError
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
