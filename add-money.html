@@ -13,7 +13,10 @@
     
     <style>
         body { font-family: 'Roboto', sans-serif; background-color: #f0f5ff; }
-        [v-cloak] { display: none; }
+        
+        /* 🔥 FIX: v-cloak display none important */
+        [v-cloak] { display: none !important; }
+        
         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
         
         /* Bottom Nav */
@@ -21,27 +24,28 @@
         .nav-item i { font-size: 18px; margin-bottom: 4px; }
         .nav-item.active { color: #583cb3; font-weight: 700; }
 
-        /* Animation */
+        /* Page Transition */
         .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
         .fade-enter-from, .fade-leave-to { opacity: 0; }
 
         /* 🔥 POPUP ANIMATION 🔥 */
-        .pop-enter-active, .pop-leave-active { transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
-        .pop-enter-from, .pop-leave-to { opacity: 0; transform: scale(0.8); }
+        .pop-enter-active { transition: all 0.3s ease-out; }
+        .pop-leave-active { transition: all 0.2s ease-in; }
+        .pop-enter-from, .pop-leave-to { opacity: 0; transform: scale(0.9); }
     </style>
 </head>
 <body class="bg-[#f0f5ff]">
 
     <div id="app" v-cloak class="max-w-md mx-auto min-h-screen relative flex flex-col">
         
-        <!-- 🔥 CUSTOM POPUP MODAL (Success & Error) 🔥 -->
+        <!-- 🔥 CUSTOM POPUP MODAL (Fixed) 🔥 -->
         <transition name="pop">
             <div v-if="popup.show" class="fixed inset-0 z-[100] flex items-center justify-center px-6">
                 <!-- Backdrop -->
                 <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="closePopup"></div>
                 
                 <!-- Modal Card -->
-                <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm relative z-10 text-center">
+                <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm relative z-10 text-center transform transition-all">
                     
                     <!-- Icon Based on Type -->
                     <div v-if="popup.type === 'success'" class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-500">
@@ -56,7 +60,7 @@
                     
                     <button @click="closePopup" 
                         :class="popup.type === 'success' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'"
-                        class="w-full text-white py-3 rounded-xl font-bold transition shadow-lg">
+                        class="w-full text-white py-3 rounded-xl font-bold transition shadow-lg active:scale-95">
                         {{ popup.btnText }}
                     </button>
                 </div>
@@ -242,26 +246,24 @@
                 const loading = ref(false);
                 const adminNumber = ref('Loading...');
                 
-                // 🔥 POPUP STATE
+                // 🔥 Fixed: Initial state is strictly FALSE with EMPTY strings
                 const popup = ref({ 
                     show: false, 
-                    type: 'error', // 'success' or 'error'
+                    type: '', 
                     title: '', 
                     msg: '', 
-                    btnText: 'OK' 
+                    btnText: '' 
                 });
 
                 const userId = localStorage.getItem('userId');
                 if(!userId) window.location.href = 'login.html';
 
-                // 🔥 POPUP HELPERS
                 const showPopup = (type, title, msg, btnText = "OK") => {
                     popup.value = { show: true, type, title, msg, btnText };
                 };
 
                 const closePopup = () => {
                     popup.value.show = false;
-                    // If success, redirect
                     if(popup.value.type === 'success') {
                         window.location.href = "account.html";
                     }
@@ -324,7 +326,6 @@
                             createdAt: serverTimestamp()
                         });
                         
-                        // 🔥 SUCCESS POPUP CALL
                         showPopup('success', 'Deposit Submitted', 'Your request has been submitted successfully! Please wait for admin approval.', 'Go to Account');
                         
                     } catch (e) {
