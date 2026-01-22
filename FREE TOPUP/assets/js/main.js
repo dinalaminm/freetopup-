@@ -1,8 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { createApp, ref, onMounted, nextTick } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
-// 🔥 আপনার ফায়ারবেস কনফিগারেশন (আপনার দেওয়া তথ্য অনুযায়ী)
+// আপনার কনফিগারেশন
 const firebaseConfig = {
   apiKey: "AIzaSyACUK207BRvtR5yc1UhYLS9FlMitVVlrrE",
   authDomain: "freetopup-fd263.firebaseapp.com",
@@ -18,9 +18,7 @@ const db = getFirestore(app);
 createApp({
     setup() {
         const loading = ref(true);
-        const noticeMessage = ref("নোটিশ লোড হচ্ছে...");
-        
-        // সব অ্যারে প্রথমে ফাঁকা রাখা হয়েছে (যেন র‍্যান্ডম ডাটা না আসে)
+        const noticeMessage = ref("লোড হচ্ছে...");
         const banners = ref([]);
         const mysteryBoxes = ref([]);
         const specialOffers = ref([]);
@@ -28,30 +26,35 @@ createApp({
         const ingameItems = ref([]);
         const subscriptions = ref([]);
         
-        // এটি স্ট্যাটিক রাখা হলো সৌন্দর্যের জন্য, চাইলে এটিও ডাটাবেস থেকে আনা যাবে
         const latestOrders = ref([
             { id: 1, name: 'Md Solim', avatar: 'MS', bgColor: 'bg-purple-500', item: '115 Diamonds', time: '1 min ago', verified: true },
             { id: 2, name: 'Rakibul', avatar: 'R', bgColor: 'bg-orange-500', item: 'Weekly Plus', time: '3 min ago', verified: true }
         ]);
 
+        // 🔥 নতুন ক্লিক ফাংশন (লিংক ওপেন করার জন্য)
+        const goToDetails = (id) => {
+            console.log("Clicking ID:", id);
+            if (id) {
+                window.location.href = `details.html?id=${id}`;
+            } else {
+                alert("Product ID not found!");
+            }
+        };
+
+        // ব্রোকেন ইমেজ হ্যান্ডলার
+        const handleImageError = (e) => {
+            e.target.src = "https://placehold.co/400x400?text=No+Image";
+        };
+
         const fetchData = async () => {
             try {
-                console.log("Fetching data from Firebase...");
+                // নোটিশ
+                noticeMessage.value = "আসসালামু আলাইকুম। আমাদের সাইটে বিকাশ, নগদ এবং রকেটের মাধ্যমে পেমেন্ট করতে পারবেন।";
 
-                // ১. নোটিশ আনা
-                const settingsSnap = await getDocs(collection(db, "settings"));
-                settingsSnap.forEach((doc) => {
-                    if (doc.id === "notice") noticeMessage.value = doc.data().text;
-                });
-
-                // ২. ব্যানার আনা
-                const bannerSnap = await getDocs(collection(db, "banners"));
-                banners.value = bannerSnap.docs.map(doc => doc.data().image);
-
-                // ৩. প্রোডাক্টস আনা
+                // প্রোডাক্টস
                 const productsSnap = await getDocs(collection(db, "products"));
                 
-                // আগের সব ডাটা ক্লিয়ার করা হচ্ছে (ডুপ্লিকেট এড়াতে)
+                // ডাটা ক্লিয়ার করা (ডুপ্লিকেট এড়াতে)
                 mysteryBoxes.value = [];
                 specialOffers.value = [];
                 freeFireItems.value = [];
@@ -61,7 +64,6 @@ createApp({
                 productsSnap.forEach((doc) => {
                     const item = { id: doc.id, ...doc.data() };
                     
-                    // ক্যাটাগরি ম্যাচিং (খুব সাবধানে চেক করুন)
                     if (item.category === 'mystery') mysteryBoxes.value.push(item);
                     else if (item.category === 'special') specialOffers.value.push(item);
                     else if (item.category === 'freefire') freeFireItems.value.push(item);
@@ -69,10 +71,13 @@ createApp({
                     else if (item.category === 'subscription') subscriptions.value.push(item);
                 });
 
-                console.log("Data loaded successfully!");
+                // ব্যানার
+                const bannerSnap = await getDocs(collection(db, "banners"));
+                banners.value = bannerSnap.docs.map(doc => doc.data().image);
+
                 loading.value = false;
 
-                // স্লাইডার চালু করা (ডাটা আসার পর)
+                // স্লাইডার
                 await nextTick();
                 new Swiper(".mySwiper", {
                     loop: true,
@@ -81,14 +86,9 @@ createApp({
                 });
 
             } catch (error) {
-                console.error("Error fetching data:", error);
-                noticeMessage.value = "ডাটা লোড হতে সমস্যা হচ্ছে।";
+                console.error("Error:", error);
+                noticeMessage.value = "ডাটা লোড সমস্যা! (চেক কনসোল)";
             }
-        };
-
-        // ব্রোকেন ইমেজ হ্যান্ডলার (যদি ইমেজ লিংক ভুল থাকে তবে ডিফল্ট ছবি দেখাবে)
-        const handleImageError = (event) => {
-            event.target.src = "https://placehold.co/400x400?text=No+Image";
         };
 
         onMounted(() => {
@@ -98,7 +98,9 @@ createApp({
         return {
             loading, noticeMessage, banners,
             mysteryBoxes, specialOffers, freeFireItems, ingameItems, subscriptions,
-            latestOrders, handleImageError
+            latestOrders, 
+            goToDetails, // 🔥 এই ফাংশনটি রিটার্ন করা হয়েছে
+            handleImageError
         };
     }
 }).mount('#app');
