@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FREE TOPUP PRO - Login</title>
+    
+    <!-- CDNs -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Roboto:wght@400;500;700&family=Noto+Serif+Bengali:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Roboto', 'Noto Serif Bengali', sans-serif;
+            background-color: #f0f5ff;
+            -webkit-tap-highlight-color: transparent;
+        }
+        [v-cloak] { display: none !important; }
+        .font-serif { font-family: 'Bree Serif', serif; }
+        
+        /* ইনপুট ফিল্ড ফোকাস এফেক্ট */
+        .input-field:focus {
+            border-color: #583cb3;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(88, 60, 179, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-[#f0f5ff]">
+
+    <div id="app" v-cloak class="max-w-md mx-auto bg-[#f0f5ff] min-h-screen relative flex flex-col justify-center px-6">
+        
+        <!-- Logo Section -->
+        <div class="flex flex-col items-center justify-center mb-8 mt-10">
+            <div class="flex items-center gap-2 scale-125 mb-2">
+                <div class="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white font-bold text-2xl relative">
+                    <span class="z-10">F</span>
+                    <div class="absolute w-2.5 h-2.5 bg-purple-500 rounded-full top-0 right-0"></div>
+                </div>
+                <div class="flex flex-col leading-none">
+                    <span class="font-black text-2xl tracking-tight text-black">FREE</span>
+                    <span class="font-bold text-xs text-purple-700 tracking-widest">TOPUP PRO</span>
+                </div>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mt-4">Welcome Back</h2>
+            <p class="text-sm text-gray-500">Login to continue using the app</p>
+        </div>
+
+        <!-- Login Card -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
+            
+            <!-- Google Login Button -->
+            <button @click="handleGoogleLogin" class="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 py-2.5 rounded-lg hover:bg-gray-50 transition font-medium mb-6 relative">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
+                <span>Login with Google</span>
+            </button>
+
+            <div class="relative flex py-2 items-center mb-6">
+                <div class="flex-grow border-t border-gray-200"></div>
+                <span class="flex-shrink-0 mx-4 text-gray-400 text-xs">Or login with credentials</span>
+                <div class="flex-grow border-t border-gray-200"></div>
+            </div>
+
+            <!-- Email & Password Form -->
+            <form @submit.prevent="handleEmailLogin" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" v-model="email" placeholder="Enter your email" required
+                        class="input-field w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm transition bg-gray-50 focus:bg-white">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" v-model="password" placeholder="Enter your password" required
+                        class="input-field w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm transition bg-gray-50 focus:bg-white">
+                </div>
+
+                <div class="flex justify-end">
+                    <a href="#" class="text-xs font-semibold text-[#583cb3] hover:underline">Forgot Password?</a>
+                </div>
+
+                <!-- Login Button -->
+                <button type="submit" :disabled="loading" 
+                    class="w-full bg-[#583cb3] text-white font-bold py-3 rounded-lg shadow-lg hover:bg-[#452e91] transition flex justify-center items-center gap-2">
+                    <span v-if="loading" class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+                    <span v-else>Login</span>
+                </button>
+            </form>
+
+            <!-- Register Link -->
+            <p class="text-center text-sm text-gray-600 mt-6">
+                New user to FREE TOPUP PRO? 
+                <a href="register.html" class="text-[#583cb3] font-bold hover:underline">Register Now</a>
+            </p>
+        </div>
+
+        <!-- Footer Info -->
+        <div class="text-center pb-8 mt-auto">
+            <h3 class="font-serif font-bold text-xs mb-3 tracking-widest text-gray-400">STAY CONNECTED</h3>
+            <div class="flex justify-center gap-4 mb-4">
+                <a href="#" class="w-8 h-8 rounded-lg bg-blue-600/10 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition"><i class="fa-brands fa-facebook-f"></i></a>
+                <a href="#" class="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-500 flex items-center justify-center hover:bg-sky-500 hover:text-white transition"><i class="fa-brands fa-telegram"></i></a>
+                <a href="#" class="w-8 h-8 rounded-lg bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition"><i class="fa-brands fa-youtube"></i></a>
+            </div>
+            <p class="text-[10px] text-gray-400">© FREE TOPUP PRO 2026</p>
+        </div>
+
+    </div>
+
+    <!-- Vue Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { createApp, ref } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+
+        // আপনার Firebase Config (index.html থেকে নেওয়া)
+        const firebaseConfig = {
+          apiKey: "AIzaSyACUK207BRvtR5yc1UhYLS9FlMitVVlrrE",
+          authDomain: "freetopup-fd263.firebaseapp.com",
+          projectId: "freetopup-fd263",
+          storageBucket: "freetopup-fd263.firebasestorage.app",
+          messagingSenderId: "756173302110",
+          appId: "1:756173302110:web:14227664f6b5d14d9047cf"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        createApp({
+            setup() {
+                const email = ref("");
+                const password = ref("");
+                const loading = ref(false);
+
+                // সফল লগইন হ্যান্ডলার
+                const onLoginSuccess = async (user) => {
+                    localStorage.setItem('userId', user.uid); // লোকাল স্টোরেজে আইডি সেভ
+                    
+                    // ইউজারের ডাটাবেস চেক করা, না থাকলে তৈরি করা
+                    const userRef = doc(db, "users", user.uid);
+                    const userSnap = await getDoc(userRef);
+                    
+                    if (!userSnap.exists()) {
+                        await setDoc(userRef, {
+                            email: user.email,
+                            name: user.displayName || "User",
+                            balance: 0,
+                            joinedAt: new Date()
+                        });
+                    }
+                    
+                    // হোমপেজে রিডাইরেক্ট
+                    window.location.href = "index.html";
+                };
+
+                // গুগল লগইন
+                const handleGoogleLogin = async () => {
+                    try {
+                        const provider = new GoogleAuthProvider();
+                        const result = await signInWithPopup(auth, provider);
+                        onLoginSuccess(result.user);
+                    } catch (error) {
+                        console.error("Google Login Error:", error);
+                        alert("Google Login Failed: " + error.message);
+                    }
+                };
+
+                // ইমেইল পাসওয়ার্ড লগইন
+                const handleEmailLogin = async () => {
+                    if(!email.value || !password.value) return;
+                    loading.value = true;
+                    try {
+                        const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
+                        onLoginSuccess(userCredential.user);
+                    } catch (error) {
+                        console.error("Login Error:", error);
+                        alert("Invalid Email or Password!");
+                    } finally {
+                        loading.value = false;
+                    }
+                };
+
+                return {
+                    email, password, loading,
+                    handleGoogleLogin, handleEmailLogin
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
