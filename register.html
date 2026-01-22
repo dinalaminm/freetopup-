@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FREE TOPUP PRO - Register</title>
+    
+    <!-- CDNs -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Roboto:wght@400;500;700&family=Noto+Serif+Bengali:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Roboto', 'Noto Serif Bengali', sans-serif;
+            background-color: #f0f5ff;
+            -webkit-tap-highlight-color: transparent;
+        }
+        [v-cloak] { display: none !important; }
+        .font-serif { font-family: 'Bree Serif', serif; }
+        
+        /* ইনপুট ফিল্ড ফোকাস এফেক্ট */
+        .input-field:focus {
+            border-color: #583cb3;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(88, 60, 179, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-[#f0f5ff]">
+
+    <div id="app" v-cloak class="max-w-md mx-auto bg-[#f0f5ff] min-h-screen relative flex flex-col">
+        
+        <!-- Header with Login Button -->
+        <header class="flex justify-between items-center p-4">
+            <!-- Logo -->
+            <div class="flex items-center gap-1">
+                <div class="w-8 h-8 bg-black rounded-full flex items-center justify-center text-white font-bold text-xl relative">
+                    <span class="z-10">F</span>
+                    <div class="absolute w-2 h-2 bg-purple-500 rounded-full top-0 right-0"></div>
+                </div>
+                <div class="flex flex-col leading-none">
+                    <span class="font-black text-lg tracking-tight text-black">FREE</span>
+                    <span class="font-bold text-[10px] text-purple-700 tracking-widest">TOPUP PRO</span>
+                </div>
+            </div>
+            <!-- Login Btn -->
+            <a href="login.html" class="bg-[#583cb3] text-white px-4 py-1.5 rounded text-sm font-bold shadow hover:bg-purple-800 transition no-underline">
+                Login
+            </a>
+        </header>
+
+        <!-- Main Content -->
+        <div class="px-4 pb-8 flex-grow flex flex-col justify-center">
+            
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 mt-2">Create Account</h2>
+
+            <!-- Register Card -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-6">
+                
+                <!-- Google Button -->
+                <button @click="handleGoogleRegister" class="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 py-2.5 rounded-lg hover:bg-gray-50 transition font-medium mb-5 relative">
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
+                    <span>Sign up with Google</span>
+                </button>
+
+                <div class="relative flex py-2 items-center mb-5">
+                    <div class="flex-grow border-t border-gray-200"></div>
+                    <span class="flex-shrink-0 mx-4 text-gray-400 text-xs">Or sign up with credentials</span>
+                    <div class="flex-grow border-t border-gray-200"></div>
+                </div>
+
+                <!-- Registration Form -->
+                <form @submit.prevent="handleRegister" class="space-y-3">
+                    
+                    <!-- Name -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Name</label>
+                        <input type="text" v-model="name" placeholder="Enter full name" required
+                            class="input-field w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm transition bg-gray-50 focus:bg-white">
+                    </div>
+
+                    <!-- Phone -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Phone</label>
+                        <input type="tel" v-model="phone" placeholder="Enter phone number" required
+                            class="input-field w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm transition bg-gray-50 focus:bg-white">
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Email</label>
+                        <input type="email" v-model="email" placeholder="Enter email address" required
+                            class="input-field w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm transition bg-gray-50 focus:bg-white">
+                    </div>
+                    
+                    <!-- Password -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Password</label>
+                        <input type="password" v-model="password" placeholder="Create password" required
+                            class="input-field w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm transition bg-gray-50 focus:bg-white">
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Confirm Password</label>
+                        <input type="password" v-model="confirmPassword" placeholder="Confirm password" required
+                            class="input-field w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm transition bg-gray-50 focus:bg-white">
+                        <p v-if="passwordMismatch" class="text-red-500 text-xs mt-1">Passwords do not match!</p>
+                    </div>
+
+                    <!-- Register Button -->
+                    <button type="submit" :disabled="loading" 
+                        class="w-full bg-[#583cb3] text-white font-bold py-3 rounded-lg shadow-lg hover:bg-[#452e91] transition flex justify-center items-center gap-2 mt-4">
+                        <span v-if="loading" class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+                        <span v-else>Register</span>
+                    </button>
+                </form>
+
+                <p class="text-center text-sm text-gray-600 mt-4">
+                    Already a member? 
+                    <a href="login.html" class="text-[#583cb3] font-bold hover:underline">Login Now</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer Info -->
+        <div class="bg-[#0f172a] text-white py-8 px-4 rounded-t-3xl mt-auto">
+            <h3 class="font-serif font-bold text-sm mb-4 tracking-widest text-center text-gray-400">STAY CONNECTED</h3>
+            <div class="flex justify-center gap-4 mb-6">
+                <a href="#" class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-blue-600 transition text-white"><i class="fa-brands fa-facebook-f"></i></a>
+                <a href="#" class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-blue-400 transition text-white"><i class="fa-brands fa-telegram"></i></a>
+                <a href="#" class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-red-500 transition text-white"><i class="fa-brands fa-youtube"></i></a>
+                <a href="#" class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-gray-500 transition text-white"><i class="fa-regular fa-envelope"></i></a>
+            </div>
+            
+            <div class="border-t border-gray-700 pt-4 text-center">
+                 <p class="text-xs text-gray-500">© FREE TOPUP PRO 2026</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Vue Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { createApp, ref, computed } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+
+        // Firebase Config
+        const firebaseConfig = {
+          apiKey: "AIzaSyACUK207BRvtR5yc1UhYLS9FlMitVVlrrE",
+          authDomain: "freetopup-fd263.firebaseapp.com",
+          projectId: "freetopup-fd263",
+          storageBucket: "freetopup-fd263.firebasestorage.app",
+          messagingSenderId: "756173302110",
+          appId: "1:756173302110:web:14227664f6b5d14d9047cf"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        createApp({
+            setup() {
+                const name = ref("");
+                const phone = ref("");
+                const email = ref("");
+                const password = ref("");
+                const confirmPassword = ref("");
+                const loading = ref(false);
+
+                // পাসওয়ার্ড মিসম্যাচ চেক
+                const passwordMismatch = computed(() => {
+                    return password.value && confirmPassword.value && password.value !== confirmPassword.value;
+                });
+
+                // ডাটাবেসে ইউজার সেভ করা
+                const saveUserToFirestore = async (user, additionalData = {}) => {
+                    const userRef = doc(db, "users", user.uid);
+                    const userSnap = await getDoc(userRef);
+
+                    if (!userSnap.exists()) {
+                        await setDoc(userRef, {
+                            uid: user.uid,
+                            email: user.email,
+                            name: additionalData.name || user.displayName || "User",
+                            phone: additionalData.phone || "",
+                            balance: 0,
+                            photoURL: user.photoURL || "https://i.pravatar.cc/150?img=12",
+                            joinedAt: new Date().toISOString()
+                        });
+                    }
+                };
+
+                // ইমেইল দিয়ে রেজিস্ট্রেশন
+                const handleRegister = async () => {
+                    if (passwordMismatch.value) return;
+                    if (password.value.length < 6) {
+                        alert("Password must be at least 6 characters");
+                        return;
+                    }
+
+                    loading.value = true;
+                    try {
+                        const result = await createUserWithEmailAndPassword(auth, email.value, password.value);
+                        
+                        // প্রোফাইল আপডেট (ডিসপ্লে নেম)
+                        await updateProfile(result.user, {
+                            displayName: name.value
+                        });
+
+                        // ডাটাবেসে সেভ
+                        await saveUserToFirestore(result.user, {
+                            name: name.value,
+                            phone: phone.value
+                        });
+
+                        localStorage.setItem('userId', result.user.uid);
+                        alert("Account Created Successfully!");
+                        window.location.href = "index.html";
+                        
+                    } catch (error) {
+                        console.error("Registration Error:", error);
+                        let msg = "Registration Failed!";
+                        if(error.code === 'auth/email-already-in-use') msg = "Email already used. Please Login.";
+                        alert(msg);
+                    } finally {
+                        loading.value = false;
+                    }
+                };
+
+                // গুগল দিয়ে রেজিস্ট্রেশন
+                const handleGoogleRegister = async () => {
+                    try {
+                        const provider = new GoogleAuthProvider();
+                        const result = await signInWithPopup(auth, provider);
+                        
+                        // ডাটাবেসে সেভ (যদি নতুন হয়)
+                        await saveUserToFirestore(result.user);
+                        
+                        localStorage.setItem('userId', result.user.uid);
+                        window.location.href = "index.html";
+                    } catch (error) {
+                        console.error("Google Auth Error:", error);
+                    }
+                };
+
+                return {
+                    name, phone, email, password, confirmPassword,
+                    loading, passwordMismatch,
+                    handleRegister, handleGoogleRegister
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
