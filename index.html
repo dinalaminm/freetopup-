@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FREE TOPUP PRO</title>
+    <title>FREE TOPUP PRO - Home</title>
     
     <!-- CDNs -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,16 +12,59 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Roboto:wght@400;500;700&family=Noto+Serif+Bengali:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- CSS Link -->
-    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        body {
+            font-family: 'Roboto', 'Noto Serif Bengali', sans-serif;
+            background-color: #f0f5ff;
+            -webkit-tap-highlight-color: transparent;
+        }
+        [v-cloak] { display: none !important; }
+        
+        /* ফন্ট স্টাইল */
+        .font-serif { font-family: 'Bree Serif', serif; letter-spacing: 0.5px; }
+        
+        /* সেকশন টাইটেল */
+        .section-title {
+            text-align: center;
+            color: #1e3a8a;
+            font-family: 'Bree Serif', serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            padding-top: 1rem;
+        }
+
+        /* সোয়াইপার ডট */
+        .swiper-pagination-bullet-active {
+            background: #583cb3 !important;
+            width: 18px; border-radius: 4px;
+        }
+
+        /* কার্ড হোভার ইফেক্ট */
+        .product-card {
+            transition: transform 0.2s ease;
+        }
+        .product-card:active { transform: scale(0.95); }
+
+        /* বটম নেভিগেশন */
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 500; color: #64748b; text-decoration: none;
+            transition: color 0.2s;
+        }
+        .nav-item i { font-size: 18px; margin-bottom: 4px; }
+        .nav-item.active { color: #583cb3; font-weight: 700; }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+    </style>
 </head>
 <body class="bg-[#f0f5ff]">
 
-    <div id="app" v-cloak>
+    <div id="app" v-cloak class="max-w-md mx-auto bg-[#f0f5ff] min-h-screen relative flex flex-col">
         
         <!-- Header -->
-        <header class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200">
-            <div class="container mx-auto px-3 py-2 flex justify-between items-center max-w-md">
+        <header class="sticky top-0 z-40 bg-white shadow-sm border-b border-gray-200">
+            <div class="px-3 py-2 flex justify-between items-center">
                 <!-- Logo -->
                 <a href="index.html" class="flex items-center gap-1 cursor-pointer no-underline">
                     <div class="w-8 h-8 bg-black rounded-full flex items-center justify-center text-white font-bold text-xl relative">
@@ -36,8 +79,7 @@
                 
                 <!-- Wallet & Profile -->
                 <div class="flex items-center gap-2">
-                    <!-- 🔥 UPDATED: Balance Display -->
-                    <a href="add-money.html" class="bg-[#583cb3] text-white px-3 py-1 rounded-md text-sm font-bold flex items-center gap-2 shadow-sm no-underline">
+                    <a href="add-money.html" class="bg-[#583cb3] text-white px-3 py-1 rounded-md text-sm font-bold flex items-center gap-2 shadow-sm hover:bg-purple-800 transition no-underline">
                         <i class="fa-solid fa-wallet"></i> {{ userBalance }} ৳
                     </a>
                     <a href="account.html" class="w-8 h-8 rounded-full overflow-hidden border border-gray-300">
@@ -48,13 +90,13 @@
         </header>
 
         <!-- Notice Bar -->
-        <div v-if="noticeMessage" class="bg-[#4c3db2] text-white py-2 px-3 flex items-center gap-2 shadow-md max-w-md mx-auto">
+        <div class="bg-[#4c3db2] text-white py-2 px-3 flex items-center gap-2 shadow-md">
             <span class="font-bold text-white text-xs bg-white/20 px-2 py-0.5 rounded">Notice:</span>
             <marquee class="text-xs font-serif font-medium tracking-wide">{{ noticeMessage }}</marquee>
         </div>
 
         <!-- Main Content -->
-        <main class="pb-24 px-2 container mx-auto max-w-md">
+        <main class="pb-24 px-3 flex-grow">
             
             <!-- Loading Spinner -->
             <div v-if="loading" class="flex flex-col justify-center items-center h-64">
@@ -68,15 +110,30 @@
                     <div class="swiper mySwiper">
                         <div class="swiper-wrapper">
                             <div class="swiper-slide" v-for="(banner, index) in banners" :key="index">
-                                <img :src="banner" @error="handleImageError" class="w-full h-40 object-cover">
+                                <img :src="banner" class="w-full h-40 object-cover">
                             </div>
                         </div>
                         <div class="swiper-pagination"></div>
                     </div>
                 </div>
 
+                <!-- Garena Topup Link (Shortcut) -->
+                <!-- আপনি যদি সরাসরি Garena পেজে নিতে চান তবে এটি ব্যবহার করতে পারেন -->
+                <div class="mt-4 grid grid-cols-1">
+                     <a href="topup.html" class="bg-gradient-to-r from-red-600 to-red-800 text-white p-3 rounded-xl shadow-lg flex justify-between items-center group">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-white/20 p-2 rounded-lg"><i class="fa-solid fa-fire text-yellow-300"></i></div>
+                            <div>
+                                <h3 class="font-bold text-sm">Garena Shell</h3>
+                                <p class="text-[10px] text-white/80">Official Topup Center</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right group-hover:translate-x-1 transition"></i>
+                     </a>
+                </div>
+
                 <!-- MYSTERY BOX -->
-                <div v-if="mysteryBoxes.length > 0" class="mt-6">
+                <div v-if="mysteryBoxes.length > 0">
                     <h2 class="section-title">MYSTERY BOX</h2>
                     <div class="grid grid-cols-2 gap-3">
                         <div v-for="item in mysteryBoxes" :key="item.id" @click="goToDetails(item.id)" class="flex flex-col items-center cursor-pointer">
@@ -91,7 +148,7 @@
                 </div>
 
                 <!-- SPECIAL OFFER -->
-                <div v-if="specialOffers.length > 0" class="mt-6">
+                <div v-if="specialOffers.length > 0">
                     <h2 class="section-title">SPECIAL OFFER</h2>
                     <div class="grid grid-cols-2 gap-3">
                         <div v-for="item in specialOffers" :key="item.id" @click="goToDetails(item.id)" class="product-card aspect-[4/3] relative rounded-xl overflow-hidden shadow-sm border border-gray-100 group cursor-pointer">
@@ -104,11 +161,11 @@
                 </div>
 
                 <!-- FREE FIRE -->
-                <div v-if="freeFireItems.length > 0" class="mt-6">
+                <div v-if="freeFireItems.length > 0">
                     <h2 class="section-title">FREE FIRE</h2>
                     <div class="grid grid-cols-3 gap-3">
-                        <div v-for="item in freeFireItems" :key="item.id" @click="goToDetails(item.id)" class="bg-gradient-to-b from-[#180e3d] to-[#2a1b63] p-[1px] rounded-xl shadow-lg border border-purple-900/50 cursor-pointer product-card">
-                            <div class="bg-[#120833] rounded-[10px] p-2 flex flex-col items-center h-full relative overflow-hidden">
+                        <div v-for="item in freeFireItems" :key="item.id" @click="goToDetails(item.id)" class="bg-gradient-to-b from-[#180e3d] to-[#2a1b63] p-[1px] rounded-xl shadow-lg border border-purple-900/50 cursor-pointer product-card group">
+                            <div class="bg-[#120833] rounded-[10px] p-2 flex flex-col items-center h-full relative overflow-hidden group-hover:bg-[#1a0c45] transition">
                                 <div class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30"></div>
                                 <img :src="item.image" @error="handleImageError" class="w-12 h-12 mb-2 z-10 rounded-lg object-contain shadow-md border border-white/10">
                                 <h3 class="text-[10px] font-bold text-white text-center leading-3 z-10 line-clamp-2">{{ item.name }}</h3>
@@ -118,7 +175,7 @@
                 </div>
 
                 <!-- INGAME TOPUP -->
-                <div v-if="ingameItems.length > 0" class="mt-6">
+                <div v-if="ingameItems.length > 0">
                     <h2 class="section-title">INGAME TOPUP</h2>
                     <div class="grid grid-cols-3 gap-3">
                         <div v-for="item in ingameItems" :key="item.id" @click="goToDetails(item.id)" class="product-card bg-white p-2 rounded-xl shadow-sm border border-gray-200 flex flex-col items-center hover:shadow-md transition cursor-pointer">
@@ -127,37 +184,21 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- SUBSCRIPTION -->
-                <div v-if="subscriptions.length > 0" class="mt-6">
-                    <h2 class="section-title">SUBSCRIPTION</h2>
-                    <div class="grid grid-cols-3 gap-3">
-                        <div v-for="item in subscriptions" :key="item.id" @click="goToDetails(item.id)" class="product-card bg-gradient-to-br from-indigo-500 to-purple-600 p-[1px] rounded-xl cursor-pointer">
-                            <div class="bg-white rounded-[10px] h-full flex flex-col items-center justify-center p-2">
-                                <img :src="item.image" @error="handleImageError" class="w-10 h-10 mb-2 object-contain">
-                                <h3 class="text-[10px] font-bold text-gray-700 text-center">{{ item.name }}</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- DOWNLOAD APP -->
-                <div class="mt-8 mb-6 text-center">
-                    <h3 class="font-bold text-gray-600 text-xs mb-3 tracking-widest">DOWNLOAD OUR MOBILE APP</h3>
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" class="h-10 mx-auto cursor-pointer opacity-80 hover:opacity-100 transition">
-                </div>
+                
+                <!-- Extra Space for Scrolling -->
+                <div class="h-6"></div>
             </div>
         </main>
 
         <!-- Footer -->
-        <footer class="bg-[#0f172a] text-white pt-8 pb-24 rounded-t-3xl mt-4 max-w-md mx-auto">
-            <div class="container mx-auto px-6 text-center">
+        <footer class="bg-[#0f172a] text-white pt-8 pb-24 rounded-t-3xl mt-auto">
+            <div class="text-center">
                 <h3 class="font-serif font-bold text-sm mb-4 tracking-widest text-gray-400">STAY CONNECTED</h3>
                 <div class="flex justify-center gap-4 mb-8">
-                    <a href="#" class="social-icon bg-white/5 hover:bg-white/10"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="#" class="social-icon bg-white/5 hover:bg-white/10"><i class="fa-brands fa-telegram"></i></a>
+                    <a href="#" class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center hover:bg-blue-600 transition"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center hover:bg-blue-400 transition"><i class="fa-brands fa-telegram"></i></a>
                 </div>
-                <p class="text-[10px] text-gray-600 mt-8">© FREE TOPUP PRO 2026</p>
+                <p class="text-[10px] text-gray-600">© FREE TOPUP PRO 2026</p>
             </div>
         </footer>
 
@@ -182,7 +223,7 @@
         import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { createApp, ref, onMounted, nextTick } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
-        // Firebase Config
+        // Firebase Config (আপনার দেওয়া কনফিগ)
         const firebaseConfig = {
           apiKey: "AIzaSyACUK207BRvtR5yc1UhYLS9FlMitVVlrrE",
           authDomain: "freetopup-fd263.firebaseapp.com",
@@ -198,14 +239,13 @@
         createApp({
             setup() {
                 const loading = ref(true);
-                const userBalance = ref(0); // 🔥 ব্যালেন্স ভেরিয়েবল
-                const noticeMessage = ref("");
+                const userBalance = ref(0);
+                const noticeMessage = ref("Welcome to Free TopUp Pro!");
                 const banners = ref([]);
                 const mysteryBoxes = ref([]);
                 const specialOffers = ref([]);
                 const freeFireItems = ref([]);
                 const ingameItems = ref([]);
-                const subscriptions = ref([]);
                 
                 const userId = localStorage.getItem('userId');
 
@@ -218,7 +258,7 @@
                     e.target.src = "https://placehold.co/400x400?text=No+Image";
                 };
 
-                // 🔥 নতুন: ইউজারের ব্যালেন্স আনার ফাংশন
+                // ব্যালেন্স ফেচ করা
                 const fetchUserBalance = async () => {
                     if (!userId) return;
                     try {
@@ -231,25 +271,26 @@
                     }
                 };
 
+                // মূল ডাটা ফেচ করা
                 const fetchData = async () => {
-                    const cachedData = sessionStorage.getItem('homePageData');
-                    
-                    if (cachedData) {
-                        const parsedData = JSON.parse(cachedData);
-                        noticeMessage.value = parsedData.notice;
-                        mysteryBoxes.value = parsedData.mystery;
-                        specialOffers.value = parsedData.special;
-                        freeFireItems.value = parsedData.freefire;
-                        ingameItems.value = parsedData.ingame;
-                        subscriptions.value = parsedData.subs;
-                        banners.value = parsedData.banners;
-                        loading.value = false;
-                        initSlider();
-                    }
-
                     try {
+                        // ক্যাশ থেকে ডাটা চেক করা (অপশনাল)
+                        const cachedData = sessionStorage.getItem('homePageData');
+                        if (cachedData) {
+                            const parsed = JSON.parse(cachedData);
+                            mysteryBoxes.value = parsed.mystery;
+                            specialOffers.value = parsed.special;
+                            freeFireItems.value = parsed.freefire;
+                            ingameItems.value = parsed.ingame;
+                            banners.value = parsed.banners;
+                            noticeMessage.value = parsed.notice;
+                            loading.value = false;
+                            initSlider();
+                        }
+
+                        // লাইভ ডাটা আনা
                         const productsSnap = await getDocs(collection(db, "products"));
-                        let tmpMystery = [], tmpSpecial = [], tmpFreeFire = [], tmpIngame = [], tmpSubs = [];
+                        let tmpMystery = [], tmpSpecial = [], tmpFreeFire = [], tmpIngame = [];
 
                         productsSnap.forEach((doc) => {
                             const item = { id: doc.id, ...doc.data() };
@@ -257,41 +298,40 @@
                             else if (item.category === 'special') tmpSpecial.push(item);
                             else if (item.category === 'freefire') tmpFreeFire.push(item);
                             else if (item.category === 'ingame') tmpIngame.push(item);
-                            else if (item.category === 'subscription') tmpSubs.push(item);
                         });
 
+                        // ব্যানার আনা
                         let tmpBanners = [];
                         try {
                             const bannerSnap = await getDocs(collection(db, "banners"));
                             tmpBanners = bannerSnap.docs.map(doc => doc.data().image);
                         } catch(e) {}
 
-                        // Notice Text from Firestore or fallback
+                        // নোটিশ আনা
                         try {
                            const nSnap = await getDoc(doc(db, "settings", "notice"));
-                           noticeMessage.value = nSnap.exists() ? nSnap.data().text : "Welcome to Free TopUp Pro!";
-                        } catch(e) { noticeMessage.value = "Welcome to Free TopUp Pro!"; }
+                           if (nSnap.exists()) noticeMessage.value = nSnap.data().text;
+                        } catch(e) {}
 
+                        // ডাটা সেট করা
                         mysteryBoxes.value = tmpMystery;
                         specialOffers.value = tmpSpecial;
                         freeFireItems.value = tmpFreeFire;
                         ingameItems.value = tmpIngame;
-                        subscriptions.value = tmpSubs;
                         if(tmpBanners.length > 0) banners.value = tmpBanners;
 
-                        const dataToSave = {
-                            notice: noticeMessage.value,
+                        // সেশন স্টোরেজে সেভ করা (দ্রুত লোডের জন্য)
+                        sessionStorage.setItem('homePageData', JSON.stringify({
                             mystery: tmpMystery,
                             special: tmpSpecial,
                             freefire: tmpFreeFire,
                             ingame: tmpIngame,
-                            subs: tmpSubs,
-                            banners: banners.value
-                        };
-                        sessionStorage.setItem('homePageData', JSON.stringify(dataToSave));
+                            banners: banners.value,
+                            notice: noticeMessage.value
+                        }));
 
-                        loading.value = false;
-                        if (!cachedData) initSlider();
+                        if (!cachedData) loading.value = false;
+                        initSlider();
 
                     } catch (error) {
                         console.error("Data Load Error:", error);
@@ -313,12 +353,12 @@
 
                 onMounted(() => {
                     fetchData();
-                    fetchUserBalance(); // 🔥 পেজ লোড হলে ব্যালেন্স চেক করবে
+                    fetchUserBalance();
                 });
 
                 return {
                     loading, userBalance, noticeMessage, banners,
-                    mysteryBoxes, specialOffers, freeFireItems, ingameItems, subscriptions,
+                    mysteryBoxes, specialOffers, freeFireItems, ingameItems,
                     goToDetails, handleImageError
                 };
             }
