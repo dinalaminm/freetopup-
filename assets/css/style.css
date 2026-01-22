@@ -1,54 +1,63 @@
 @import url('https://fonts.googleapis.com/css2?family=Bree+Serif&family=Roboto:wght@300;400;500;700&family=Noto+Serif+Bengali:wght@400;700&display=swap');
 
+/* গ্লোবাল সেটিংস */
 body {
     font-family: 'Roboto', 'Noto Serif Bengali', sans-serif;
-    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: transparent; /* মোবাইলে ক্লিকের নীল শেড সরাতে */
+    background-color: #f0f5ff;
 }
 
-[v-cloak] { display: none; }
+[v-cloak] { display: none !important; }
 
+/* ফন্ট স্টাইল */
 .font-serif { font-family: 'Bree Serif', serif; letter-spacing: 0.5px; }
 .font-bengali { font-family: 'Noto Serif Bengali', serif; }
 
-/* Section Titles */
+/* সেকশন টাইটেল */
 .section-title {
     text-align: center;
-    color: #1e3a8a; /* Dark Blue */
+    color: #1e3a8a; /* গাঢ় নীল */
     font-family: 'Bree Serif', serif;
     font-size: 1.25rem;
     font-weight: 700;
     margin-bottom: 1rem;
     text-transform: uppercase;
+    position: relative;
+    display: inline-block;
+    width: 100%;
 }
 
-/* Swiper Dots */
+/* স্লাইডার ডটস */
 .swiper-pagination-bullet {
     width: 6px; height: 6px;
     background: #000; opacity: 0.2;
+    transition: 0.3s;
 }
 .swiper-pagination-bullet-active {
-    background: #000 !important; opacity: 0.8;
-    width: 16px; border-radius: 4px;
+    background: #583cb3 !important; opacity: 1;
+    width: 18px; border-radius: 4px;
 }
 
-/* Product Cards */
+/* প্রোডাক্ট কার্ড এনিমেশন */
 .product-card {
-    transition: transform 0.2s;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     overflow: hidden;
+    background: white;
 }
 .product-card:active { transform: scale(0.95); }
 
-/* Footer Icons */
+/* ফুটার আইকন */
 .social-icon {
     width: 35px; height: 35px;
     border: 1px solid rgba(255,255,255,0.2);
     border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
     color: white; transition: 0.3s;
+    text-decoration: none;
 }
 .social-icon:hover { background: rgba(255,255,255,0.1); }
 
-/* Support Buttons */
+/* সাপোর্ট বাটন */
 .support-btn {
     display: flex; align-items: center; gap: 1rem;
     background: transparent;
@@ -56,16 +65,37 @@ body {
     padding: 8px 16px;
     border-radius: 8px;
     color: white;
+    text-decoration: none;
 }
 
-/* Bottom Nav */
+/* === BOTTOM NAVIGATION FIX === */
 .nav-item {
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    font-size: 10px; font-weight: 500;
-    color: #64748b; cursor: pointer;
+    display: flex; 
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center;
+    font-size: 10px; 
+    font-weight: 500;
+    color: #64748b; /* ডিফল্ট কালার (ধূসর) */
+    cursor: pointer;
+    text-decoration: none; /* লিংকের আন্ডারলাইন সরাতে */
+    transition: color 0.2s ease;
 }
-.nav-item i { font-size: 18px; margin-bottom: 2px; }
-.nav-item.active { color: #1e3a8a; font-weight: 700; }
 
+.nav-item i { 
+    font-size: 18px; 
+    margin-bottom: 4px; 
+}
+
+/* একটিভ মেনুর স্টাইল */
+.nav-item.active { 
+    color: #583cb3; /* আপনার ব্র্যান্ড কালার (বেগুনি) */
+    font-weight: 700; 
+}
+
+.nav-item:active {
+    transform: scale(0.9);
+}
+
+/* আইফোনের জন্য সেফ এরিয়া */
 .pb-safe { padding-bottom: env(safe-area-inset-bottom); }

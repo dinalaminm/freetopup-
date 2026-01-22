@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Money - FREE TOPUP PRO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-[#f0f5ff] flex flex-col min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b p-3 flex justify-between items-center">
+        <a href="index.html" class="font-bold text-lg"><i class="fa-solid fa-arrow-left mr-2"></i> Add Money</a>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-6 max-w-md">
+        <div class="bg-white p-5 rounded-xl shadow-sm border">
+            <h2 class="font-bold text-gray-700 mb-4">Select Payment Method</h2>
+            
+            <div class="grid grid-cols-3 gap-3 mb-6">
+                <div class="border p-2 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-pink-500">
+                    <img src="https://seeklogo.com/images/B/bkash-logo-FBB258B90F-seeklogo.com.png" class="h-8">
+                    <span class="text-xs mt-1 font-bold">Bkash</span>
+                </div>
+                <div class="border p-2 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-orange-500">
+                    <img src="https://seeklogo.com/images/N/nagad-logo-7A70CCFEE0-seeklogo.com.png" class="h-8">
+                    <span class="text-xs mt-1 font-bold">Nagad</span>
+                </div>
+                <div class="border p-2 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-purple-500">
+                    <img src="https://seeklogo.com/images/D/dutch-bangla-rocket-logo-B4D1CC458D-seeklogo.com.png" class="h-8">
+                    <span class="text-xs mt-1 font-bold">Rocket</span>
+                </div>
+            </div>
+
+            <label class="block text-sm font-bold text-gray-600 mb-2">Amount</label>
+            <input type="number" placeholder="Enter amount (Min 50)" class="w-full border p-3 rounded-lg mb-4 outline-none focus:border-blue-500">
+
+            <label class="block text-sm font-bold text-gray-600 mb-2">Sender Number</label>
+            <input type="text" placeholder="017xxxxxxxx" class="w-full border p-3 rounded-lg mb-4 outline-none focus:border-blue-500">
+
+            <label class="block text-sm font-bold text-gray-600 mb-2">Transaction ID</label>
+            <input type="text" placeholder="TrxID" class="w-full border p-3 rounded-lg mb-6 outline-none focus:border-blue-500">
+
+            <button class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold shadow-lg">Verify Payment</button>
+        </div>
+    </main>
+
+    <!-- Bottom Nav -->
+    <div class="bg-white border-t border-gray-200">
+        <div class="grid grid-cols-5 h-16 max-w-md mx-auto">
+            <a href="index.html" class="nav-item"><i class="fa-solid fa-house"></i><span>Home</span></a>
+            <a href="add-money.html" class="nav-item active text-blue-600"><i class="fa-solid fa-wallet"></i><span>Add Money</span></a>
+            <a href="orders.html" class="nav-item"><i class="fa-solid fa-file-invoice"></i><span>My Orders</span></a>
+            <a href="codes.html" class="nav-item"><i class="fa-solid fa-gift"></i><span>My Codes</span></a>
+            <a href="account.html" class="nav-item"><i class="fa-solid fa-user"></i><span>Account</span></a>
+        </div>
+    </div>
+
+</body>
+</html>

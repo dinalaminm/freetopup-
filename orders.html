@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - FREE TOPUP PRO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-[#f0f5ff] flex flex-col min-h-screen">
+
+    <header class="bg-white shadow-sm border-b p-3">
+        <h1 class="font-bold text-lg text-center">My Orders</h1>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-4 max-w-md">
+        <!-- Order Item 1 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-3 flex justify-between items-center">
+            <div>
+                <h3 class="font-bold text-gray-800">115 Diamonds</h3>
+                <p class="text-xs text-gray-500">Player ID: 12345678</p>
+                <p class="text-xs text-gray-400 mt-1">12 Oct, 2025 - 10:30 PM</p>
+            </div>
+            <div class="text-right">
+                <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded">Completed</span>
+                <p class="text-sm font-bold text-purple-600 mt-1">85 ৳</p>
+            </div>
+        </div>
+
+        <!-- Order Item 2 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-3 flex justify-between items-center">
+            <div>
+                <h3 class="font-bold text-gray-800">Weekly Membership</h3>
+                <p class="text-xs text-gray-500">Player ID: 87654321</p>
+                <p class="text-xs text-gray-400 mt-1">10 Oct, 2025 - 08:15 PM</p>
+            </div>
+            <div class="text-right">
+                <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-1 rounded">Pending</span>
+                <p class="text-sm font-bold text-purple-600 mt-1">160 ৳</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Nav -->
+    <div class="bg-white border-t border-gray-200">
+        <div class="grid grid-cols-5 h-16 max-w-md mx-auto">
+            <a href="index.html" class="nav-item"><i class="fa-solid fa-house"></i><span>Home</span></a>
+            <a href="add-money.html" class="nav-item"><i class="fa-solid fa-wallet"></i><span>Add Money</span></a>
+            <a href="orders.html" class="nav-item active text-blue-600"><i class="fa-solid fa-file-invoice"></i><span>My Orders</span></a>
+            <a href="codes.html" class="nav-item"><i class="fa-solid fa-gift"></i><span>My Codes</span></a>
+            <a href="account.html" class="nav-item"><i class="fa-solid fa-user"></i><span>Ac=count</span></a>
+        </div>
+    </div>
+
+</body>
+</html>
