@@ -17,6 +17,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Roboto:wght@400;500;700&family=Noto+Serif+Bengali:wght@400;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="assets/css/style.css">
+
+    <!-- Vue Cloak Style (লোডিং এর সময় যেন কিছু না দেখায়) -->
+    <style>
+        [v-cloak] { display: none !important; }
+        /* Image Placeholder Animation */
+        .img-loading { animation: pulse 1.5s infinite; background-color: #e2e8f0; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    </style>
 </head>
 <body class="bg-[#f0f5ff]">
 
@@ -25,145 +33,155 @@
         <!-- Header -->
         <header class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200">
             <div class="container mx-auto px-3 py-2 flex justify-between items-center">
-                <div class="flex items-center gap-1 cursor-pointer">
-                    <img src="https://i.ibb.co/vzzt08r/logo-placeholder.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3408/3408506.png'" class="w-8 h-8" alt="Logo">
+                <!-- Logo -->
+                <div class="flex items-center gap-1 cursor-pointer" @click="location.reload()">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3408/3408506.png" class="w-8 h-8" alt="Logo">
                     <div class="flex flex-col leading-none">
                         <span class="font-black text-xl tracking-tight text-black">OFFER</span>
                         <span class="font-bold text-[10px] text-purple-700 tracking-[0.2em] -mt-1">TOPUP</span>
                     </div>
                 </div>
+                <!-- Wallet -->
                 <div class="flex items-center gap-2">
-                    <button class="bg-[#583cb3] text-white px-3 py-1 rounded-md text-sm font-bold flex items-center gap-2">
+                    <button class="bg-[#583cb3] text-white px-3 py-1 rounded-md text-sm font-bold flex items-center gap-2 shadow-sm">
                         <i class="fa-solid fa-wallet"></i> ০ ৳
                     </button>
                     <div class="w-8 h-8 rounded-full overflow-hidden border border-gray-300">
+                        <!-- Profile Image -->
                         <img src="https://i.pravatar.cc/150?img=12" class="w-full h-full object-cover">
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- Notice -->
-        <div class="bg-[#4c3db2] text-white py-2 px-3 flex items-center gap-2">
-            <span class="font-bold text-white text-sm">Notice:</span>
-            <marquee class="text-xs font-bengali">
-                আসসালামু আলাইকুম। আমাদের সাইটে বিকাশ, নগদ এবং রকেটের মাধ্যমে পেমেন্ট করতে পারবেন। সকাল ১০টা থেকে রাত ১২টা পর্যন্ত অর্ডার কমপ্লিট করা হয়।
+        <!-- Notice Bar -->
+        <div v-if="noticeMessage" class="bg-[#4c3db2] text-white py-2 px-3 flex items-center gap-2 shadow-md">
+            <span class="font-bold text-white text-sm bg-white/20 px-2 rounded">Notice:</span>
+            <marquee class="text-xs font-serif font-medium tracking-wide">
+                {{ noticeMessage }}
             </marquee>
         </div>
 
+        <!-- Main Content -->
         <main class="pb-24 px-2 container mx-auto max-w-md">
             
-            <!-- Banner Slider -->
-            <div class="mt-2 rounded-lg overflow-hidden">
-                <div class="swiper mySwiper">
-                    <div class="swiper-wrapper">
-                        <div class="swiper-slide">
-                            <img src="https://wallpapers.com/images/hd/free-fire-max-pictures-bj37292209307222.jpg" class="w-full h-40 object-cover">
-                        </div>
-                        <div class="swiper-slide">
-                            <img src="https://wallpapers.com/images/hd/pubg-mobile-4k-winner-poster-b77879207823.jpg" class="w-full h-40 object-cover">
-                        </div>
-                    </div>
-                    <div class="swiper-pagination"></div>
-                </div>
+            <!-- Loading Spinner (যতক্ষণ ডাটা না আসে) -->
+            <div v-if="loading" class="flex flex-col justify-center items-center h-64">
+                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-700 mb-4"></div>
+                <p class="text-gray-500 text-sm">লোড হচ্ছে...</p>
             </div>
 
-            <!-- MYSTERY BOX (2 Columns) -->
-            <div class="mt-6">
-                <h2 class="section-title">MYSTERY BOX</h2>
-                <div class="grid grid-cols-2 gap-3">
-                    <div v-for="(item, index) in mysteryBoxes" :key="index" class="flex flex-col items-center">
-                        <div class="product-card w-full aspect-square relative group">
-                            <img :src="item.image" class="w-full h-full object-cover rounded-xl">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent rounded-xl"></div>
-                            <img src="https://cdn-icons-png.flaticon.com/512/8777/8777973.png" class="absolute bottom-2 right-2 w-6 h-6 animate-bounce">
-                        </div>
-                        <h3 class="mt-2 font-bold text-xs text-[#1e3a8a]">{{ item.name }}</h3>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SPECIAL OFFER (2 Columns) -->
-            <div class="mt-6">
-                <h2 class="section-title">SPECIAL OFFER</h2>
-                <div class="grid grid-cols-2 gap-3">
-                    <div v-for="item in specialOffers" :key="item.id" class="product-card aspect-[4/3] relative">
-                        <img :src="item.image" class="w-full h-full object-cover rounded-xl">
-                        <div class="absolute bottom-0 w-full bg-black/60 text-white text-[10px] text-center py-1 rounded-b-xl">
-                            {{ item.name }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- FREE FIRE (3 Columns) -->
-            <div class="mt-6">
-                <h2 class="section-title">FREE FIRE</h2>
-                <div class="grid grid-cols-3 gap-3">
-                    <div v-for="item in freeFireItems" :key="item.id" class="bg-gradient-to-b from-[#180e3d] to-[#2a1b63] p-0.5 rounded-xl shadow-lg border border-purple-800">
-                        <div class="bg-[#120833] rounded-[10px] p-2 flex flex-col items-center h-full relative overflow-hidden">
-                            <div class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
-                            <img :src="item.image" class="w-12 h-12 mb-2 z-10 rounded-full border-2 border-yellow-500">
-                            <h3 class="text-[10px] font-bold text-white text-center leading-3 z-10">{{ item.name }}</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- INGAME TOPUP (3 Columns) -->
-            <div class="mt-6">
-                <h2 class="section-title">INGAME TOPUP</h2>
-                <div class="grid grid-cols-3 gap-3">
-                    <div v-for="item in ingameItems" :key="item.id" class="product-card bg-white p-2 rounded-xl shadow border border-gray-200 flex flex-col items-center">
-                        <img :src="item.image" class="w-full h-16 object-cover rounded-lg mb-2">
-                        <h3 class="text-[10px] font-bold text-gray-800 text-center">{{ item.name }}</h3>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SUBSCRIPTION (3 Columns) -->
-            <div class="mt-6">
-                <h2 class="section-title">SUBSCRIPTION</h2>
-                <div class="grid grid-cols-3 gap-3">
-                    <div v-for="item in subscriptions" :key="item.id" class="product-card bg-gradient-to-br from-purple-500 to-indigo-600 p-0.5 rounded-xl">
-                        <div class="bg-white rounded-[10px] h-full flex flex-col items-center justify-center p-2">
-                            <img :src="item.image" class="w-10 h-10 mb-1">
-                            <h3 class="text-[10px] font-bold text-gray-700 text-center">{{ item.name }}</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- LATEST ORDERS -->
-            <div class="mt-8 bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
-                <h2 class="text-center font-serif text-xl font-bold text-[#1e3a8a] mb-1">Latest Orders</h2>
-                <p class="text-center text-xs text-gray-500 mb-4">সবচেয়ে সাম্প্রতিক ১০টি অর্ডার এক নজরে</p>
-
-                <div class="space-y-3">
-                    <div v-for="order in latestOrders" :key="order.id" class="flex items-center justify-between border-b border-gray-100 pb-2 last:border-0">
-                        <div class="flex items-center gap-3">
-                            <div :class="order.bgColor" class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                {{ order.avatar }}
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-sm text-gray-800 flex items-center gap-1">
-                                    {{ order.name }}
-                                    <i v-if="order.verified" class="fa-solid fa-circle-check text-orange-500 text-[10px]"></i>
-                                </h4>
-                                <p class="text-[10px] text-gray-500">{{ order.item }} - {{ order.time }}</p>
+            <div v-else>
+                <!-- Banner Slider -->
+                <div v-if="banners.length > 0" class="mt-3 rounded-xl overflow-hidden shadow-sm">
+                    <div class="swiper mySwiper">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide" v-for="(banner, index) in banners" :key="index">
+                                <img :src="banner" @error="handleImageError" class="w-full h-40 object-cover">
                             </div>
                         </div>
-                        <span class="bg-green-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-sm">
-                            Completed
-                        </span>
+                        <div class="swiper-pagination"></div>
                     </div>
                 </div>
-            </div>
 
-            <!-- DOWNLOAD APP -->
-            <div class="mt-8 text-center">
-                <h3 class="font-bold text-gray-600 text-sm mb-2">DOWNLOAD OUR MOBILE APP</h3>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" class="h-12 mx-auto cursor-pointer">
+                <!-- MYSTERY BOX -->
+                <div v-if="mysteryBoxes.length > 0" class="mt-6">
+                    <h2 class="section-title">MYSTERY BOX</h2>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div v-for="item in mysteryBoxes" :key="item.id" class="flex flex-col items-center">
+                            <div class="product-card w-full aspect-square relative group rounded-xl overflow-hidden shadow-sm border border-gray-100 bg-white">
+                                <img :src="item.image" @error="handleImageError" class="w-full h-full object-cover transition duration-300 group-hover:scale-110">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                <!-- Hot Icon -->
+                                <img src="https://cdn-icons-png.flaticon.com/512/8777/8777973.png" class="absolute bottom-2 right-2 w-6 h-6 animate-bounce">
+                            </div>
+                            <h3 class="mt-2 font-bold text-xs text-[#1e3a8a] text-center">{{ item.name }}</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SPECIAL OFFER -->
+                <div v-if="specialOffers.length > 0" class="mt-6">
+                    <h2 class="section-title">SPECIAL OFFER</h2>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div v-for="item in specialOffers" :key="item.id" class="product-card aspect-[4/3] relative rounded-xl overflow-hidden shadow-sm border border-gray-100 group">
+                            <img :src="item.image" @error="handleImageError" class="w-full h-full object-cover transition duration-300 group-hover:scale-110">
+                            <div class="absolute bottom-0 w-full bg-black/70 text-white text-[10px] text-center py-1.5 backdrop-blur-sm">
+                                {{ item.name }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FREE FIRE -->
+                <div v-if="freeFireItems.length > 0" class="mt-6">
+                    <h2 class="section-title">FREE FIRE</h2>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div v-for="item in freeFireItems" :key="item.id" class="bg-gradient-to-b from-[#180e3d] to-[#2a1b63] p-[1px] rounded-xl shadow-lg border border-purple-900/50">
+                            <div class="bg-[#120833] rounded-[10px] p-2 flex flex-col items-center h-full relative overflow-hidden">
+                                <div class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30"></div>
+                                <img :src="item.image" @error="handleImageError" class="w-12 h-12 mb-2 z-10 rounded-lg object-contain shadow-md border border-white/10">
+                                <h3 class="text-[10px] font-bold text-white text-center leading-3 z-10 line-clamp-2">{{ item.name }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INGAME TOPUP -->
+                <div v-if="ingameItems.length > 0" class="mt-6">
+                    <h2 class="section-title">INGAME TOPUP</h2>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div v-for="item in ingameItems" :key="item.id" class="product-card bg-white p-2 rounded-xl shadow-sm border border-gray-200 flex flex-col items-center hover:shadow-md transition">
+                            <img :src="item.image" @error="handleImageError" class="w-full h-16 object-cover rounded-lg mb-2 border border-gray-100">
+                            <h3 class="text-[10px] font-bold text-gray-800 text-center line-clamp-2">{{ item.name }}</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUBSCRIPTION -->
+                <div v-if="subscriptions.length > 0" class="mt-6">
+                    <h2 class="section-title">SUBSCRIPTION</h2>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div v-for="item in subscriptions" :key="item.id" class="product-card bg-gradient-to-br from-indigo-500 to-purple-600 p-[1px] rounded-xl">
+                            <div class="bg-white rounded-[10px] h-full flex flex-col items-center justify-center p-2">
+                                <img :src="item.image" @error="handleImageError" class="w-10 h-10 mb-2 object-contain">
+                                <h3 class="text-[10px] font-bold text-gray-700 text-center">{{ item.name }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LATEST ORDERS (Optional) -->
+                <div v-if="latestOrders.length > 0" class="mt-8 bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
+                    <h2 class="text-center font-serif text-lg font-bold text-[#1e3a8a] mb-1">Latest Orders</h2>
+                    <p class="text-center text-[10px] text-gray-500 mb-4">সাম্প্রতিক সম্পন্ন হওয়া অর্ডারগুলো</p>
+
+                    <div class="space-y-3">
+                        <div v-for="order in latestOrders" :key="order.id" class="flex items-center justify-between border-b border-gray-50 pb-2 last:border-0 last:pb-0">
+                            <div class="flex items-center gap-3">
+                                <div :class="order.bgColor" class="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm">
+                                    {{ order.avatar }}
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-xs text-gray-800 flex items-center gap-1">
+                                        {{ order.name }}
+                                        <i v-if="order.verified" class="fa-solid fa-circle-check text-blue-500 text-[10px]"></i>
+                                    </h4>
+                                    <p class="text-[9px] text-gray-400">{{ order.item }} • {{ order.time }}</p>
+                                </div>
+                            </div>
+                            <span class="bg-green-100 text-green-700 border border-green-200 text-[9px] font-bold px-2 py-0.5 rounded-full">
+                                Completed
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DOWNLOAD APP -->
+                <div class="mt-8 mb-6 text-center">
+                    <h3 class="font-bold text-gray-600 text-xs mb-3 tracking-widest">DOWNLOAD OUR MOBILE APP</h3>
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" class="h-10 mx-auto cursor-pointer opacity-80 hover:opacity-100 transition">
+                </div>
             </div>
 
         </main>
@@ -171,46 +189,46 @@
         <!-- Footer -->
         <footer class="bg-[#0f172a] text-white pt-8 pb-24 rounded-t-3xl mt-4">
             <div class="container mx-auto px-6 text-center">
-                <h3 class="font-serif font-bold text-lg mb-4">STAY CONNECTED</h3>
+                <h3 class="font-serif font-bold text-sm mb-4 tracking-widest text-gray-400">STAY CONNECTED</h3>
                 <div class="flex justify-center gap-4 mb-8">
-                    <a href="#" class="social-icon"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="#" class="social-icon"><i class="fa-brands fa-youtube"></i></a>
-                    <a href="#" class="social-icon"><i class="fa-brands fa-telegram"></i></a>
+                    <a href="#" class="social-icon bg-white/5 hover:bg-white/10"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" class="social-icon bg-white/5 hover:bg-white/10"><i class="fa-brands fa-youtube"></i></a>
+                    <a href="#" class="social-icon bg-white/5 hover:bg-white/10"><i class="fa-brands fa-telegram"></i></a>
                 </div>
 
-                <h3 class="font-serif font-bold text-lg mb-2">SUPPORT CENTER</h3>
-                <div class="space-y-3">
-                    <a href="#" class="support-btn">
-                        <i class="fa-brands fa-telegram text-2xl"></i>
+                <h3 class="font-serif font-bold text-sm mb-3 tracking-widest text-gray-400">SUPPORT CENTER</h3>
+                <div class="space-y-3 px-4">
+                    <a href="#" class="support-btn group">
+                        <i class="fa-brands fa-telegram text-2xl group-hover:scale-110 transition"></i>
                         <div class="text-left">
-                            <div class="text-[10px] opacity-70">Help Line (10AM-11PM)</div>
+                            <div class="text-[9px] opacity-60">Help Line (10AM-12PM)</div>
                             <div class="font-bold text-sm">টেলিগ্রাম সাপোর্ট</div>
                         </div>
                     </a>
-                    <a href="#" class="support-btn">
-                        <i class="fa-brands fa-whatsapp text-2xl"></i>
+                    <a href="#" class="support-btn group">
+                        <i class="fa-brands fa-whatsapp text-2xl group-hover:scale-110 transition"></i>
                         <div class="text-left">
-                            <div class="text-[10px] opacity-70">Help Line (10AM-11PM)</div>
+                            <div class="text-[9px] opacity-60">Help Line (10AM-12PM)</div>
                             <div class="font-bold text-sm">হোয়াটসঅ্যাপ সাপোর্ট</div>
                         </div>
                     </a>
                 </div>
                 
-                <p class="text-[10px] text-gray-500 mt-8">© Offer TopUp 2026 | All Rights Reserved</p>
+                <p class="text-[10px] text-gray-600 mt-8">© Offer TopUp 2026 | Developed by You</p>
             </div>
         </footer>
 
-        <!-- Floating Help -->
+        <!-- Floating Help Button -->
         <div class="fixed bottom-20 right-4 z-40 flex items-center gap-2">
-            <span class="bg-[#dc2626] text-white text-[10px] font-bold px-2 py-1 rounded shadow animate-pulse">সাহায্য লাগবে ?</span>
-            <button class="bg-[#dc2626] text-white w-10 h-10 rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition">
-                <i class="fa-solid fa-phone"></i>
+            <span class="bg-[#dc2626] text-white text-[10px] font-bold px-2 py-1 rounded shadow animate-bounce">সাহায্য লাগবে ?</span>
+            <button class="bg-[#dc2626] text-white w-11 h-11 rounded-full shadow-lg flex items-center justify-center hover:bg-red-700 transition active:scale-95">
+                <i class="fa-solid fa-headset text-lg"></i>
             </button>
         </div>
 
         <!-- Bottom Nav -->
-        <div class="fixed bottom-0 w-full bg-white border-t border-gray-200 z-50 pb-safe">
-            <div class="grid grid-cols-5 h-14">
+        <div class="fixed bottom-0 w-full bg-white border-t border-gray-200 z-50 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <div class="grid grid-cols-5 h-16 max-w-md mx-auto">
                 <div class="nav-item active"><i class="fa-solid fa-house"></i><span>Home</span></div>
                 <div class="nav-item"><i class="fa-solid fa-wallet"></i><span>Add Money</span></div>
                 <div class="nav-item"><i class="fa-solid fa-file-invoice"></i><span>My Orders</span></div>
@@ -221,6 +239,7 @@
 
     </div>
 
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
     <script type="module" src="assets/js/main.js"></script>
 </body>
