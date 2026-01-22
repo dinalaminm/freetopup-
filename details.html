@@ -51,10 +51,13 @@
                     <h3 class="text-xl font-bold text-gray-800 mb-2">{{ popup.title }}</h3>
                     <p class="text-sm text-gray-500 mb-6 leading-relaxed">{{ popup.msg }}</p>
                     
+                    <!-- Confirm Buttons -->
                     <div v-if="popup.type === 'confirm'" class="flex gap-3">
                         <button @click="closePopup" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-bold">Cancel</button>
                         <button @click="confirmPurchaseAction" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg">Confirm</button>
                     </div>
+                    
+                    <!-- Single Button (OK / Add Money / Go to Orders) -->
                     <button v-else @click="closePopup" 
                         :class="popup.type === 'success' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'"
                         class="w-full text-white py-3 rounded-xl font-bold transition shadow-lg active:scale-95">
@@ -208,18 +211,26 @@
                 const packages = ref([]);
                 const userBalance = ref(0);
                 
-                // 🔥 POPUP STATE
                 const popup = ref({ show: false, type: '', title: '', msg: '', btnText: 'OK' });
                 
                 const userId = localStorage.getItem('userId');
 
-                // Helper Functions
                 const showPopup = (type, title, msg, btnText = "OK") => {
                     popup.value = { show: true, type, title, msg, btnText };
                 };
+                
+                // 🔥 FIX HERE: Handle Redirect for Add Money
                 const closePopup = () => {
-                    if (popup.value.type === 'success') window.location.href = 'orders.html';
-                    else popup.value.show = false;
+                    if (popup.value.btnText === 'Add Money') {
+                        window.location.href = 'add-money.html';
+                        return;
+                    }
+
+                    if (popup.value.type === 'success') {
+                        window.location.href = 'orders.html';
+                    } else {
+                        popup.value.show = false;
+                    }
                 };
 
                 const generatePackages = (basePrice) => {
@@ -263,10 +274,10 @@
 
                     if(paymentMethod.value === 'wallet') {
                         if (userBalance.value < selectedPackage.value.price) {
+                            // This ensures the button text is exactly 'Add Money'
                             showPopup('error', 'Insufficient Balance', 'Please add money to your wallet.', 'Add Money');
                             return;
                         }
-                        // Show Confirmation Modal
                         showPopup('confirm', 'Confirm Order', `Pay ${selectedPackage.value.price} Tk for ${selectedPackage.value.name}?`, 'Confirm');
                     } else {
                         showPopup('error', 'Coming Soon', 'Mobile Banking Auto Payment is coming soon!', 'OK');
