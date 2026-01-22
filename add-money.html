@@ -3,26 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Product Details - FREE TOPUP PRO</title>
+    <title>Add Money - FREE TOPUP PRO</title>
     
     <!-- CDNs -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Roboto:wght@400;500;700&family=Noto+Serif+Bengali:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     
     <style>
         body { font-family: 'Roboto', sans-serif; background-color: #f0f5ff; }
+        
+        /* Loading Fix */
         [v-cloak] { display: none !important; }
-        .step-circle { width: 24px; height: 24px; background-color: #583cb3; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; margin-right: 8px; flex-shrink: 0; }
-        .active-package { border: 2px solid #583cb3 !important; background-color: #f3f0ff; position: relative; }
-        .check-icon { position: absolute; top: -8px; right: -8px; background: #583cb3; color: white; border-radius: 50%; padding: 2px; font-size: 10px; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; }
+        
         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        
+        /* Bottom Nav */
         .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; color: #64748b; text-decoration: none; }
         .nav-item i { font-size: 18px; margin-bottom: 4px; }
         .nav-item.active { color: #583cb3; font-weight: 700; }
-        
-        /* Modal Animation */
+
+        /* Animation */
+        .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+        .fade-enter-from, .fade-leave-to { opacity: 0; }
+
+        /* Popup Animation */
         .pop-enter-active { transition: all 0.3s ease-out; }
         .pop-leave-active { transition: all 0.2s ease-in; }
         .pop-enter-from, .pop-leave-to { opacity: 0; transform: scale(0.9); }
@@ -35,14 +41,14 @@
         <!-- 🔥 CUSTOM POPUP MODAL 🔥 -->
         <transition name="pop">
             <div v-if="popup.show" class="fixed inset-0 z-[100] flex items-center justify-center px-6">
+                <!-- Backdrop -->
                 <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="closePopup"></div>
+                
+                <!-- Modal -->
                 <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm relative z-10 text-center transform transition-all">
-                    
+                    <!-- Icon -->
                     <div v-if="popup.type === 'success'" class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-500">
                         <i class="fa-solid fa-check text-3xl"></i>
-                    </div>
-                    <div v-else-if="popup.type === 'confirm'" class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500">
-                        <i class="fa-solid fa-cart-shopping text-3xl"></i>
                     </div>
                     <div v-else class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-red-500">
                         <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
@@ -51,14 +57,7 @@
                     <h3 class="text-xl font-bold text-gray-800 mb-2">{{ popup.title }}</h3>
                     <p class="text-sm text-gray-500 mb-6 leading-relaxed">{{ popup.msg }}</p>
                     
-                    <!-- Confirm Buttons -->
-                    <div v-if="popup.type === 'confirm'" class="flex gap-3">
-                        <button @click="closePopup" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-bold">Cancel</button>
-                        <button @click="confirmPurchaseAction" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg">Confirm</button>
-                    </div>
-                    
-                    <!-- Single Button (OK / Add Money / Go to Orders) -->
-                    <button v-else @click="closePopup" 
+                    <button @click="closePopup" 
                         :class="popup.type === 'success' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'"
                         class="w-full text-white py-3 rounded-xl font-bold transition shadow-lg active:scale-95">
                         {{ popup.btnText }}
@@ -67,127 +66,152 @@
             </div>
         </transition>
 
-        <!-- Header -->
-        <header class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200">
-            <div class="container mx-auto px-3 py-3 flex justify-between items-center max-w-md">
-                <a href="index.html" class="flex items-center gap-2 text-gray-700 font-bold hover:text-purple-700 transition no-underline">
-                    <i class="fa-solid fa-arrow-left text-lg"></i>
-                    <span>Back</span>
-                </a>
-                <div class="font-serif font-bold text-lg text-[#1e3a8a]">Purchase</div>
-                <div class="w-8"></div>
-            </div>
+        <!-- HEADER -->
+        <header class="bg-white shadow-sm border-b p-3 flex items-center sticky top-0 z-50">
+            <a v-if="step === 1" href="index.html" class="mr-3 text-gray-600"><i class="fa-solid fa-arrow-left text-lg"></i></a>
+            <button v-else @click="step--" class="mr-3 text-gray-600"><i class="fa-solid fa-arrow-left text-lg"></i></button>
+            <h1 class="font-bold text-lg text-gray-800">Add Money</h1>
         </header>
 
-        <!-- Main Content -->
-        <main class="pb-24 px-3 container mx-auto max-w-md mt-4">
+        <!-- MAIN CONTENT -->
+        <main class="flex-grow p-4 pb-24">
             
-            <div v-if="loading" class="flex flex-col justify-center items-center h-64">
-                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-700 mb-4"></div>
-                <p class="text-gray-500 text-sm">প্রোডাক্ট লোড হচ্ছে...</p>
-            </div>
-
-            <div v-else>
-                <!-- Product Header -->
-                <div class="bg-white p-3 rounded-xl shadow-sm border border-gray-200 flex gap-4 items-center mb-4">
-                    <img :src="product.image" class="w-20 h-20 rounded-lg object-cover border border-gray-100" @error="handleImageError">
-                    <div>
-                        <h1 class="font-bold text-lg text-gray-800 leading-tight">{{ product.name }}</h1>
-                        <p class="text-xs text-gray-500 capitalize mt-1">Category: <span class="text-purple-600 font-bold">{{ product.category }}</span></p>
-                    </div>
-                </div>
-
-                <!-- STEP 1: Select Recharge -->
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-4">
-                    <h3 class="flex items-center font-bold text-gray-800 mb-3 border-b pb-2">
-                        <div class="step-circle">1</div> Select Package
-                    </h3>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div v-for="pack in packages" :key="pack.id" 
-                             @click="selectedPackage = pack"
-                             :class="selectedPackage?.id === pack.id ? 'active-package' : 'border border-gray-200'"
-                             class="p-3 rounded-lg text-center cursor-pointer hover:border-purple-300 transition relative bg-gray-50">
-                            <div v-if="selectedPackage?.id === pack.id" class="check-icon"><i class="fa-solid fa-check"></i></div>
-                            <div class="font-bold text-sm text-gray-700">{{ pack.name }}</div>
-                            <div class="text-[#583cb3] font-bold text-base mt-1">৳ {{ pack.price }}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- STEP 2: Account Info -->
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-4">
-                    <h3 class="flex items-center font-bold text-gray-800 mb-3 border-b pb-2">
-                        <div class="step-circle">2</div> Account Info
-                    </h3>
-                    <div class="mb-2">
-                        <label class="text-xs font-bold text-gray-600 block mb-1">Player ID (UID)</label>
-                        <input v-model="playerId" type="tel" placeholder="Enter UID (e.g. 12345678)" 
-                               class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-purple-500 transition font-bold tracking-wide">
-                        <p class="text-[10px] text-gray-400 mt-1"><i class="fa-solid fa-circle-info"></i> সঠিক প্লেয়ার আইডি দিন।</p>
-                    </div>
-                </div>
-
-                <!-- STEP 3: Payment Method -->
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-4">
-                    <h3 class="flex items-center font-bold text-gray-800 mb-3 border-b pb-2">
-                        <div class="step-circle">3</div> Payment Method
-                    </h3>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div @click="paymentMethod = 'wallet'" :class="paymentMethod === 'wallet' ? 'active-package' : 'border-gray-200'" class="border rounded-lg p-3 text-center cursor-pointer relative">
-                            <div v-if="paymentMethod === 'wallet'" class="check-icon"><i class="fa-solid fa-check"></i></div>
-                            <i class="fa-solid fa-wallet text-2xl text-orange-500 mb-1"></i>
-                            <div class="text-xs font-bold">Wallet Balance</div>
-                            <div class="text-[10px] text-gray-500">Available: {{ userBalance }} ৳</div>
-                        </div>
-                        <div @click="paymentMethod = 'instant'" :class="paymentMethod === 'instant' ? 'active-package' : 'border-gray-200'" class="border rounded-lg p-3 text-center cursor-pointer relative">
-                            <div v-if="paymentMethod === 'instant'" class="check-icon"><i class="fa-solid fa-check"></i></div>
-                            <div class="flex justify-center gap-2 mb-2 items-center h-7">
-                                <img src="https://seeklogo.com/images/B/bkash-logo-FBB258B90F-seeklogo.com.png" class="h-5">
-                                <img src="https://seeklogo.com/images/N/nagad-logo-7A70CCFEE0-seeklogo.com.png" class="h-4">
+            <!-- STEP 1: AMOUNT -->
+            <transition name="fade">
+                <div v-if="step === 1" class="flex flex-col h-full justify-center">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                        <div class="text-center mb-6">
+                            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 text-purple-600">
+                                <i class="fa-solid fa-wallet text-3xl"></i>
                             </div>
-                            <div class="text-xs font-bold">Mobile Banking</div>
-                            <div class="text-[10px] text-gray-500">Bkash / Nagad</div>
-                        </div>
-                    </div>
-
-                    <div class="mt-6 pt-4 border-t border-dashed border-gray-300">
-                        <div class="flex justify-between text-sm font-bold text-gray-600 mb-1">
-                            <span>Package Price:</span>
-                            <span>৳ {{ selectedPackage ? selectedPackage.price : 0 }}</span>
-                        </div>
-                        <div class="flex justify-between text-base font-black text-gray-800 mb-4">
-                            <span>Total Payable:</span>
-                            <span class="text-purple-700">৳ {{ selectedPackage ? selectedPackage.price : 0 }}</span>
+                            <h2 class="text-xl font-bold text-gray-800">Recharge Balance</h2>
+                            <p class="text-xs text-gray-500 mt-1">Instant Auto Deposit System</p>
                         </div>
 
-                        <button @click="handleBuy" 
-                                :disabled="!selectedPackage || !playerId"
-                                :class="(!selectedPackage || !playerId) ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#583cb3] hover:bg-purple-800 shadow-lg shadow-purple-200'"
-                                class="w-full text-white py-3.5 rounded-xl font-bold text-base transition flex justify-center items-center gap-2 active:scale-95">
-                            <span>Confirm Purchase</span> <i class="fa-solid fa-arrow-right"></i>
+                        <label class="block text-sm font-bold text-gray-600 mb-2">Enter Amount</label>
+                        <div class="relative mb-6">
+                            <span class="absolute left-4 top-3.5 text-gray-500 font-bold">৳</span>
+                            <input v-model="amount" type="number" placeholder="0" class="w-full border border-gray-300 py-3 pl-8 pr-4 rounded-xl text-lg font-bold outline-none focus:border-purple-500 transition">
+                        </div>
+
+                        <div class="grid grid-cols-4 gap-2 mb-6">
+                            <button @click="amount = 100" class="border rounded-lg py-1 text-xs font-bold hover:bg-purple-50">100</button>
+                            <button @click="amount = 300" class="border rounded-lg py-1 text-xs font-bold hover:bg-purple-50">300</button>
+                            <button @click="amount = 500" class="border rounded-lg py-1 text-xs font-bold hover:bg-purple-50">500</button>
+                            <button @click="amount = 1000" class="border rounded-lg py-1 text-xs font-bold hover:bg-purple-50">1000</button>
+                        </div>
+
+                        <button @click="goToMethod" class="w-full bg-[#583cb3] text-white py-3.5 rounded-xl font-bold shadow-lg hover:bg-purple-700 transition flex justify-center items-center gap-2">
+                            Next Step <i class="fa-solid fa-arrow-right"></i>
                         </button>
                     </div>
                 </div>
-            </div>
+            </transition>
+
+            <!-- STEP 2: METHOD -->
+            <transition name="fade">
+                <div v-if="step === 2">
+                    <h2 class="font-bold text-gray-700 mb-4">Select Payment Method</h2>
+                    <div class="space-y-3">
+                        <div @click="selectMethod('bkash')" class="bg-white p-4 rounded-xl border border-gray-200 flex items-center justify-between cursor-pointer hover:border-pink-500 shadow-sm transition">
+                            <div class="flex items-center gap-4">
+                                <img src="https://seeklogo.com/images/B/bkash-logo-FBB258B90F-seeklogo.com.png" class="w-10">
+                                <span class="font-bold text-gray-700">bKash</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-gray-400"></i>
+                        </div>
+                        <div @click="selectMethod('nagad')" class="bg-white p-4 rounded-xl border border-gray-200 flex items-center justify-between cursor-pointer hover:border-orange-500 shadow-sm transition">
+                            <div class="flex items-center gap-4">
+                                <img src="https://seeklogo.com/images/N/nagad-logo-7A70CCFEE0-seeklogo.com.png" class="w-10">
+                                <span class="font-bold text-gray-700">Nagad</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-gray-400"></i>
+                        </div>
+                        <div @click="selectMethod('rocket')" class="bg-white p-4 rounded-xl border border-gray-200 flex items-center justify-between cursor-pointer hover:border-purple-500 shadow-sm transition">
+                            <div class="flex items-center gap-4">
+                                <img src="https://seeklogo.com/images/D/dutch-bangla-rocket-logo-B4D1CC458D-seeklogo.com.png" class="w-10">
+                                <span class="font-bold text-gray-700">Rocket</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </transition>
+
+            <!-- STEP 3: GATEWAY -->
+            <transition name="fade">
+                <div v-if="step === 3" class="h-full">
+                    
+                    <div :class="gatewayColor" class="rounded-t-2xl p-4 text-white flex items-center justify-between shadow-md transition-colors duration-300">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-white p-1 rounded shadow-sm">
+                                <img :src="methodLogo" class="w-8 h-8 object-contain">
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-sm">Merchant Pay</h3>
+                                <p class="text-[10px] opacity-90">Secure Payment</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px]">Amount</p>
+                            <p class="font-bold text-lg">৳ {{ amount }}</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-b-2xl shadow-sm border-x border-b border-gray-200">
+                        <div class="mb-6 text-center">
+                            <p class="text-xs text-gray-500 mb-1">Send Money To (Personal)</p>
+                            <div class="flex items-center justify-center gap-2 bg-gray-50 p-2 rounded-lg border border-dashed border-gray-300">
+                                <span class="font-mono font-bold text-lg text-gray-800 tracking-wide select-all">{{ adminNumber }}</span>
+                                <button @click="copyNumber" class="text-xs bg-gray-200 px-2 py-1 rounded hover:bg-gray-300 font-bold active:scale-90 transition"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="text-[10px] text-gray-500 mb-6 bg-yellow-50 p-2 rounded border border-yellow-100">
+                            <i class="fa-solid fa-circle-info text-yellow-600"></i> 
+                            আপনার {{ method }} অ্যাপ থেকে উপরের নাম্বারে <b>Send Money</b> করুন। এরপর নিচের বক্সে TrxID দিন।
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 mb-1">Account Number (Sender)</label>
+                                <input v-model="senderNumber" type="tel" placeholder="017xxxxxxxx" class="w-full border border-gray-300 p-3 rounded-lg text-sm outline-none focus:border-gray-400 transition bg-gray-50 focus:bg-white">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 mb-1">Transaction ID (TrxID)</label>
+                                <input v-model="trxId" type="text" placeholder="e.g. 9H7G6..." class="w-full border border-gray-300 p-3 rounded-lg text-sm outline-none focus:border-gray-400 transition uppercase bg-gray-50 font-mono focus:bg-white">
+                            </div>
+                        </div>
+
+                        <button @click="submitPayment" :disabled="loading" :class="gatewayButtonColor" class="w-full text-white py-3 rounded-lg font-bold shadow-lg mt-8 transition flex justify-center items-center gap-2 active:scale-95">
+                            <span v-if="loading" class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+                            <span v-else>CONFIRM PAYMENT</span>
+                        </button>
+                    </div>
+                </div>
+            </transition>
+
         </main>
 
         <!-- Bottom Nav -->
         <div class="fixed bottom-0 w-full bg-white border-t border-gray-200 z-50 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
             <div class="grid grid-cols-5 h-16 max-w-md mx-auto">
                 <a href="index.html" class="nav-item"><i class="fa-solid fa-house"></i><span>Home</span></a>
-                <a href="add-money.html" class="nav-item"><i class="fa-solid fa-wallet"></i><span>Add Money</span></a>
+                <a href="add-money.html" class="nav-item active"><i class="fa-solid fa-wallet"></i><span>Add Money</span></a>
                 <a href="orders.html" class="nav-item"><i class="fa-solid fa-file-invoice"></i><span>My Orders</span></a>
                 <a href="codes.html" class="nav-item"><i class="fa-solid fa-gift"></i><span>My Codes</span></a>
                 <a href="account.html" class="nav-item"><i class="fa-solid fa-user"></i><span>Account</span></a>
             </div>
         </div>
+
     </div>
 
     <!-- Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, collection, addDoc, updateDoc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { createApp, ref, onMounted } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { createApp, ref, computed, onMounted } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyACUK207BRvtR5yc1UhYLS9FlMitVVlrrE",
@@ -203,117 +227,107 @@
 
         createApp({
             setup() {
-                const loading = ref(true);
-                const product = ref({});
-                const selectedPackage = ref(null);
-                const playerId = ref('');
-                const paymentMethod = ref('instant');
-                const packages = ref([]);
-                const userBalance = ref(0);
+                const step = ref(1);
+                const amount = ref('');
+                const method = ref('');
+                const senderNumber = ref('');
+                const trxId = ref('');
+                const loading = ref(false);
+                const adminNumber = ref('Loading...');
                 
-                const popup = ref({ show: false, type: '', title: '', msg: '', btnText: 'OK' });
-                
-                const userId = localStorage.getItem('userId');
+                // Popup State
+                const popup = ref({ show: false, type: 'error', title: '', msg: '', btnText: 'OK' });
 
-                // Helper Functions
+                const userId = localStorage.getItem('userId');
+                // লগইন না থাকলে রিডাইরেক্ট হবে
+                if(!userId) window.location.href = 'login.html';
+
+                // Helpers
                 const showPopup = (type, title, msg, btnText = "OK") => {
                     popup.value = { show: true, type, title, msg, btnText };
                 };
-                
-                // 🔥 UPDATED LOGIC HERE for 'Add Money' Button
+
                 const closePopup = () => {
-                    if (popup.value.btnText === 'Add Money') {
-                        window.location.href = 'add-money.html';
+                    popup.value.show = false;
+                    if(popup.value.type === 'success') {
+                        window.location.href = "account.html";
+                    }
+                };
+
+                const fetchNumber = () => {
+                    adminNumber.value = "01700000000"; 
+                };
+
+                const goToMethod = () => {
+                    if(!amount.value || amount.value < 10) {
+                        showPopup('error', 'Invalid Amount', 'Minimum recharge amount is 10 BDT.', 'Try Again');
                         return;
                     }
+                    step.value = 2;
+                };
 
-                    if (popup.value.type === 'success') {
-                        window.location.href = 'orders.html';
-                    } else {
-                        popup.value.show = false;
+                const selectMethod = (m) => {
+                    method.value = m;
+                    step.value = 3;
+                };
+
+                // Styling
+                const gatewayColor = computed(() => {
+                    if(method.value === 'bkash') return 'bg-[#e2136e]';
+                    if(method.value === 'nagad') return 'bg-[#ec1c24]';
+                    return 'bg-[#8c3494]';
+                });
+
+                const gatewayButtonColor = computed(() => {
+                    if(method.value === 'bkash') return 'bg-[#e2136e] hover:bg-[#c40f5f]';
+                    if(method.value === 'nagad') return 'bg-[#ec1c24] hover:bg-[#cc161d]';
+                    return 'bg-[#8c3494] hover:bg-[#722a79]';
+                });
+
+                const methodLogo = computed(() => {
+                    if(method.value === 'bkash') return 'https://seeklogo.com/images/B/bkash-logo-FBB258B90F-seeklogo.com.png';
+                    if(method.value === 'nagad') return 'https://seeklogo.com/images/N/nagad-logo-7A70CCFEE0-seeklogo.com.png';
+                    return 'https://seeklogo.com/images/D/dutch-bangla-rocket-logo-B4D1CC458D-seeklogo.com.png';
+                });
+
+                const copyNumber = () => {
+                    navigator.clipboard.writeText(adminNumber.value);
+                };
+
+                const submitPayment = async () => {
+                    if(!senderNumber.value || !trxId.value) {
+                        showPopup('error', 'Missing Information', 'Please fill in Sender Number and TrxID correctly.', 'Fix Now');
+                        return;
                     }
-                };
-
-                const generatePackages = (basePrice) => {
-                    const price = Number(basePrice) || 100;
-                    packages.value = [
-                        { id: 1, name: 'Small Pack (115 💎)', price: price },
-                        { id: 2, name: 'Medium Pack (240 💎)', price: Math.floor(price * 2.1) },
-                        { id: 3, name: 'Big Pack (610 💎)', price: Math.floor(price * 5.2) },
-                        { id: 4, name: 'Weekly Membership', price: 160 },
-                        { id: 5, name: 'Monthly Membership', price: 800 }
-                    ];
-                };
-
-                const fetchProduct = async () => {
-                    const params = new URLSearchParams(window.location.search);
-                    const id = params.get('id');
-                    if (!id) { window.location.href = 'index.html'; return; }
                     
+                    loading.value = true;
                     try {
-                        const docRef = doc(db, "products", id);
-                        const docSnap = await getDoc(docRef);
-                        if (docSnap.exists()) {
-                            product.value = docSnap.data();
-                            generatePackages(product.value.price);
-                        }
-                    } catch (e) { console.error(e); } 
-                    finally { loading.value = false; }
-                };
-
-                const fetchUserBalance = async () => {
-                    if (!userId) return;
-                    try {
-                        const userDoc = await getDoc(doc(db, "users", userId));
-                        if (userDoc.exists()) userBalance.value = userDoc.data().balance || 0;
-                    } catch (e) { console.error(e); }
-                };
-
-                const handleBuy = () => {
-                    if(!selectedPackage.value) return showPopup('error', 'Select Package', 'Please select a package first.');
-                    if(!playerId.value) return showPopup('error', 'Missing UID', 'Please enter your Player ID.');
-
-                    if(paymentMethod.value === 'wallet') {
-                        if (userBalance.value < selectedPackage.value.price) {
-                            // 🔥 TRIGGER FOR ADD MONEY REDIRECT
-                            showPopup('error', 'Insufficient Balance', 'Please add money to your wallet.', 'Add Money');
-                            return;
-                        }
-                        showPopup('confirm', 'Confirm Order', `Pay ${selectedPackage.value.price} Tk for ${selectedPackage.value.name}?`, 'Confirm');
-                    } else {
-                        showPopup('error', 'Coming Soon', 'Mobile Banking Auto Payment is coming soon!', 'OK');
-                    }
-                };
-
-                const confirmPurchaseAction = async () => {
-                    try {
-                        await addDoc(collection(db, "orders"), {
+                        await addDoc(collection(db, "deposits"), {
                             userId: userId,
-                            packageName: selectedPackage.value.name,
-                            price: selectedPackage.value.price,
-                            playerId: playerId.value,
-                            status: 'pending',
+                            method: method.value,
+                            amount: Number(amount.value),
+                            senderNumber: senderNumber.value,
+                            trxId: trxId.value.toUpperCase(),
+                            status: "pending",
                             createdAt: serverTimestamp()
                         });
-                        const userRef = doc(db, "users", userId);
-                        await updateDoc(userRef, { balance: increment(-selectedPackage.value.price) });
-                        
-                        showPopup('success', 'Order Successful', 'Your order has been placed successfully!', 'Go to Orders');
+                        showPopup('success', 'Deposit Submitted', 'Your request has been submitted successfully! Please wait for admin approval.', 'Go to Account');
                     } catch (e) {
-                        showPopup('error', 'Failed', 'Something went wrong. Try again.');
+                        console.error(e);
+                        showPopup('error', 'Submission Failed', 'Something went wrong. Please check your internet connection.', 'Try Again');
+                    } finally {
+                        loading.value = false;
                     }
                 };
 
-                const handleImageError = (e) => e.target.src = "https://placehold.co/400x400?text=No+Image";
-
                 onMounted(() => {
-                    fetchProduct();
-                    fetchUserBalance();
+                    fetchNumber();
                 });
 
                 return {
-                    loading, product, packages, selectedPackage, playerId, paymentMethod, userBalance, 
-                    handleBuy, handleImageError, popup, closePopup, confirmPurchaseAction
+                    step, amount, method, senderNumber, trxId, loading, adminNumber,
+                    goToMethod, selectMethod, gatewayColor, gatewayButtonColor, methodLogo, copyNumber, submitPayment,
+                    popup, closePopup
                 };
             }
         }).mount('#app');
