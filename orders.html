@@ -139,7 +139,8 @@
     <!-- Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { createApp, ref, computed, onMounted } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
         const firebaseConfig = {
@@ -152,6 +153,7 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
         createApp({
@@ -160,10 +162,16 @@
                 const orders = ref([]);
                 const filter = ref('all');
                 
-                const userId = localStorage.getItem('userId');
-                if(!userId) window.location.href = 'login.html';
+                // Auth Listener
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        fetchOrders(user.uid);
+                    } else {
+                        window.location.href = 'login.html';
+                    }
+                });
 
-                const fetchOrders = async () => {
+                const fetchOrders = async (userId) => {
                     try {
                         // ইউজার অনুযায়ী অর্ডার আনা
                         const q = query(collection(db, "orders"), where("userId", "==", userId));
@@ -175,6 +183,7 @@
                         });
 
                         // তারিখ অনুযায়ী সাজানো (নতুন আগে)
+                        // Client-side sorting to avoid composite index requirement initially
                         tempOrders.sort((a, b) => {
                             return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
                         });
@@ -214,10 +223,6 @@
                     navigator.clipboard.writeText(id);
                     alert("Order ID copied!");
                 };
-
-                onMounted(() => {
-                    fetchOrders();
-                });
 
                 return {
                     loading, orders, filter, filteredOrders,

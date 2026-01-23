@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Add Money - FREE TOPUP PRO</title>
     
+    <!-- CDNs -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -17,6 +18,8 @@
         .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; color: #64748b; text-decoration: none; }
         .nav-item i { font-size: 18px; margin-bottom: 4px; }
         .nav-item.active { color: #583cb3; font-weight: 700; }
+        
+        /* Animations */
         .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
         .fade-enter-from, .fade-leave-to { opacity: 0; }
         .pop-enter-active { transition: all 0.3s ease-out; }
@@ -183,6 +186,7 @@
     <!-- LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { createApp, ref, computed, onMounted } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
@@ -196,6 +200,7 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
         createApp({
@@ -208,10 +213,19 @@
                 const loading = ref(false);
                 const adminNumber = ref('Loading...');
                 const allPaymentNumbers = ref({});
+                const userId = ref(null);
                 
                 const popup = ref({ show: false, type: '', title: '', msg: '', btnText: '' });
-                const userId = localStorage.getItem('userId');
-                if(!userId) window.location.href = 'login.html';
+
+                // Auth Check
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId.value = user.uid;
+                        fetchPaymentSettings();
+                    } else {
+                        window.location.href = 'login.html';
+                    }
+                });
 
                 const fetchPaymentSettings = async () => {
                     try {
@@ -249,12 +263,17 @@
                     loading.value = true;
                     try {
                         await addDoc(collection(db, "deposits"), {
-                            userId, method: method.value, amount: Number(amount.value), 
-                            senderNumber: senderNumber.value, trxId: trxId.value.toUpperCase(), 
-                            status: "pending", createdAt: serverTimestamp()
+                            userId: userId.value, // Using Auth UID
+                            method: method.value, 
+                            amount: Number(amount.value), 
+                            senderNumber: senderNumber.value, 
+                            trxId: trxId.value.toUpperCase(), 
+                            status: "pending", 
+                            createdAt: serverTimestamp()
                         });
                         showPopup('success', 'Submitted', 'Wait for approval.', 'Go to Account');
                     } catch (e) {
+                        console.error(e);
                         showPopup('error', 'Failed', 'Try again.', 'OK');
                     } finally {
                         loading.value = false;
@@ -279,9 +298,14 @@
                     return 'https://seeklogo.com/images/D/dutch-bangla-rocket-logo-B4D1CC458D-seeklogo.com.png';
                 });
 
-                const copyNumber = () => { navigator.clipboard.writeText(adminNumber.value); };
+                const copyNumber = () => { 
+                    navigator.clipboard.writeText(adminNumber.value); 
+                    showPopup('success', 'Copied', 'Number copied to clipboard', 'OK');
+                };
 
-                onMounted(fetchPaymentSettings);
+                onMounted(() => {
+                    // Logic moved to auth listener
+                });
 
                 return {
                     step, amount, method, senderNumber, trxId, loading, adminNumber,
