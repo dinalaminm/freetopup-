@@ -149,9 +149,11 @@
                     <div v-if="paymentMethod === 'wallet'" class="bg-purple-50 border border-purple-100 p-3 rounded-lg flex justify-between items-center mb-4">
                         <div>
                             <p class="text-xs text-purple-800 font-bold">My Balance</p>
-                            <p class="text-lg font-black text-[#583cb3]">৳ {{ userBalance }}</p>
+                            <!-- ব্যালেন্স দেখার জন্য লগইন চেক -->
+                            <p v-if="isLoggedIn" class="text-lg font-black text-[#583cb3]">৳ {{ userBalance }}</p>
+                            <p v-else class="text-sm font-bold text-gray-400">Login to see balance</p>
                         </div>
-                        <a href="add-money.html" class="bg-white text-purple-700 px-3 py-1 rounded text-[10px] font-bold shadow-sm border border-purple-200">
+                        <a v-if="isLoggedIn" href="add-money.html" class="bg-white text-purple-700 px-3 py-1 rounded text-[10px] font-bold shadow-sm border border-purple-200">
                             + Add Money
                         </a>
                     </div>
@@ -205,11 +207,12 @@
                             <span class="text-purple-700">৳ {{ selectedPackage ? selectedPackage.price : 0 }}</span>
                         </div>
 
+                        <!-- বাটনে isLoggedIn চেক নেই, ফাংশনে চেক হবে -->
                         <button @click="handleBuy" 
                                 :disabled="!selectedPackage || !playerId"
                                 :class="(!selectedPackage || !playerId) ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#583cb3] hover:bg-purple-800 shadow-lg'"
                                 class="w-full text-white py-3.5 rounded-xl font-bold text-base transition flex justify-center items-center gap-2 active:scale-95">
-                            <span>{{ paymentMethod === 'wallet' ? 'Pay from Wallet' : 'Confirm Payment' }}</span> 
+                            <span>{{ !isLoggedIn ? 'Login to Purchase' : (paymentMethod === 'wallet' ? 'Pay from Wallet' : 'Confirm Payment') }}</span> 
                             <i class="fa-solid fa-arrow-right"></i>
                         </button>
                     </div>
@@ -252,6 +255,7 @@
         createApp({
             setup() {
                 const loading = ref(true);
+                const isLoggedIn = ref(false); // ট্র্যাক করবে ইউজার লগইন আছে কি না
                 const product = ref({});
                 const packages = ref([]);
                 const selectedPackage = ref(null);
@@ -260,8 +264,8 @@
                 const userId = ref(null);
                 
                 // Payment States
-                const paymentMethod = ref('wallet'); // 'wallet' or 'direct'
-                const directGateway = ref('bkash'); // bkash, nagad, rocket
+                const paymentMethod = ref('wallet');
+                const directGateway = ref('bkash');
                 const senderNumber = ref('');
                 const trxId = ref('');
                 const adminNumbers = ref({}); 
@@ -275,6 +279,7 @@
                 const closePopup = () => {
                     if (popup.value.btnText === 'Add Money') window.location.href = 'add-money.html';
                     else if (popup.value.btnText === 'Go to Orders') window.location.href = 'orders.html';
+                    else if (popup.value.btnText === 'Login') window.location.href = 'login.html';
                     else popup.value.show = false;
                 };
 
@@ -289,21 +294,26 @@
                     }
                 };
 
-                // Fetch Data with Auth
+                // 🔥 Auth Check Relaxed: ডেটা লোড হবে, লগইন না থাকলেও
                 const initData = () => {
                     onAuthStateChanged(auth, async (user) => {
                         if (user) {
+                            // লগইন অবস্থায়
+                            isLoggedIn.value = true;
                             userId.value = user.uid;
                             await fetchData(user.uid);
                         } else {
-                            window.location.href = 'login.html';
+                            // লগইন নেই, কিন্তু পেজ লোড হবে
+                            isLoggedIn.value = false;
+                            userId.value = null;
+                            await fetchData(null); // UID ছাড়াই ডেটা আনবে
                         }
                     });
                 };
 
                 const fetchData = async (uid) => {
                     try {
-                        // Product
+                        // Product (Always Fetch)
                         const params = new URLSearchParams(window.location.search);
                         const id = params.get('id');
                         if (!id) window.location.href = 'index.html';
@@ -314,9 +324,11 @@
                             generatePackages(product.value.price);
                         }
 
-                        // User Balance
-                        const userSnap = await getDoc(doc(db, "users", uid));
-                        if(userSnap.exists()) userBalance.value = userSnap.data().balance || 0;
+                        // User Balance (Only if logged in)
+                        if (uid) {
+                            const userSnap = await getDoc(doc(db, "users", uid));
+                            if(userSnap.exists()) userBalance.value = userSnap.data().balance || 0;
+                        }
 
                         // Payment Settings
                         const settingsSnap = await getDoc(doc(db, "settings", "payment"));
@@ -337,8 +349,16 @@
                     ];
                 };
 
-                // Main Action
+                // 🔥 Handle Buy: লগইন চেক এখানে হবে
                 const handleBuy = () => {
+                    // ১. লগইন চেক
+                    if (!isLoggedIn.value) {
+                        // ইউজারকে লগইন পেজে পাঠাও
+                        window.location.href = 'login.html';
+                        return;
+                    }
+
+                    // ২. সাধারণ ভ্যালিডেশন
                     if(!selectedPackage.value) return showPopup('error', 'Select Package', 'Please choose a package.');
                     if(!playerId.value) return showPopup('error', 'Missing UID', 'Enter Player ID.');
 
@@ -355,7 +375,7 @@
                     }
                 };
 
-                // Process Order
+                // Process Order (Existing Logic)
                 const confirmPurchaseAction = async () => {
                     popup.value.show = false;
                     const price = selectedPackage.value.price;
@@ -363,7 +383,6 @@
                     
                     try {
                         if(paymentMethod.value === 'wallet') {
-                            // Wallet Transaction
                             await runTransaction(db, async (t) => {
                                 const uRef = doc(db, "users", uid);
                                 const uDoc = await t.get(uRef);
@@ -378,11 +397,10 @@
                                 });
                             });
                         } else {
-                            // Direct Payment (No balance deduction, just order)
                             await addDoc(collection(db, "orders"), {
                                 userId: uid, packageName: selectedPackage.value.name, price,
                                 playerId: playerId.value, status: 'pending',
-                                paymentMethod: directGateway.value, // bkash/nagad
+                                paymentMethod: directGateway.value,
                                 senderNumber: senderNumber.value,
                                 trxId: trxId.value.toUpperCase(),
                                 createdAt: serverTimestamp()
@@ -401,7 +419,7 @@
                 onMounted(initData);
 
                 return {
-                    loading, product, packages, selectedPackage, playerId, userBalance,
+                    loading, isLoggedIn, product, packages, selectedPackage, playerId, userBalance,
                     paymentMethod, directGateway, adminNumber, senderNumber, trxId,
                     handleBuy, confirmPurchaseAction, popup, closePopup, copyNumber, handleImageError
                 };

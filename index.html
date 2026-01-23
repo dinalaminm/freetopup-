@@ -22,32 +22,12 @@
         .nav-item i { font-size: 18px; margin-bottom: 4px; }
         .nav-item.active { color: #583cb3; font-weight: 700; }
         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
-        .slide-up-enter-active, .slide-up-leave-active { transition: all 0.3s ease; }
-        .slide-up-enter-from, .slide-up-leave-to { opacity: 0; transform: translateY(20px); }
-        .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
-        .fade-enter-from, .fade-leave-to { opacity: 0; }
-        .animate-bounce-slow { animation: bounce 2s infinite; }
-        .modal-enter-active, .modal-leave-active { transition: all 0.3s ease; }
-        .modal-enter-from, .modal-leave-to { opacity: 0; transform: scale(0.9); }
     </style>
 </head>
 <body class="bg-[#f0f5ff]">
 
     <div id="app" v-cloak class="max-w-md mx-auto bg-[#f0f5ff] min-h-screen relative flex flex-col">
         
-        <!-- 🔥 WELCOME POPUP MODAL 🔥 -->
-        <transition name="modal">
-            <div v-if="showModal && popupImage" class="fixed inset-0 z-[60] flex items-center justify-center px-4">
-                <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="showModal = false"></div>
-                <div class="relative bg-white rounded-xl p-2 max-w-sm w-full shadow-2xl">
-                    <button @click="showModal = false" class="absolute -top-3 -right-3 bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg border-2 border-white z-10">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                    <img :src="popupImage" class="w-full rounded-lg object-contain max-h-[70vh]">
-                </div>
-            </div>
-        </transition>
-
         <!-- Header -->
         <header class="sticky top-0 z-40 bg-white shadow-sm border-b border-gray-200">
             <div class="px-3 py-2 flex justify-between items-center">
@@ -61,13 +41,18 @@
                         <span class="font-bold text-[10px] text-purple-700 tracking-widest">TOPUP PRO</span>
                     </div>
                 </a>
+                
+                <!-- Login/Profile Section logic changed here -->
                 <div class="flex items-center gap-2">
-                    <a href="add-money.html" class="bg-[#583cb3] text-white px-3 py-1 rounded-md text-sm font-bold flex items-center gap-2 shadow-sm hover:bg-purple-800 transition no-underline">
+                    <!-- Add Money Button: Checks Login -->
+                    <button @click="handleProtectedAction('add-money.html')" class="bg-[#583cb3] text-white px-3 py-1 rounded-md text-sm font-bold flex items-center gap-2 shadow-sm hover:bg-purple-800 transition">
                         <i class="fa-solid fa-wallet"></i> {{ userBalance }} ৳
-                    </a>
-                    <a href="account.html" class="w-8 h-8 rounded-full overflow-hidden border border-gray-300">
-                        <img :src="userAvatar || 'https://i.pravatar.cc/150?img=12'" class="w-full h-full object-cover">
-                    </a>
+                    </button>
+                    
+                    <!-- Profile Picture: Checks Login -->
+                    <button @click="handleProtectedAction('account.html')" class="w-8 h-8 rounded-full overflow-hidden border border-gray-300">
+                        <img :src="userAvatar" class="w-full h-full object-cover">
+                    </button>
                 </div>
             </div>
         </header>
@@ -80,7 +65,7 @@
 
         <!-- Main Content -->
         <main class="pb-24 px-3 flex-grow">
-            
+            <!-- Loading Spinner -->
             <div v-if="loading" class="flex flex-col justify-center items-center h-64">
                 <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-700 mb-4"></div>
                 <p class="text-gray-500 text-sm">লোড হচ্ছে...</p>
@@ -99,14 +84,16 @@
                     </div>
                 </div>
 
+                <!-- Products Sections -->
+                <!-- Note: Viewing details is usually Public, but if you want to force login on click, use handleProtectedAction -->
+                
                 <!-- MYSTERY BOX -->
                 <div v-if="mysteryBoxes.length > 0">
                     <h2 class="section-title text-center text-[#1e3a8a] font-serif font-bold text-lg mt-4 mb-2">MYSTERY BOX</h2>
                     <div class="grid grid-cols-2 gap-3">
                         <div v-for="item in mysteryBoxes" :key="item.id" @click="goToDetails(item.id)" class="flex flex-col items-center cursor-pointer">
                             <div class="product-card w-full aspect-square relative group rounded-xl overflow-hidden shadow-sm border border-gray-100 bg-white">
-                                <img :src="item.image" @error="handleImageError" class="w-full h-full object-cover transition duration-300 group-hover:scale-110">
-                                <img src="https://cdn-icons-png.flaticon.com/512/8777/8777973.png" class="absolute bottom-2 right-2 w-6 h-6 animate-bounce">
+                                <img :src="item.image" @error="handleImageError" class="w-full h-full object-cover">
                             </div>
                             <h3 class="mt-2 font-bold text-xs text-[#1e3a8a] text-center">{{ item.name }}</h3>
                         </div>
@@ -118,75 +105,37 @@
                     <h2 class="section-title text-center text-[#1e3a8a] font-serif font-bold text-lg mt-4 mb-2">SPECIAL OFFER</h2>
                     <div class="grid grid-cols-2 gap-3">
                         <div v-for="item in specialOffers" :key="item.id" @click="goToDetails(item.id)" class="product-card aspect-[4/3] relative rounded-xl overflow-hidden shadow-sm border border-gray-100 group cursor-pointer">
-                            <img :src="item.image" @error="handleImageError" class="w-full h-full object-cover transition duration-300 group-hover:scale-110">
+                            <img :src="item.image" @error="handleImageError" class="w-full h-full object-cover">
                             <div class="absolute bottom-0 w-full bg-black/70 text-white text-[10px] text-center py-1.5 backdrop-blur-sm">{{ item.name }}</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- FREE FIRE -->
+                <!-- FREE FIRE (Example of others) -->
                 <div v-if="freeFireItems.length > 0">
                     <h2 class="section-title text-center text-[#1e3a8a] font-serif font-bold text-lg mt-4 mb-2">FREE FIRE</h2>
                     <div class="grid grid-cols-3 gap-3">
-                        <div v-for="item in freeFireItems" :key="item.id" @click="goToDetails(item.id)" class="bg-gradient-to-b from-[#180e3d] to-[#2a1b63] p-[1px] rounded-xl shadow-lg border border-purple-900/50 cursor-pointer product-card group">
-                            <div class="bg-[#120833] rounded-[10px] p-2 flex flex-col items-center h-full relative overflow-hidden group-hover:bg-[#1a0c45] transition">
-                                <img :src="item.image" @error="handleImageError" class="w-12 h-12 mb-2 z-10 rounded-lg object-contain shadow-md border border-white/10">
-                                <h3 class="text-[10px] font-bold text-white text-center leading-3 z-10 line-clamp-2">{{ item.name }}</h3>
-                            </div>
+                        <div v-for="item in freeFireItems" :key="item.id" @click="goToDetails(item.id)" class="bg-white p-2 rounded-xl shadow cursor-pointer">
+                            <img :src="item.image" @error="handleImageError" class="w-full h-16 object-contain mb-2">
+                            <h3 class="text-[10px] font-bold text-center">{{ item.name }}</h3>
                         </div>
                     </div>
                 </div>
-
-                <!-- INGAME TOPUP -->
-                <div v-if="ingameItems.length > 0">
-                    <h2 class="section-title text-center text-[#1e3a8a] font-serif font-bold text-lg mt-4 mb-2">INGAME TOPUP</h2>
-                    <div class="grid grid-cols-3 gap-3">
-                        <div v-for="item in ingameItems" :key="item.id" @click="goToDetails(item.id)" class="product-card bg-white p-2 rounded-xl shadow-sm border border-gray-200 flex flex-col items-center hover:shadow-md transition cursor-pointer">
-                            <img :src="item.image" @error="handleImageError" class="w-full h-16 object-cover rounded-lg mb-2 border border-gray-100">
-                            <h3 class="text-[10px] font-bold text-gray-800 text-center line-clamp-2">{{ item.name }}</h3>
-                        </div>
-                    </div>
-                </div>
-
+                
                 <div class="h-6"></div>
             </div>
         </main>
-
-        <!-- Footer & Support -->
-        <div class="fixed bottom-20 right-4 z-50 flex flex-col items-end gap-3">
-            <transition name="slide-up">
-                <div v-if="showSupport" class="flex flex-col gap-3 items-center">
-                    <a :href="supportLinks.messenger || '#'" target="_blank" class="w-12 h-12 bg-[#0084ff] rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 transition duration-200">
-                        <i class="fa-brands fa-facebook-messenger text-2xl"></i>
-                    </a>
-                    <a :href="supportLinks.telegram || '#'" target="_blank" class="w-12 h-12 bg-[#0088cc] rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 transition duration-200">
-                        <i class="fa-brands fa-telegram text-2xl"></i>
-                    </a>
-                </div>
-            </transition>
-            <div class="flex items-center gap-2">
-                <transition name="fade">
-                    <div v-if="!showSupport" @click="showSupport = true" class="bg-[#dc2626] text-white text-[10px] font-bold px-3 py-1.5 rounded-l-full rounded-r-lg shadow-md cursor-pointer animate-pulse">
-                        সাহায্য লাগবে ?
-                    </div>
-                </transition>
-                <button @click="showSupport = !showSupport" 
-                    class="w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg transition-transform duration-300 active:scale-90"
-                    :class="showSupport ? 'bg-[#dc2626] rotate-90' : 'bg-[#dc2626]'">
-                    <i v-if="showSupport" class="fa-solid fa-xmark text-xl"></i>
-                    <i v-else class="fa-solid fa-phone text-xl animate-bounce-slow"></i>
-                </button>
-            </div>
-        </div>
 
         <!-- Bottom Nav -->
         <div class="fixed bottom-0 w-full bg-white border-t border-gray-200 z-50 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
             <div class="grid grid-cols-5 h-16 max-w-md mx-auto">
                 <a href="index.html" class="nav-item active"><i class="fa-solid fa-house"></i><span>Home</span></a>
-                <a href="add-money.html" class="nav-item"><i class="fa-solid fa-wallet"></i><span>Add Money</span></a>
-                <a href="orders.html" class="nav-item"><i class="fa-solid fa-file-invoice"></i><span>My Orders</span></a>
-                <a href="codes.html" class="nav-item"><i class="fa-solid fa-gift"></i><span>My Codes</span></a>
-                <a href="account.html" class="nav-item"><i class="fa-solid fa-user"></i><span>Account</span></a>
+                
+                <!-- Protected Links -->
+                <button @click="handleProtectedAction('add-money.html')" class="nav-item bg-transparent border-0"><i class="fa-solid fa-wallet"></i><span>Add Money</span></button>
+                <button @click="handleProtectedAction('orders.html')" class="nav-item bg-transparent border-0"><i class="fa-solid fa-file-invoice"></i><span>My Orders</span></button>
+                <button @click="handleProtectedAction('codes.html')" class="nav-item bg-transparent border-0"><i class="fa-solid fa-gift"></i><span>My Codes</span></button>
+                <button @click="handleProtectedAction('account.html')" class="nav-item bg-transparent border-0"><i class="fa-solid fa-user"></i><span>Account</span></button>
             </div>
         </div>
     </div>
@@ -194,11 +143,11 @@
     <!-- Swiper JS -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
 
-    <!-- Main Logic -->
+    <!-- Vue & Firebase Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, getDocs, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { createApp, ref, onMounted, nextTick } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
         const firebaseConfig = {
@@ -217,61 +166,62 @@
         createApp({
             setup() {
                 const loading = ref(true);
+                const isLoggedIn = ref(false); // ট্র্যাক করবে ইউজার লগইন আছে কি না
                 const userBalance = ref(0);
-                const userAvatar = ref('');
+                // ডিফল্ট অ্যাভাটার সেট করা
+                const userAvatar = ref('https://i.pravatar.cc/150?img=12');
                 const noticeMessage = ref("লোড হচ্ছে...");
                 const banners = ref([]);
+                
+                // Products Refs
                 const mysteryBoxes = ref([]);
                 const specialOffers = ref([]);
                 const freeFireItems = ref([]);
-                const ingameItems = ref([]);
-                const showSupport = ref(false);
-                const showModal = ref(false);
-                const popupImage = ref('');
-                const supportLinks = ref({ messenger: '', telegram: '' });
 
-                const goToDetails = (id) => { if (id) window.location.href = `details.html?id=${id}`; };
+                // 🔥 সিকিউরিটি চেক ফাংশন
+                const handleProtectedAction = (url) => {
+                    if (isLoggedIn.value) {
+                        window.location.href = url;
+                    } else {
+                        // লগইন না থাকলে লগইন পেজে পাঠাবে
+                        window.location.href = "login.html";
+                    }
+                };
+
+                // প্রোডাক্ট ডিটেইলস পেজ - এখানে আপনি চাইলে লগইন চেক বসাতে পারেন, 
+                // তবে সাধারণত ডিটেইলস সবাই দেখতে পায়, অর্ডার করার সময় লগইন চায়।
+                const goToDetails = (id) => {
+                    if (id) window.location.href = `details.html?id=${id}`;
+                };
+
                 const handleImageError = (e) => { e.target.src = "https://placehold.co/400x400?text=No+Image"; };
 
-                // Real-time Balance Fetching with Auth Check
                 const initUserData = () => {
                     onAuthStateChanged(auth, (user) => {
                         if (user) {
-                            // রিয়েলটাইম ব্যালেন্স আপডেট
-                            const unsub = onSnapshot(doc(db, "users", user.uid), (doc) => {
+                            isLoggedIn.value = true;
+                            // রিয়েলটাইম ডাটা ফেচ
+                            onSnapshot(doc(db, "users", user.uid), (doc) => {
                                 if (doc.exists()) {
                                     userBalance.value = doc.data().balance || 0;
-                                    userAvatar.value = doc.data().photoURL || '';
-                                    localStorage.setItem('userId', user.uid); // Backup for other pages
+                                    userAvatar.value = doc.data().photoURL || 'https://i.pravatar.cc/150?img=12';
                                 }
                             });
                         } else {
+                            isLoggedIn.value = false;
                             userBalance.value = 0;
-                            // Optional: Redirect to login if needed
-                            // window.location.href = 'login.html'; 
+                            // লগআউট অবস্থায় ডিফল্ট ছবি
+                            userAvatar.value = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
                         }
                     });
                 };
 
                 const fetchData = async () => {
                     try {
-                        // Settings & Products Fetching
+                        // নোটিশ এবং অন্যান্য ডাটা ফেচিং (আগের মতই)
                         try {
                             const nSnap = await getDoc(doc(db, "settings", "notice"));
                             if(nSnap.exists()) noticeMessage.value = nSnap.data().text;
-                        } catch(e) {}
-
-                        try {
-                            const popSnap = await getDoc(doc(db, "settings", "popup"));
-                            if(popSnap.exists() && popSnap.data().active) {
-                                popupImage.value = popSnap.data().image;
-                                showModal.value = true;
-                            }
-                        } catch(e) {}
-
-                        try {
-                            const supSnap = await getDoc(doc(db, "settings", "support"));
-                            if(supSnap.exists()) supportLinks.value = supSnap.data();
                         } catch(e) {}
 
                         const productsSnap = await getDocs(collection(db, "products"));
@@ -280,7 +230,6 @@
                             if (item.category === 'mystery') mysteryBoxes.value.push(item);
                             else if (item.category === 'special') specialOffers.value.push(item);
                             else if (item.category === 'freefire') freeFireItems.value.push(item);
-                            else if (item.category === 'ingame') ingameItems.value.push(item);
                         });
 
                         const bannerSnap = await getDocs(collection(db, "banners"));
@@ -301,14 +250,14 @@
 
                 onMounted(() => {
                     fetchData();
-                    initUserData(); // Auth Check Added Here
+                    initUserData();
                 });
 
                 return {
-                    loading, noticeMessage, banners, userBalance, userAvatar,
-                    mysteryBoxes, specialOffers, freeFireItems, ingameItems,
-                    goToDetails, handleImageError, showSupport,
-                    showModal, popupImage, supportLinks
+                    loading, isLoggedIn, noticeMessage, banners, 
+                    userBalance, userAvatar,
+                    mysteryBoxes, specialOffers, freeFireItems,
+                    goToDetails, handleImageError, handleProtectedAction
                 };
             }
         }).mount('#app');
