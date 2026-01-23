@@ -29,8 +29,6 @@
         <!-- Header -->
         <header class="bg-white shadow-sm sticky top-0 z-50">
             <div class="container mx-auto px-4 py-3 flex justify-between items-center max-w-md">
-                
-                <!-- LOGO -->
                 <a href="index.html" class="flex items-center gap-3 no-underline">
                     <div class="relative">
                         <div class="w-10 h-10 bg-black rounded-full flex items-center justify-center shadow-lg">
@@ -43,8 +41,6 @@
                         <span class="font-bold text-[11px] text-[#9333ea] tracking-widest uppercase">TOPUP PRO</span>
                     </div>
                 </a>
-                
-                <!-- Wallet & Avatar -->
                 <div class="flex items-center gap-3">
                     <button class="bg-[#9333ea] text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow flex items-center gap-1">
                         <i class="fa-solid fa-wallet"></i> {{ user.balance || 0 }} ৳
@@ -79,17 +75,14 @@
                     <div class="text-purple-700 font-bold text-lg leading-tight">{{ supportPin }}</div>
                     <div class="text-xs font-bold text-[#1e3a8a]">Support Pin</div>
                 </div>
-                
                 <div class="bg-white border border-purple-300 rounded-lg p-4 text-center shadow-sm">
                     <div class="text-purple-700 font-bold text-lg leading-tight">{{ stats.weeklySpent }} ৳</div>
                     <div class="text-xs font-bold text-[#1e3a8a]">Weekly Spent</div>
                 </div>
-
                 <div class="bg-white border border-purple-300 rounded-lg p-4 text-center shadow-sm">
                     <div class="text-purple-700 font-bold text-lg leading-tight">{{ stats.totalSpent }}</div>
                     <div class="text-xs font-bold text-[#1e3a8a]">Total Spent</div>
                 </div>
-
                 <div class="bg-white border border-purple-300 rounded-lg p-4 text-center shadow-sm">
                     <div class="text-purple-700 font-bold text-lg leading-tight">{{ stats.totalOrders }}</div>
                     <div class="text-xs font-bold text-[#1e3a8a]">Total Order</div>
@@ -102,13 +95,11 @@
                     <i class="fa-solid fa-folder-open text-gray-700"></i>
                     <h3 class="font-bold text-gray-800 text-sm">Account Information</h3>
                 </div>
-                
                 <div class="p-4 space-y-4">
                     <div class="bg-[#9333ea] rounded-lg p-4 text-center shadow-md">
                         <div class="text-white font-bold text-xl">{{ user.balance || 0 }}৳</div>
                         <div class="text-white/90 font-bold text-sm mt-1">Available Balance</div>
                     </div>
-
                     <div class="border border-gray-100 rounded-lg p-6 text-center shadow-sm bg-white">
                         <i class="fa-solid fa-certificate text-4xl text-blue-500 mb-2"></i>
                         <div class="font-bold text-gray-800">Account Verified!</div>
@@ -122,7 +113,6 @@
                     <i class="fa-solid fa-circle-info text-gray-700"></i>
                     <h3 class="font-bold text-gray-800 text-sm">User Information</h3>
                 </div>
-                
                 <div class="p-4 text-sm">
                     <div class="mb-2">
                         <span class="font-bold text-black">Email : </span>
@@ -133,21 +123,29 @@
                         <span class="text-gray-600">{{ user.phone || 'No phone linked' }}</span>
                     </div>
                 </div>
-
-                <!-- 🔥 LOGOUT BUTTON ADDED HERE 🔥 -->
                 <button @click="handleLogout" class="w-full bg-red-50 text-red-500 py-3 font-bold text-sm border-t border-red-100 hover:bg-red-100 transition flex items-center justify-center gap-2">
                     <i class="fa-solid fa-right-from-bracket"></i> Logout Account
                 </button>
             </div>
 
-            <!-- Footer Section -->
+            <!-- Footer Section (DYNAMIC) -->
             <div class="bg-[#0f172a] text-white pt-8 pb-8 rounded-t-3xl mx-auto">
                 <div class="container mx-auto px-6 text-center">
                     <h3 class="font-bold text-sm mb-4 tracking-widest text-white uppercase">Stay Connected</h3>
-                    <div class="flex justify-center gap-4 mb-8">
-                        <a href="#" class="w-10 h-10 border border-white/20 rounded-lg flex items-center justify-center hover:bg-white/10 text-white transition"><i class="fa-brands fa-facebook-f"></i></a>
-                        <a href="#" class="w-10 h-10 border border-white/20 rounded-lg flex items-center justify-center hover:bg-white/10 text-white transition"><i class="fa-brands fa-instagram"></i></a>
+                    
+                    <!-- Dynamic Links Loop -->
+                    <div class="flex justify-center gap-4 mb-8 flex-wrap">
+                        <template v-for="(url, platform) in socials" :key="platform">
+                            <!-- Only show if URL exists and we have an icon for it -->
+                            <a v-if="url && iconMap[platform]" 
+                               :href="url" 
+                               target="_blank" 
+                               class="w-10 h-10 border border-white/20 rounded-lg flex items-center justify-center hover:bg-white/10 text-white transition">
+                                <i :class="iconMap[platform]"></i>
+                            </a>
+                        </template>
                     </div>
+
                     <p class="text-[10px] text-gray-500 border-t border-gray-800 pt-4">© Free TopUp Pro 2026 | All Rights Reserved</p>
                 </div>
             </div>
@@ -169,7 +167,7 @@
     <!-- Logic Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"; // Auth Import
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { createApp, ref, onMounted } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
@@ -183,7 +181,7 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app); // Auth Init
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
         createApp({
@@ -192,11 +190,24 @@
                 const stats = ref({ totalSpent: 0, totalOrders: 0, weeklySpent: 0 });
                 const supportPin = ref('Loading...');
                 
+                // Reactive variable for socials
+                const socials = ref({});
+
+                // Icon Mapping for Dynamic Footer
+                const iconMap = {
+                    facebook: 'fa-brands fa-facebook-f',
+                    instagram: 'fa-brands fa-instagram',
+                    tiktok: 'fa-brands fa-tiktok',
+                    youtube: 'fa-brands fa-youtube',
+                    telegram: 'fa-brands fa-telegram',
+                    whatsapp: 'fa-brands fa-whatsapp'
+                };
+
                 const userId = localStorage.getItem('userId');
 
                 const fetchUserData = async () => {
                     if (!userId) {
-                        window.location.href = 'login.html'; // ইউজার আইডি না থাকলে লগইনে পাঠান
+                        window.location.href = 'login.html';
                         return;
                     }
 
@@ -238,20 +249,28 @@
                     }
                 };
 
-                // 🔥 LOGOUT FUNCTION 🔥
+                // Function to Fetch Social Links from Admin Settings
+                const fetchSocials = async () => {
+                    try {
+                        const docRef = doc(db, "admin", "settings");
+                        const docSnap = await getDoc(docRef);
+                        if (docSnap.exists()) {
+                            socials.value = docSnap.data();
+                        }
+                    } catch (error) {
+                        console.error("Error fetching socials:", error);
+                    }
+                };
+
                 const handleLogout = async () => {
                     if(confirm("আপনি কি নিশ্চিত আপনি লগআউট করতে চান?")) {
                         try {
-                            await signOut(auth); // ফায়ারবেস থেকে সাইন আউট
+                            await signOut(auth);
                         } catch (e) {
                             console.log("Firebase signout error (ignored):", e);
                         }
-                        
-                        // লোকাল স্টোরেজ ক্লিয়ার
                         localStorage.removeItem('userId');
                         sessionStorage.clear();
-                        
-                        // লগইন পেজে রিডাইরেক্ট
                         window.location.href = 'login.html';
                     }
                 };
@@ -259,9 +278,10 @@
                 onMounted(() => {
                     fetchUserData();
                     fetchUserStats();
+                    fetchSocials(); 
                 });
 
-                return { user, stats, supportPin, fetchUserData, handleLogout };
+                return { user, stats, supportPin, socials, iconMap, fetchUserData, handleLogout };
             }
         }).mount('#app');
     </script>
