@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Product Details - FREE TOPUP PRO</title>
+    <title>Purchase - FREE TOPUP PRO</title>
     
     <!-- CDNs -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Roboto:wght@400;500;700&family=Noto+Serif+Bengali:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     
     <style>
         body { font-family: 'Roboto', sans-serif; background-color: #f0f5ff; }
@@ -32,7 +32,7 @@
 
     <div id="app" v-cloak class="max-w-md mx-auto min-h-screen relative flex flex-col">
         
-        <!-- 🔥 CUSTOM POPUP MODAL 🔥 -->
+        <!-- POPUP MODAL -->
         <transition name="pop">
             <div v-if="popup.show" class="fixed inset-0 z-[100] flex items-center justify-center px-6">
                 <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="closePopup"></div>
@@ -57,7 +57,6 @@
                         <button @click="confirmPurchaseAction" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg">Confirm</button>
                     </div>
                     
-                    <!-- Single Button (OK / Add Money / Go to Orders) -->
                     <button v-else @click="closePopup" 
                         :class="popup.type === 'success' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'"
                         class="w-full text-white py-3 rounded-xl font-bold transition shadow-lg active:scale-95">
@@ -84,7 +83,7 @@
             
             <div v-if="loading" class="flex flex-col justify-center items-center h-64">
                 <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-700 mb-4"></div>
-                <p class="text-gray-500 text-sm">প্রোডাক্ট লোড হচ্ছে...</p>
+                <p class="text-gray-500 text-sm">Product Loading...</p>
             </div>
 
             <div v-else>
@@ -97,7 +96,7 @@
                     </div>
                 </div>
 
-                <!-- STEP 1: Select Recharge -->
+                <!-- STEP 1: Select Package -->
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-4">
                     <h3 class="flex items-center font-bold text-gray-800 mb-3 border-b pb-2">
                         <div class="step-circle">1</div> Select Package
@@ -123,7 +122,6 @@
                         <label class="text-xs font-bold text-gray-600 block mb-1">Player ID (UID)</label>
                         <input v-model="playerId" type="tel" placeholder="Enter UID (e.g. 12345678)" 
                                class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-purple-500 transition font-bold tracking-wide">
-                        <p class="text-[10px] text-gray-400 mt-1"><i class="fa-solid fa-circle-info"></i> সঠিক প্লেয়ার আইডি দিন।</p>
                     </div>
                 </div>
 
@@ -132,29 +130,76 @@
                     <h3 class="flex items-center font-bold text-gray-800 mb-3 border-b pb-2">
                         <div class="step-circle">3</div> Payment Method
                     </h3>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div @click="paymentMethod = 'wallet'" :class="paymentMethod === 'wallet' ? 'active-package' : 'border-gray-200'" class="border rounded-lg p-3 text-center cursor-pointer relative">
-                            <div v-if="paymentMethod === 'wallet'" class="check-icon"><i class="fa-solid fa-check"></i></div>
-                            <i class="fa-solid fa-wallet text-2xl text-orange-500 mb-1"></i>
-                            <div class="text-xs font-bold">Wallet Balance</div>
-                            <div class="text-[10px] text-gray-500">Available: {{ userBalance }} ৳</div>
+                    
+                    <!-- Payment Tabs -->
+                    <div class="flex gap-2 mb-4">
+                        <button @click="paymentMethod = 'wallet'" 
+                            :class="paymentMethod === 'wallet' ? 'bg-[#583cb3] text-white' : 'bg-gray-100 text-gray-600'"
+                            class="flex-1 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-wallet"></i> Wallet
+                        </button>
+                        <button @click="paymentMethod = 'direct'" 
+                            :class="paymentMethod === 'direct' ? 'bg-[#e2136e] text-white' : 'bg-gray-100 text-gray-600'"
+                            class="flex-1 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-bolt"></i> Direct Pay
+                        </button>
+                    </div>
+
+                    <!-- Wallet Option -->
+                    <div v-if="paymentMethod === 'wallet'" class="bg-purple-50 border border-purple-100 p-3 rounded-lg flex justify-between items-center mb-4">
+                        <div>
+                            <p class="text-xs text-purple-800 font-bold">My Balance</p>
+                            <p class="text-lg font-black text-[#583cb3]">৳ {{ userBalance }}</p>
                         </div>
-                        <div @click="paymentMethod = 'instant'" :class="paymentMethod === 'instant' ? 'active-package' : 'border-gray-200'" class="border rounded-lg p-3 text-center cursor-pointer relative">
-                            <div v-if="paymentMethod === 'instant'" class="check-icon"><i class="fa-solid fa-check"></i></div>
-                            <div class="flex justify-center gap-2 mb-2 items-center h-7">
-                                <img src="https://seeklogo.com/images/B/bkash-logo-FBB258B90F-seeklogo.com.png" class="h-5">
-                                <img src="https://seeklogo.com/images/N/nagad-logo-7A70CCFEE0-seeklogo.com.png" class="h-4">
+                        <a href="add-money.html" class="bg-white text-purple-700 px-3 py-1 rounded text-[10px] font-bold shadow-sm border border-purple-200">
+                            + Add Money
+                        </a>
+                    </div>
+
+                    <!-- Direct Payment Options -->
+                    <div v-if="paymentMethod === 'direct'" class="space-y-3 mb-4">
+                        
+                        <!-- Gateway Select -->
+                        <div class="grid grid-cols-3 gap-2">
+                            <div @click="directGateway = 'bkash'" :class="directGateway === 'bkash' ? 'border-pink-500 bg-pink-50' : 'border-gray-200'" class="border rounded p-2 text-center cursor-pointer transition">
+                                <img src="https://seeklogo.com/images/B/bkash-logo-FBB258B90F-seeklogo.com.png" class="h-6 mx-auto mb-1">
+                                <p class="text-[10px] font-bold">bKash</p>
                             </div>
-                            <div class="text-xs font-bold">Mobile Banking</div>
-                            <div class="text-[10px] text-gray-500">Bkash / Nagad</div>
+                            <div @click="directGateway = 'nagad'" :class="directGateway === 'nagad' ? 'border-orange-500 bg-orange-50' : 'border-gray-200'" class="border rounded p-2 text-center cursor-pointer transition">
+                                <img src="https://seeklogo.com/images/N/nagad-logo-7A70CCFEE0-seeklogo.com.png" class="h-4 mx-auto mb-2 mt-1">
+                                <p class="text-[10px] font-bold">Nagad</p>
+                            </div>
+                            <div @click="directGateway = 'rocket'" :class="directGateway === 'rocket' ? 'border-purple-500 bg-purple-50' : 'border-gray-200'" class="border rounded p-2 text-center cursor-pointer transition">
+                                <img src="https://seeklogo.com/images/D/dutch-bangla-rocket-logo-B4D1CC458D-seeklogo.com.png" class="h-6 mx-auto mb-1">
+                                <p class="text-[10px] font-bold">Rocket</p>
+                            </div>
+                        </div>
+
+                        <!-- Admin Number Display -->
+                        <div v-if="adminNumber" class="bg-gray-50 border border-dashed border-gray-300 p-3 rounded-lg text-center">
+                            <p class="text-[10px] text-gray-500 mb-1">Send Money to (Personal)</p>
+                            <div class="flex items-center justify-center gap-2">
+                                <span class="text-lg font-mono font-bold text-gray-800 tracking-wider">{{ adminNumber }}</span>
+                                <i @click="copyNumber" class="fa-regular fa-copy cursor-pointer text-gray-500 hover:text-blue-600"></i>
+                            </div>
+                        </div>
+                        <div v-else class="text-center text-xs text-red-500 py-2">Select a gateway above</div>
+
+                        <!-- User Inputs -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500 block mb-1">Sender Number</label>
+                                <input v-model="senderNumber" type="tel" placeholder="017xxxxxxxx" class="w-full border p-2 rounded text-xs outline-none focus:border-purple-500">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500 block mb-1">Transaction ID</label>
+                                <input v-model="trxId" type="text" placeholder="TrxID" class="w-full border p-2 rounded text-xs outline-none focus:border-purple-500 uppercase font-mono">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="mt-6 pt-4 border-t border-dashed border-gray-300">
-                        <div class="flex justify-between text-sm font-bold text-gray-600 mb-1">
-                            <span>Package Price:</span>
-                            <span>৳ {{ selectedPackage ? selectedPackage.price : 0 }}</span>
-                        </div>
+                    <!-- Bottom Action -->
+                    <div class="mt-4 pt-4 border-t border-dashed border-gray-300">
                         <div class="flex justify-between text-base font-black text-gray-800 mb-4">
                             <span>Total Payable:</span>
                             <span class="text-purple-700">৳ {{ selectedPackage ? selectedPackage.price : 0 }}</span>
@@ -162,9 +207,10 @@
 
                         <button @click="handleBuy" 
                                 :disabled="!selectedPackage || !playerId"
-                                :class="(!selectedPackage || !playerId) ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#583cb3] hover:bg-purple-800 shadow-lg shadow-purple-200'"
+                                :class="(!selectedPackage || !playerId) ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#583cb3] hover:bg-purple-800 shadow-lg'"
                                 class="w-full text-white py-3.5 rounded-xl font-bold text-base transition flex justify-center items-center gap-2 active:scale-95">
-                            <span>Confirm Purchase</span> <i class="fa-solid fa-arrow-right"></i>
+                            <span>{{ paymentMethod === 'wallet' ? 'Pay from Wallet' : 'Confirm Payment' }}</span> 
+                            <i class="fa-solid fa-arrow-right"></i>
                         </button>
                     </div>
                 </div>
@@ -186,8 +232,8 @@
     <!-- Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, collection, addDoc, updateDoc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { createApp, ref, onMounted } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+        import { getFirestore, doc, getDoc, collection, addDoc, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { createApp, ref, computed, onMounted } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyACUK207BRvtR5yc1UhYLS9FlMitVVlrrE",
@@ -205,114 +251,143 @@
             setup() {
                 const loading = ref(true);
                 const product = ref({});
+                const packages = ref([]);
                 const selectedPackage = ref(null);
                 const playerId = ref('');
-                const paymentMethod = ref('instant');
-                const packages = ref([]);
                 const userBalance = ref(0);
                 
+                // Payment States
+                const paymentMethod = ref('wallet'); // 'wallet' or 'direct'
+                const directGateway = ref('bkash'); // bkash, nagad, rocket
+                const senderNumber = ref('');
+                const trxId = ref('');
+                const adminNumbers = ref({}); // Firebase থেকে আসবে
+
                 const popup = ref({ show: false, type: '', title: '', msg: '', btnText: 'OK' });
-                
                 const userId = localStorage.getItem('userId');
+                if(!userId) window.location.href = 'login.html';
 
                 const showPopup = (type, title, msg, btnText = "OK") => {
                     popup.value = { show: true, type, title, msg, btnText };
                 };
                 
-                // 🔥 FIX HERE: Handle Redirect for Add Money
                 const closePopup = () => {
-                    if (popup.value.btnText === 'Add Money') {
-                        window.location.href = 'add-money.html';
-                        return;
-                    }
-
-                    if (popup.value.type === 'success') {
-                        window.location.href = 'orders.html';
-                    } else {
-                        popup.value.show = false;
-                    }
+                    if (popup.value.btnText === 'Add Money') window.location.href = 'add-money.html';
+                    else if (popup.value.btnText === 'Go to Orders') window.location.href = 'orders.html';
+                    else popup.value.show = false;
                 };
 
-                const generatePackages = (basePrice) => {
-                    const price = Number(basePrice) || 100;
+                // Admin Number Calculation
+                const adminNumber = computed(() => {
+                    return adminNumbers.value[directGateway.value] || "";
+                });
+
+                const copyNumber = () => {
+                    navigator.clipboard.writeText(adminNumber.value);
+                    alert("Number Copied!");
+                };
+
+                // Fetch Data
+                const fetchData = async () => {
+                    try {
+                        // Product
+                        const params = new URLSearchParams(window.location.search);
+                        const id = params.get('id');
+                        if (!id) window.location.href = 'index.html';
+                        const prodSnap = await getDoc(doc(db, "products", id));
+                        if(prodSnap.exists()) {
+                            product.value = prodSnap.data();
+                            generatePackages(product.value.price);
+                        }
+
+                        // User Balance
+                        const userSnap = await getDoc(doc(db, "users", userId));
+                        if(userSnap.exists()) userBalance.value = userSnap.data().balance || 0;
+
+                        // Payment Settings
+                        const settingsSnap = await getDoc(doc(db, "settings", "payment"));
+                        if(settingsSnap.exists()) adminNumbers.value = settingsSnap.data();
+
+                    } catch(e) { console.error(e); } 
+                    finally { loading.value = false; }
+                };
+
+                const generatePackages = (base) => {
+                    const p = Number(base) || 100;
                     packages.value = [
-                        { id: 1, name: 'Small Pack (115 💎)', price: price },
-                        { id: 2, name: 'Medium Pack (240 💎)', price: Math.floor(price * 2.1) },
-                        { id: 3, name: 'Big Pack (610 💎)', price: Math.floor(price * 5.2) },
+                        { id: 1, name: 'Small Pack (115 💎)', price: p },
+                        { id: 2, name: 'Medium Pack (240 💎)', price: Math.floor(p * 2.1) },
+                        { id: 3, name: 'Big Pack (610 💎)', price: Math.floor(p * 5.2) },
                         { id: 4, name: 'Weekly Membership', price: 160 },
                         { id: 5, name: 'Monthly Membership', price: 800 }
                     ];
                 };
 
-                const fetchProduct = async () => {
-                    const params = new URLSearchParams(window.location.search);
-                    const id = params.get('id');
-                    if (!id) { window.location.href = 'index.html'; return; }
-                    
-                    try {
-                        const docRef = doc(db, "products", id);
-                        const docSnap = await getDoc(docRef);
-                        if (docSnap.exists()) {
-                            product.value = docSnap.data();
-                            generatePackages(product.value.price);
-                        }
-                    } catch (e) { console.error(e); } 
-                    finally { loading.value = false; }
-                };
-
-                const fetchUserBalance = async () => {
-                    if (!userId) return;
-                    try {
-                        const userDoc = await getDoc(doc(db, "users", userId));
-                        if (userDoc.exists()) userBalance.value = userDoc.data().balance || 0;
-                    } catch (e) { console.error(e); }
-                };
-
+                // Main Action
                 const handleBuy = () => {
-                    if(!selectedPackage.value) return showPopup('error', 'Select Package', 'Please select a package first.');
-                    if(!playerId.value) return showPopup('error', 'Missing UID', 'Please enter your Player ID.');
+                    if(!selectedPackage.value) return showPopup('error', 'Select Package', 'Please choose a package.');
+                    if(!playerId.value) return showPopup('error', 'Missing UID', 'Enter Player ID.');
 
                     if(paymentMethod.value === 'wallet') {
-                        if (userBalance.value < selectedPackage.value.price) {
-                            // This ensures the button text is exactly 'Add Money'
-                            showPopup('error', 'Insufficient Balance', 'Please add money to your wallet.', 'Add Money');
-                            return;
+                        if(userBalance.value < selectedPackage.value.price) {
+                            showPopup('error', 'Low Balance', 'Insufficient wallet balance.', 'Add Money');
+                        } else {
+                            showPopup('confirm', 'Confirm Wallet Pay', `Deduct ৳${selectedPackage.value.price} from wallet?`, 'Confirm');
                         }
-                        showPopup('confirm', 'Confirm Order', `Pay ${selectedPackage.value.price} Tk for ${selectedPackage.value.name}?`, 'Confirm');
                     } else {
-                        showPopup('error', 'Coming Soon', 'Mobile Banking Auto Payment is coming soon!', 'OK');
+                        // Direct Payment Validation
+                        if(!senderNumber.value || !trxId.value) return showPopup('error', 'Missing Info', 'Provide Sender Number & TrxID.');
+                        showPopup('confirm', 'Confirm Direct Pay', `Submit TrxID for admin approval?`, 'Confirm');
                     }
                 };
 
+                // Process Order
                 const confirmPurchaseAction = async () => {
+                    popup.value.show = false;
+                    const price = selectedPackage.value.price;
+                    
                     try {
-                        await addDoc(collection(db, "orders"), {
-                            userId: userId,
-                            packageName: selectedPackage.value.name,
-                            price: selectedPackage.value.price,
-                            playerId: playerId.value,
-                            status: 'pending',
-                            createdAt: serverTimestamp()
-                        });
-                        const userRef = doc(db, "users", userId);
-                        await updateDoc(userRef, { balance: increment(-selectedPackage.value.price) });
-                        
-                        showPopup('success', 'Order Successful', 'Your order has been placed successfully!', 'Go to Orders');
+                        if(paymentMethod.value === 'wallet') {
+                            // Wallet Transaction
+                            await runTransaction(db, async (t) => {
+                                const uRef = doc(db, "users", userId);
+                                const uDoc = await t.get(uRef);
+                                if(uDoc.data().balance < price) throw "Low Balance";
+                                
+                                t.update(uRef, { balance: uDoc.data().balance - price });
+                                const oRef = doc(collection(db, "orders"));
+                                t.set(oRef, {
+                                    userId, packageName: selectedPackage.value.name, price,
+                                    playerId: playerId.value, status: 'pending', 
+                                    paymentMethod: 'wallet', createdAt: serverTimestamp()
+                                });
+                            });
+                        } else {
+                            // Direct Payment (No balance deduction, just order)
+                            await addDoc(collection(db, "orders"), {
+                                userId, packageName: selectedPackage.value.name, price,
+                                playerId: playerId.value, status: 'pending',
+                                paymentMethod: directGateway.value, // bkash/nagad
+                                senderNumber: senderNumber.value,
+                                trxId: trxId.value.toUpperCase(),
+                                createdAt: serverTimestamp()
+                            });
+                        }
+                        showPopup('success', 'Order Placed', 'Order is pending for approval.', 'Go to Orders');
                     } catch (e) {
-                        showPopup('error', 'Failed', 'Something went wrong. Try again.');
+                        console.error(e);
+                        showPopup('error', 'Failed', 'Something went wrong.');
                     }
                 };
 
                 const handleImageError = (e) => e.target.src = "https://placehold.co/400x400?text=No+Image";
 
-                onMounted(() => {
-                    fetchProduct();
-                    fetchUserBalance();
-                });
+                onMounted(fetchData);
 
                 return {
-                    loading, product, packages, selectedPackage, playerId, paymentMethod, userBalance, 
-                    handleBuy, handleImageError, popup, closePopup, confirmPurchaseAction
+                    loading, product, packages, selectedPackage, playerId, userBalance,
+                    paymentMethod, directGateway, adminNumber, senderNumber, trxId,
+                    handleBuy, confirmPurchaseAction, popup, closePopup, copyNumber, handleImageError
                 };
             }
         }).mount('#app');
