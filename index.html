@@ -13,30 +13,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Roboto:wght@300;400;500;700&family=Noto+Serif+Bengali:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
-        body {
-            font-family: 'Roboto', 'Noto Serif Bengali', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-            background-color: #f0f5ff;
-        }
+        body { font-family: 'Roboto', 'Noto Serif Bengali', sans-serif; -webkit-tap-highlight-color: transparent; background-color: #f0f5ff; }
         [v-cloak] { display: none !important; }
         .font-serif { font-family: 'Bree Serif', serif; letter-spacing: 0.5px; }
         .product-card { transition: transform 0.2s ease; overflow: hidden; background: white; }
         .product-card:active { transform: scale(0.95); }
-        
-        /* Bottom Nav */
         .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; color: #64748b; cursor: pointer; text-decoration: none; transition: color 0.2s ease; }
         .nav-item i { font-size: 18px; margin-bottom: 4px; }
         .nav-item.active { color: #583cb3; font-weight: 700; }
         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
-
-        /* Animation */
         .slide-up-enter-active, .slide-up-leave-active { transition: all 0.3s ease; }
         .slide-up-enter-from, .slide-up-leave-to { opacity: 0; transform: translateY(20px); }
         .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
         .fade-enter-from, .fade-leave-to { opacity: 0; }
         .animate-bounce-slow { animation: bounce 2s infinite; }
-        
-        /* Modal Animation */
         .modal-enter-active, .modal-leave-active { transition: all 0.3s ease; }
         .modal-enter-from, .modal-leave-to { opacity: 0; transform: scale(0.9); }
     </style>
@@ -48,10 +38,7 @@
         <!-- 🔥 WELCOME POPUP MODAL 🔥 -->
         <transition name="modal">
             <div v-if="showModal && popupImage" class="fixed inset-0 z-[60] flex items-center justify-center px-4">
-                <!-- Backdrop -->
                 <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="showModal = false"></div>
-                
-                <!-- Modal Content -->
                 <div class="relative bg-white rounded-xl p-2 max-w-sm w-full shadow-2xl">
                     <button @click="showModal = false" class="absolute -top-3 -right-3 bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg border-2 border-white z-10">
                         <i class="fa-solid fa-xmark"></i>
@@ -79,7 +66,7 @@
                         <i class="fa-solid fa-wallet"></i> {{ userBalance }} ৳
                     </a>
                     <a href="account.html" class="w-8 h-8 rounded-full overflow-hidden border border-gray-300">
-                        <img src="https://i.pravatar.cc/150?img=12" class="w-full h-full object-cover">
+                        <img :src="userAvatar || 'https://i.pravatar.cc/150?img=12'" class="w-full h-full object-cover">
                     </a>
                 </div>
             </div>
@@ -165,37 +152,18 @@
             </div>
         </main>
 
-        <!-- Footer -->
-        <footer class="bg-[#0f172a] text-white pt-8 pb-32 rounded-t-3xl mt-auto">
-            <div class="text-center">
-                <h3 class="font-serif font-bold text-sm mb-4 tracking-widest text-gray-400">STAY CONNECTED</h3>
-                <div class="flex justify-center gap-4 mb-8">
-                    <!-- Dynamic Links from Footer as well -->
-                    <a :href="supportLinks.messenger || '#'" target="_blank" class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center hover:bg-blue-600 transition text-white"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a :href="supportLinks.telegram || '#'" target="_blank" class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center hover:bg-blue-400 transition text-white"><i class="fa-brands fa-telegram"></i></a>
-                </div>
-                <p class="text-[10px] text-gray-600">© FREE TOPUP PRO 2026</p>
-            </div>
-        </footer>
-
-        <!-- 🔥 FIXED FLOATING SUPPORT WIDGET (UPDATED) 🔥 -->
+        <!-- Footer & Support -->
         <div class="fixed bottom-20 right-4 z-50 flex flex-col items-end gap-3">
             <transition name="slide-up">
                 <div v-if="showSupport" class="flex flex-col gap-3 items-center">
-                    
-                    <!-- Messenger Link (Dynamic) -->
                     <a :href="supportLinks.messenger || '#'" target="_blank" class="w-12 h-12 bg-[#0084ff] rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 transition duration-200">
                         <i class="fa-brands fa-facebook-messenger text-2xl"></i>
                     </a>
-                    
-                    <!-- Telegram Link (Dynamic) -->
                     <a :href="supportLinks.telegram || '#'" target="_blank" class="w-12 h-12 bg-[#0088cc] rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 transition duration-200">
                         <i class="fa-brands fa-telegram text-2xl"></i>
                     </a>
-
                 </div>
             </transition>
-
             <div class="flex items-center gap-2">
                 <transition name="fade">
                     <div v-if="!showSupport" @click="showSupport = true" class="bg-[#dc2626] text-white text-[10px] font-bold px-3 py-1.5 rounded-l-full rounded-r-lg shadow-md cursor-pointer animate-pulse">
@@ -211,7 +179,7 @@
             </div>
         </div>
 
-        <!-- FIXED BOTTOM NAVIGATION -->
+        <!-- Bottom Nav -->
         <div class="fixed bottom-0 w-full bg-white border-t border-gray-200 z-50 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
             <div class="grid grid-cols-5 h-16 max-w-md mx-auto">
                 <a href="index.html" class="nav-item active"><i class="fa-solid fa-house"></i><span>Home</span></a>
@@ -229,10 +197,10 @@
     <!-- Main Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { createApp, ref, onMounted, nextTick } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
-        // Firebase Config
         const firebaseConfig = {
           apiKey: "AIzaSyACUK207BRvtR5yc1UhYLS9FlMitVVlrrE",
           authDomain: "freetopup-fd263.firebaseapp.com",
@@ -243,12 +211,14 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
         createApp({
             setup() {
                 const loading = ref(true);
                 const userBalance = ref(0);
+                const userAvatar = ref('');
                 const noticeMessage = ref("লোড হচ্ছে...");
                 const banners = ref([]);
                 const mysteryBoxes = ref([]);
@@ -256,57 +226,55 @@
                 const freeFireItems = ref([]);
                 const ingameItems = ref([]);
                 const showSupport = ref(false);
-                
-                // 🔥 New State Variables
                 const showModal = ref(false);
                 const popupImage = ref('');
                 const supportLinks = ref({ messenger: '', telegram: '' });
-                
-                const userId = localStorage.getItem('userId');
 
                 const goToDetails = (id) => { if (id) window.location.href = `details.html?id=${id}`; };
                 const handleImageError = (e) => { e.target.src = "https://placehold.co/400x400?text=No+Image"; };
 
-                const fetchUserBalance = async () => {
-                    if (!userId) return;
-                    try {
-                        const userDoc = await getDoc(doc(db, "users", userId));
-                        if (userDoc.exists()) userBalance.value = userDoc.data().balance || 0;
-                    } catch (error) { console.error("Balance Error:", error); }
+                // Real-time Balance Fetching with Auth Check
+                const initUserData = () => {
+                    onAuthStateChanged(auth, (user) => {
+                        if (user) {
+                            // রিয়েলটাইম ব্যালেন্স আপডেট
+                            const unsub = onSnapshot(doc(db, "users", user.uid), (doc) => {
+                                if (doc.exists()) {
+                                    userBalance.value = doc.data().balance || 0;
+                                    userAvatar.value = doc.data().photoURL || '';
+                                    localStorage.setItem('userId', user.uid); // Backup for other pages
+                                }
+                            });
+                        } else {
+                            userBalance.value = 0;
+                            // Optional: Redirect to login if needed
+                            // window.location.href = 'login.html'; 
+                        }
+                    });
                 };
 
                 const fetchData = async () => {
                     try {
-                        // 1. Fetch Notice
+                        // Settings & Products Fetching
                         try {
                             const nSnap = await getDoc(doc(db, "settings", "notice"));
                             if(nSnap.exists()) noticeMessage.value = nSnap.data().text;
-                        } catch(e) { noticeMessage.value = "Welcome to Free TopUp Pro"; }
+                        } catch(e) {}
 
-                        // 2. 🔥 Fetch Popup Settings
                         try {
                             const popSnap = await getDoc(doc(db, "settings", "popup"));
                             if(popSnap.exists() && popSnap.data().active) {
                                 popupImage.value = popSnap.data().image;
                                 showModal.value = true;
                             }
-                        } catch(e) { console.log("Popup Error", e); }
+                        } catch(e) {}
 
-                        // 3. 🔥 Fetch Support Links
                         try {
                             const supSnap = await getDoc(doc(db, "settings", "support"));
-                            if(supSnap.exists()) {
-                                supportLinks.value = supSnap.data();
-                            }
-                        } catch(e) { console.log("Support Link Error", e); }
+                            if(supSnap.exists()) supportLinks.value = supSnap.data();
+                        } catch(e) {}
 
-                        // 4. Products & Banners
                         const productsSnap = await getDocs(collection(db, "products"));
-                        mysteryBoxes.value = [];
-                        specialOffers.value = [];
-                        freeFireItems.value = [];
-                        ingameItems.value = [];
-
                         productsSnap.forEach((doc) => {
                             const item = { id: doc.id, ...doc.data() };
                             if (item.category === 'mystery') mysteryBoxes.value.push(item);
@@ -333,14 +301,13 @@
 
                 onMounted(() => {
                     fetchData();
-                    fetchUserBalance();
+                    initUserData(); // Auth Check Added Here
                 });
 
                 return {
-                    loading, noticeMessage, banners, userBalance,
+                    loading, noticeMessage, banners, userBalance, userAvatar,
                     mysteryBoxes, specialOffers, freeFireItems, ingameItems,
                     goToDetails, handleImageError, showSupport,
-                    // Returns for Popup & Links
                     showModal, popupImage, supportLinks
                 };
             }

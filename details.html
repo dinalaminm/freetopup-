@@ -232,6 +232,7 @@
     <!-- Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, collection, addDoc, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { createApp, ref, computed, onMounted } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
@@ -245,6 +246,7 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
         createApp({
@@ -255,17 +257,16 @@
                 const selectedPackage = ref(null);
                 const playerId = ref('');
                 const userBalance = ref(0);
+                const userId = ref(null);
                 
                 // Payment States
                 const paymentMethod = ref('wallet'); // 'wallet' or 'direct'
                 const directGateway = ref('bkash'); // bkash, nagad, rocket
                 const senderNumber = ref('');
                 const trxId = ref('');
-                const adminNumbers = ref({}); // Firebase থেকে আসবে
+                const adminNumbers = ref({}); 
 
                 const popup = ref({ show: false, type: '', title: '', msg: '', btnText: 'OK' });
-                const userId = localStorage.getItem('userId');
-                if(!userId) window.location.href = 'login.html';
 
                 const showPopup = (type, title, msg, btnText = "OK") => {
                     popup.value = { show: true, type, title, msg, btnText };
@@ -277,23 +278,36 @@
                     else popup.value.show = false;
                 };
 
-                // Admin Number Calculation
                 const adminNumber = computed(() => {
                     return adminNumbers.value[directGateway.value] || "";
                 });
 
                 const copyNumber = () => {
-                    navigator.clipboard.writeText(adminNumber.value);
-                    alert("Number Copied!");
+                    if(adminNumber.value) {
+                        navigator.clipboard.writeText(adminNumber.value);
+                        showPopup('success', 'Copied!', 'Admin number copied to clipboard.', 'OK');
+                    }
                 };
 
-                // Fetch Data
-                const fetchData = async () => {
+                // Fetch Data with Auth
+                const initData = () => {
+                    onAuthStateChanged(auth, async (user) => {
+                        if (user) {
+                            userId.value = user.uid;
+                            await fetchData(user.uid);
+                        } else {
+                            window.location.href = 'login.html';
+                        }
+                    });
+                };
+
+                const fetchData = async (uid) => {
                     try {
                         // Product
                         const params = new URLSearchParams(window.location.search);
                         const id = params.get('id');
                         if (!id) window.location.href = 'index.html';
+                        
                         const prodSnap = await getDoc(doc(db, "products", id));
                         if(prodSnap.exists()) {
                             product.value = prodSnap.data();
@@ -301,7 +315,7 @@
                         }
 
                         // User Balance
-                        const userSnap = await getDoc(doc(db, "users", userId));
+                        const userSnap = await getDoc(doc(db, "users", uid));
                         if(userSnap.exists()) userBalance.value = userSnap.data().balance || 0;
 
                         // Payment Settings
@@ -345,19 +359,20 @@
                 const confirmPurchaseAction = async () => {
                     popup.value.show = false;
                     const price = selectedPackage.value.price;
+                    const uid = userId.value;
                     
                     try {
                         if(paymentMethod.value === 'wallet') {
                             // Wallet Transaction
                             await runTransaction(db, async (t) => {
-                                const uRef = doc(db, "users", userId);
+                                const uRef = doc(db, "users", uid);
                                 const uDoc = await t.get(uRef);
                                 if(uDoc.data().balance < price) throw "Low Balance";
                                 
                                 t.update(uRef, { balance: uDoc.data().balance - price });
                                 const oRef = doc(collection(db, "orders"));
                                 t.set(oRef, {
-                                    userId, packageName: selectedPackage.value.name, price,
+                                    userId: uid, packageName: selectedPackage.value.name, price,
                                     playerId: playerId.value, status: 'pending', 
                                     paymentMethod: 'wallet', createdAt: serverTimestamp()
                                 });
@@ -365,7 +380,7 @@
                         } else {
                             // Direct Payment (No balance deduction, just order)
                             await addDoc(collection(db, "orders"), {
-                                userId, packageName: selectedPackage.value.name, price,
+                                userId: uid, packageName: selectedPackage.value.name, price,
                                 playerId: playerId.value, status: 'pending',
                                 paymentMethod: directGateway.value, // bkash/nagad
                                 senderNumber: senderNumber.value,
@@ -376,13 +391,14 @@
                         showPopup('success', 'Order Placed', 'Order is pending for approval.', 'Go to Orders');
                     } catch (e) {
                         console.error(e);
-                        showPopup('error', 'Failed', 'Something went wrong.');
+                        if(e === "Low Balance") showPopup('error', 'Low Balance', 'Insufficient wallet balance.', 'Add Money');
+                        else showPopup('error', 'Failed', 'Something went wrong.');
                     }
                 };
 
                 const handleImageError = (e) => e.target.src = "https://placehold.co/400x400?text=No+Image";
 
-                onMounted(fetchData);
+                onMounted(initData);
 
                 return {
                     loading, product, packages, selectedPackage, playerId, userBalance,
