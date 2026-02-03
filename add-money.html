@@ -1,4 +1,4 @@
-<!-- START OF FILE Auto Payment Integrated (FIXED BALANCE UPDATE) -->
+<!-- START OF FILE Auto Payment Integrated (Dynamic Numbers & Balance Update) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -131,7 +131,10 @@
                         <!-- Copy Number Section -->
                         <div @click="copyNumber" class="bg-blue-50 border border-blue-200 border-dashed rounded-xl p-3 mb-6 cursor-pointer active:scale-95 transition relative">
                             <p class="text-xs text-blue-600 font-bold mb-1">PERSONAL NUMBER</p>
-                            <h3 class="text-2xl font-black text-gray-800 tracking-wider">{{ currentAdminNumber }}</h3>
+                            <!-- 🔥 DYNAMIC NUMBER DISPLAY 🔥 -->
+                            <h3 class="text-2xl font-black text-gray-800 tracking-wider">
+                                {{ currentAdminNumber }}
+                            </h3>
                             <div class="text-[10px] text-gray-400 mt-1 flex items-center justify-center gap-1">
                                 <i class="fa-regular fa-copy"></i> Tap to copy
                             </div>
@@ -182,21 +185,15 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        // 🔥 IMPORT UPDATE : updateDoc, doc, increment এখানে যুক্ত করা হয়েছে
-        import { getFirestore, collection, addDoc, serverTimestamp, updateDoc, doc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { createApp, ref, computed } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+        // 🔥 Import update: getDoc যুক্ত করা হয়েছে
+        import { getFirestore, collection, addDoc, serverTimestamp, updateDoc, doc, increment, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { createApp, ref, computed, onMounted } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 
         // ==========================================
         // CONFIGURATION
         // ==========================================
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbygDTGvbG7sUTPAt2lO2iMsPHprZRlP7WjAwq4n4Q3D1SZduenpNPUaayf_c2VsTqC0Xw/exec"; 
         const CLIENT_API_KEY = "KEY_LUYAAAKNC_1770036903949"; 
-
-        const ADMIN_NUMBERS = {
-            bkash: "017XXXXXXXX",  
-            nagad: "019XXXXXXXX",  
-            rocket: "019XXXXXXXX"  
-        };
 
         const firebaseConfig = {
           apiKey: "AIzaSyACUK207BRvtR5yc1UhYLS9FlMitVVlrrE",
@@ -221,6 +218,13 @@
                 const trxId = ref('');
                 const errorMsg = ref('');
                 const paymentSuccess = ref(false);
+                
+                // 🔥 NEW: Store Admin Numbers from DB
+                const adminNumbers = ref({
+                    bkash: "Loading...",
+                    nagad: "Loading...",
+                    rocket: "Loading..."
+                });
 
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
@@ -228,6 +232,26 @@
                     } else {
                         window.location.href = 'login.html';
                     }
+                });
+
+                // 🔥 FETCH NUMBERS FROM FIREBASE
+                const fetchPaymentSettings = async () => {
+                    try {
+                        const docRef = doc(db, "settings", "payment");
+                        const docSnap = await getDoc(docRef);
+                        if (docSnap.exists()) {
+                            adminNumbers.value = docSnap.data();
+                        } else {
+                            console.log("No payment settings found!");
+                        }
+                    } catch (e) {
+                        console.error("Error fetching numbers:", e);
+                    }
+                };
+
+                // পেজ লোড হলে নাম্বার আনবে
+                onMounted(() => {
+                    fetchPaymentSettings();
                 });
 
                 const goToMethod = () => {
@@ -246,8 +270,11 @@
                 };
 
                 const copyNumber = () => {
-                    navigator.clipboard.writeText(currentAdminNumber.value);
-                    alert("Number Copied: " + currentAdminNumber.value);
+                    const num = currentAdminNumber.value;
+                    if(num !== "Loading...") {
+                        navigator.clipboard.writeText(num);
+                        alert("Number Copied: " + num);
+                    }
                 };
 
                 const verifyPayment = async () => {
@@ -260,14 +287,12 @@
                     errorMsg.value = '';
 
                     try {
-                        // 1. Check with Google Script
                         const apiUrl = `${SCRIPT_URL}?trxID=${trxId.value.toUpperCase()}&apiKey=${CLIENT_API_KEY}&amount=${amount.value}`;
                         const response = await fetch(apiUrl);
                         const data = await response.json();
 
                         if (data.status === "success") {
                             
-                            // 2. Save to History (Deposits)
                             await addDoc(collection(db, "deposits"), {
                                 userId: userId.value,
                                 method: method.value,
@@ -278,13 +303,11 @@
                                 createdAt: serverTimestamp()
                             });
 
-                            // 🔥 3. UPDATE USER BALANCE (এই অংশটি আপনার মিসিং ছিল)
                             const userRef = doc(db, "users", userId.value);
                             await updateDoc(userRef, {
                                 balance: increment(Number(amount.value))
                             });
 
-                            // 4. Show Success
                             paymentSuccess.value = true;
 
                         } else {
@@ -299,7 +322,10 @@
                     }
                 };
 
-                const currentAdminNumber = computed(() => ADMIN_NUMBERS[method.value] || "01XXXXXXXXX");
+                // 🔥 UPDATED: Computed property uses dynamic db numbers
+                const currentAdminNumber = computed(() => {
+                    return adminNumbers.value[method.value] || "Wait...";
+                });
 
                 const gatewayButtonColor = computed(() => {
                     if(method.value === 'bkash') return 'bg-[#e2136e] hover:bg-[#c40f5f]';
