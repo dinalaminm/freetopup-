@@ -1,3 +1,4 @@
+<!-- START OF FILE Auto Payment Integrated (FIXED BALANCE UPDATE) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,38 +23,21 @@
         /* Animations */
         .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
         .fade-enter-from, .fade-leave-to { opacity: 0; }
-        .pop-enter-active { transition: all 0.3s ease-out; }
-        .pop-leave-active { transition: all 0.2s ease-in; }
-        .pop-enter-from, .pop-leave-to { opacity: 0; transform: scale(0.9); }
+        
+        /* Loader */
+        .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #fff; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="bg-[#f0f5ff]">
 
     <div id="app" v-cloak class="max-w-md mx-auto min-h-screen relative flex flex-col">
         
-        <!-- POPUP -->
-        <transition name="pop">
-            <div v-if="popup.show" class="fixed inset-0 z-[100] flex items-center justify-center px-6">
-                <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="closePopup"></div>
-                <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm relative z-10 text-center transform transition-all">
-                    <div v-if="popup.type === 'success'" class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-500">
-                        <i class="fa-solid fa-check text-3xl"></i>
-                    </div>
-                    <div v-else class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-red-500">
-                        <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-2">{{ popup.title }}</h3>
-                    <p class="text-sm text-gray-500 mb-6 leading-relaxed">{{ popup.msg }}</p>
-                    <button @click="closePopup" :class="popup.type === 'success' ? 'bg-green-500' : 'bg-red-500'" class="w-full text-white py-3 rounded-xl font-bold transition shadow-lg">{{ popup.btnText }}</button>
-                </div>
-            </div>
-        </transition>
-
         <!-- HEADER -->
         <header class="bg-white shadow-sm border-b p-3 flex items-center sticky top-0 z-50">
             <a v-if="step === 1" href="index.html" class="mr-3 text-gray-600"><i class="fa-solid fa-arrow-left text-lg"></i></a>
             <button v-else @click="step--" class="mr-3 text-gray-600"><i class="fa-solid fa-arrow-left text-lg"></i></button>
-            <h1 class="font-bold text-lg text-gray-800">Add Money</h1>
+            <h1 class="font-bold text-lg text-gray-800">Add Money (Auto)</h1>
         </header>
 
         <!-- MAIN CONTENT -->
@@ -65,10 +49,10 @@
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
                         <div class="text-center mb-6">
                             <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 text-purple-600">
-                                <i class="fa-solid fa-wallet text-3xl"></i>
+                                <i class="fa-solid fa-bolt text-3xl"></i>
                             </div>
-                            <h2 class="text-xl font-bold text-gray-800">Recharge Balance</h2>
-                            <p class="text-xs text-gray-500 mt-1">Instant Auto Deposit System</p>
+                            <h2 class="text-xl font-bold text-gray-800">Instant Recharge</h2>
+                            <p class="text-xs text-gray-500 mt-1">Automated Payment Gateway</p>
                         </div>
                         <label class="block text-sm font-bold text-gray-600 mb-2">Enter Amount</label>
                         <div class="relative mb-6">
@@ -94,21 +78,21 @@
                         <div @click="selectMethod('bkash')" class="bg-white p-4 rounded-xl border border-gray-200 flex items-center justify-between cursor-pointer hover:border-pink-500 shadow-sm transition">
                             <div class="flex items-center gap-4">
                                 <img src="https://seeklogo.com/images/B/bkash-logo-FBB258B90F-seeklogo.com.png" class="w-10">
-                                <span class="font-bold text-gray-700">bKash</span>
+                                <span class="font-bold text-gray-700">bKash (Personal)</span>
                             </div>
                             <i class="fa-solid fa-chevron-right text-gray-400"></i>
                         </div>
                         <div @click="selectMethod('nagad')" class="bg-white p-4 rounded-xl border border-gray-200 flex items-center justify-between cursor-pointer hover:border-orange-500 shadow-sm transition">
                             <div class="flex items-center gap-4">
                                 <img src="https://seeklogo.com/images/N/nagad-logo-7A70CCFEE0-seeklogo.com.png" class="w-10">
-                                <span class="font-bold text-gray-700">Nagad</span>
+                                <span class="font-bold text-gray-700">Nagad (Personal)</span>
                             </div>
                             <i class="fa-solid fa-chevron-right text-gray-400"></i>
                         </div>
                         <div @click="selectMethod('rocket')" class="bg-white p-4 rounded-xl border border-gray-200 flex items-center justify-between cursor-pointer hover:border-purple-500 shadow-sm transition">
                             <div class="flex items-center gap-4">
                                 <img src="https://seeklogo.com/images/D/dutch-bangla-rocket-logo-B4D1CC458D-seeklogo.com.png" class="w-10">
-                                <span class="font-bold text-gray-700">Rocket</span>
+                                <span class="font-bold text-gray-700">Rocket (Personal)</span>
                             </div>
                             <i class="fa-solid fa-chevron-right text-gray-400"></i>
                         </div>
@@ -116,55 +100,66 @@
                 </div>
             </transition>
 
-            <!-- STEP 3: GATEWAY -->
+            <!-- STEP 3: VERIFY PAYMENT (INTEGRATED) -->
             <transition name="fade">
-                <div v-if="step === 3" class="h-full">
-                    <div :class="gatewayColor" class="rounded-t-2xl p-4 text-white flex items-center justify-between shadow-md transition-colors duration-300">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-white p-1 rounded shadow-sm">
-                                <img :src="methodLogo" class="w-8 h-8 object-contain">
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-sm">Merchant Pay</h3>
-                                <p class="text-[10px] opacity-90">Secure Payment</p>
-                            </div>
+                <div v-if="step === 3" class="h-full flex flex-col justify-center">
+                    
+                    <!-- SUCCESS VIEW -->
+                    <div v-if="paymentSuccess" class="bg-white p-8 rounded-2xl shadow-lg border border-green-200 text-center">
+                        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600">
+                            <i class="fa-solid fa-check text-4xl"></i>
                         </div>
-                        <div class="text-right">
-                            <p class="text-[10px]">Amount</p>
-                            <p class="font-bold text-lg">৳ {{ amount }}</p>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Payment Successful!</h2>
+                        <p class="text-gray-500 mb-6">Your balance has been updated.</p>
+                        <div class="bg-gray-50 p-4 rounded-xl text-left mb-6 text-sm">
+                            <div class="flex justify-between mb-2"><span>Amount:</span> <span class="font-bold">৳ {{ amount }}</span></div>
+                            <div class="flex justify-between mb-2"><span>Method:</span> <span class="font-bold capitalize">{{ method }}</span></div>
+                            <div class="flex justify-between"><span>TrxID:</span> <span class="font-bold text-gray-700">{{ trxId }}</span></div>
                         </div>
+                        <a href="account.html" class="block w-full bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700">Go to Wallet</a>
                     </div>
 
-                    <div class="bg-white p-5 rounded-b-2xl shadow-sm border-x border-b border-gray-200">
-                        <div class="mb-6 text-center">
-                            <p class="text-xs text-gray-500 mb-1">Send Money To (Personal)</p>
-                            <div class="flex items-center justify-center gap-2 bg-gray-50 p-2 rounded-lg border border-dashed border-gray-300">
-                                <span class="font-mono font-bold text-lg text-gray-800 tracking-wide select-all">{{ adminNumber }}</span>
-                                <button @click="copyNumber" class="text-xs bg-gray-200 px-2 py-1 rounded hover:bg-gray-300 font-bold active:scale-90 transition"><i class="fa-regular fa-copy"></i></button>
+                    <!-- VERIFICATION FORM VIEW -->
+                    <div v-else class="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 text-center">
+                        <div class="mb-4">
+                            <img :src="methodLogo" class="h-12 mx-auto object-contain">
+                        </div>
+                        
+                        <h2 class="text-xl font-bold text-gray-800 mb-1">Send Money</h2>
+                        <p class="text-gray-500 text-xs mb-4">Send <b>৳ {{ amount }}</b> (Send Money) to:</p>
+
+                        <!-- Copy Number Section -->
+                        <div @click="copyNumber" class="bg-blue-50 border border-blue-200 border-dashed rounded-xl p-3 mb-6 cursor-pointer active:scale-95 transition relative">
+                            <p class="text-xs text-blue-600 font-bold mb-1">PERSONAL NUMBER</p>
+                            <h3 class="text-2xl font-black text-gray-800 tracking-wider">{{ currentAdminNumber }}</h3>
+                            <div class="text-[10px] text-gray-400 mt-1 flex items-center justify-center gap-1">
+                                <i class="fa-regular fa-copy"></i> Tap to copy
                             </div>
                         </div>
 
-                        <div class="text-[10px] text-gray-500 mb-6 bg-yellow-50 p-2 rounded border border-yellow-100">
-                            <i class="fa-solid fa-circle-info text-yellow-600"></i> 
-                            আপনার {{ method }} অ্যাপ থেকে উপরের নাম্বারে <b>Send Money</b> করুন। এরপর নিচের বক্সে TrxID দিন।
+                        <!-- Input Section -->
+                        <div class="text-left mb-4">
+                            <label class="block text-xs font-bold text-gray-600 mb-1 ml-1">Transaction ID (TrxID)</label>
+                            <input v-model="trxId" type="text" placeholder="e.g. 9G765KH..." class="w-full border border-gray-300 py-3 px-4 rounded-xl text-lg font-bold outline-none focus:border-purple-500 transition uppercase text-center tracking-widest">
                         </div>
 
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-xs font-bold text-gray-600 mb-1">Account Number (Sender)</label>
-                                <input v-model="senderNumber" type="tel" placeholder="017xxxxxxxx" class="w-full border border-gray-300 p-3 rounded-lg text-sm outline-none focus:border-gray-400 transition bg-gray-50 focus:bg-white">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-600 mb-1">Transaction ID (TrxID)</label>
-                                <input v-model="trxId" type="text" placeholder="e.g. 9H7G6..." class="w-full border border-gray-300 p-3 rounded-lg text-sm outline-none focus:border-gray-400 transition uppercase bg-gray-50 font-mono focus:bg-white">
-                            </div>
+                        <!-- Error Message -->
+                        <div v-if="errorMsg" class="bg-red-50 text-red-600 text-xs p-3 rounded-lg mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-circle-exclamation"></i> {{ errorMsg }}
                         </div>
 
-                        <button @click="submitPayment" :disabled="loading" :class="gatewayButtonColor" class="w-full text-white py-3 rounded-lg font-bold shadow-lg mt-8 transition flex justify-center items-center gap-2 active:scale-95">
-                            <span v-if="loading" class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
-                            <span v-else>CONFIRM PAYMENT</span>
+                        <button @click="verifyPayment" :disabled="loading" 
+                            :class="gatewayButtonColor"
+                            class="w-full text-white py-3.5 rounded-xl font-bold shadow-lg transition flex justify-center items-center gap-2 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed">
+                            <span v-if="loading" class="loader border-white/30 border-t-white"></span>
+                            <span v-else>VERIFY PAYMENT</span>
                         </button>
+
+                        <p class="text-[10px] text-gray-400 mt-4">
+                            Automated System by DinGet API Manager
+                        </p>
                     </div>
+
                 </div>
             </transition>
 
@@ -187,8 +182,21 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { createApp, ref, computed, onMounted } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+        // 🔥 IMPORT UPDATE : updateDoc, doc, increment এখানে যুক্ত করা হয়েছে
+        import { getFirestore, collection, addDoc, serverTimestamp, updateDoc, doc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { createApp, ref, computed } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+
+        // ==========================================
+        // CONFIGURATION
+        // ==========================================
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbygDTGvbG7sUTPAt2lO2iMsPHprZRlP7WjAwq4n4Q3D1SZduenpNPUaayf_c2VsTqC0Xw/exec"; 
+        const CLIENT_API_KEY = "KEY_LUYAAAKNC_1770036903949"; 
+
+        const ADMIN_NUMBERS = {
+            bkash: "017XXXXXXXX",  
+            nagad: "019XXXXXXXX",  
+            rocket: "019XXXXXXXX"  
+        };
 
         const firebaseConfig = {
           apiKey: "AIzaSyACUK207BRvtR5yc1UhYLS9FlMitVVlrrE",
@@ -208,83 +216,90 @@
                 const step = ref(1);
                 const amount = ref('');
                 const method = ref('');
-                const senderNumber = ref('');
-                const trxId = ref('');
                 const loading = ref(false);
-                const adminNumber = ref('Loading...');
-                const allPaymentNumbers = ref({});
                 const userId = ref(null);
-                
-                const popup = ref({ show: false, type: '', title: '', msg: '', btnText: '' });
+                const trxId = ref('');
+                const errorMsg = ref('');
+                const paymentSuccess = ref(false);
 
-                // Auth Check
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
                         userId.value = user.uid;
-                        fetchPaymentSettings();
                     } else {
                         window.location.href = 'login.html';
                     }
                 });
 
-                const fetchPaymentSettings = async () => {
-                    try {
-                        const docRef = doc(db, "settings", "payment");
-                        const docSnap = await getDoc(docRef);
-                        if (docSnap.exists()) {
-                            allPaymentNumbers.value = docSnap.data();
-                        }
-                    } catch (e) { console.error(e); }
-                };
-
                 const goToMethod = () => {
-                    if(!amount.value || amount.value < 10) return showPopup('error', 'Invalid Amount', 'Min 10 BDT', 'Try Again');
+                    if(!amount.value || amount.value < 10) {
+                        alert("Minimum amount is 10 BDT");
+                        return;
+                    }
                     step.value = 2;
                 };
 
                 const selectMethod = (m) => {
                     method.value = m;
-                    adminNumber.value = allPaymentNumbers.value[m] || "Not Set";
                     step.value = 3;
+                    trxId.value = '';
+                    errorMsg.value = '';
                 };
 
-                const showPopup = (type, title, msg, btnText = "OK") => {
-                    popup.value = { show: true, type, title, msg, btnText };
+                const copyNumber = () => {
+                    navigator.clipboard.writeText(currentAdminNumber.value);
+                    alert("Number Copied: " + currentAdminNumber.value);
                 };
 
-                const closePopup = () => {
-                    popup.value.show = false;
-                    if(popup.value.type === 'success') window.location.href = "account.html";
-                };
+                const verifyPayment = async () => {
+                    if (!trxId.value || trxId.value.length < 6) {
+                        errorMsg.value = "Please enter a valid Transaction ID";
+                        return;
+                    }
 
-                const submitPayment = async () => {
-                    if(!senderNumber.value || !trxId.value) return showPopup('error', 'Missing Info', 'Fill all fields.', 'Fix Now');
-                    
                     loading.value = true;
+                    errorMsg.value = '';
+
                     try {
-                        await addDoc(collection(db, "deposits"), {
-                            userId: userId.value, // Using Auth UID
-                            method: method.value, 
-                            amount: Number(amount.value), 
-                            senderNumber: senderNumber.value, 
-                            trxId: trxId.value.toUpperCase(), 
-                            status: "pending", 
-                            createdAt: serverTimestamp()
-                        });
-                        showPopup('success', 'Submitted', 'Wait for approval.', 'Go to Account');
+                        // 1. Check with Google Script
+                        const apiUrl = `${SCRIPT_URL}?trxID=${trxId.value.toUpperCase()}&apiKey=${CLIENT_API_KEY}&amount=${amount.value}`;
+                        const response = await fetch(apiUrl);
+                        const data = await response.json();
+
+                        if (data.status === "success") {
+                            
+                            // 2. Save to History (Deposits)
+                            await addDoc(collection(db, "deposits"), {
+                                userId: userId.value,
+                                method: method.value,
+                                amount: Number(amount.value),
+                                trxId: trxId.value.toUpperCase(),
+                                status: "approved", 
+                                type: "auto_verify",
+                                createdAt: serverTimestamp()
+                            });
+
+                            // 🔥 3. UPDATE USER BALANCE (এই অংশটি আপনার মিসিং ছিল)
+                            const userRef = doc(db, "users", userId.value);
+                            await updateDoc(userRef, {
+                                balance: increment(Number(amount.value))
+                            });
+
+                            // 4. Show Success
+                            paymentSuccess.value = true;
+
+                        } else {
+                            errorMsg.value = data.message || "Verification failed. Check TrxID.";
+                        }
+
                     } catch (e) {
-                        console.error(e);
-                        showPopup('error', 'Failed', 'Try again.', 'OK');
+                        console.error("Verification Error:", e);
+                        errorMsg.value = "Server Error or Internet Connection Issue.";
                     } finally {
                         loading.value = false;
                     }
                 };
 
-                const gatewayColor = computed(() => {
-                    if(method.value === 'bkash') return 'bg-[#e2136e]';
-                    if(method.value === 'nagad') return 'bg-[#ec1c24]';
-                    return 'bg-[#8c3494]';
-                });
+                const currentAdminNumber = computed(() => ADMIN_NUMBERS[method.value] || "01XXXXXXXXX");
 
                 const gatewayButtonColor = computed(() => {
                     if(method.value === 'bkash') return 'bg-[#e2136e] hover:bg-[#c40f5f]';
@@ -298,18 +313,10 @@
                     return 'https://seeklogo.com/images/D/dutch-bangla-rocket-logo-B4D1CC458D-seeklogo.com.png';
                 });
 
-                const copyNumber = () => { 
-                    navigator.clipboard.writeText(adminNumber.value); 
-                    showPopup('success', 'Copied', 'Number copied to clipboard', 'OK');
-                };
-
-                onMounted(() => {
-                    // Logic moved to auth listener
-                });
-
                 return {
-                    step, amount, method, senderNumber, trxId, loading, adminNumber,
-                    goToMethod, selectMethod, gatewayColor, gatewayButtonColor, methodLogo, copyNumber, submitPayment, popup, closePopup
+                    step, amount, method, loading, trxId, errorMsg, paymentSuccess,
+                    goToMethod, selectMethod, copyNumber, verifyPayment,
+                    gatewayButtonColor, methodLogo, currentAdminNumber
                 };
             }
         }).mount('#app');
