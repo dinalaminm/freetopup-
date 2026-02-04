@@ -1,3 +1,4 @@
+<!-- START OF FILE Home Page (Updated Categories & Login Logic) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,6 +23,8 @@
         .nav-item i { font-size: 18px; margin-bottom: 4px; }
         .nav-item.active { color: #583cb3; font-weight: 700; }
         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        .section-title { color: #1e3a8a; font-family: 'Bree Serif', serif; font-weight: bold; margin-top: 1.5rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; font-size: 16px; }
+        .section-title::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
     </style>
 </head>
 <body class="bg-[#f0f5ff]">
@@ -42,25 +45,31 @@
                     </div>
                 </a>
                 
-                <!-- Login/Profile Section logic changed here -->
+                <!-- Login/Profile Section -->
                 <div class="flex items-center gap-2">
-                    <!-- Add Money Button: Checks Login -->
-                    <button @click="handleProtectedAction('add-money.html')" class="bg-[#583cb3] text-white px-3 py-1 rounded-md text-sm font-bold flex items-center gap-2 shadow-sm hover:bg-purple-800 transition">
-                        <i class="fa-solid fa-wallet"></i> {{ userBalance }} ৳
-                    </button>
-                    
-                    <!-- Profile Picture: Checks Login -->
-                    <button @click="handleProtectedAction('account.html')" class="w-8 h-8 rounded-full overflow-hidden border border-gray-300">
-                        <img :src="userAvatar" class="w-full h-full object-cover">
-                    </button>
+                    <div v-if="isLoggedIn" class="flex items-center gap-2">
+                        <!-- Add Money Button -->
+                        <button @click="handleProtectedAction('add-money.html')" class="bg-[#583cb3] text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm hover:bg-purple-800 transition">
+                            <i class="fa-solid fa-wallet"></i> {{ userBalance }} ৳
+                        </button>
+                        <!-- Profile Picture -->
+                        <a href="account.html" class="w-8 h-8 rounded-full overflow-hidden border border-gray-300">
+                            <img :src="userAvatar" class="w-full h-full object-cover">
+                        </a>
+                    </div>
+                    <div v-else>
+                        <a href="login.html" class="bg-gray-900 text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow hover:bg-black transition">
+                            Login <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
         </header>
 
         <!-- Notice Bar -->
         <div class="bg-[#4c3db2] text-white py-2 px-3 flex items-center gap-2 shadow-md">
-            <span class="font-bold text-white text-xs bg-white/20 px-2 py-0.5 rounded">Notice:</span>
-            <marquee class="text-xs font-serif font-medium tracking-wide">{{ noticeMessage }}</marquee>
+            <span class="font-bold text-white text-[10px] bg-white/20 px-2 py-0.5 rounded uppercase tracking-wider">Notice</span>
+            <marquee class="text-xs font-medium tracking-wide">{{ noticeMessage }}</marquee>
         </div>
 
         <!-- Main Content -->
@@ -68,7 +77,7 @@
             <!-- Loading Spinner -->
             <div v-if="loading" class="flex flex-col justify-center items-center h-64">
                 <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-700 mb-4"></div>
-                <p class="text-gray-500 text-sm">লোড হচ্ছে...</p>
+                <p class="text-gray-500 text-sm">Products Loading...</p>
             </div>
 
             <div v-else>
@@ -84,40 +93,47 @@
                     </div>
                 </div>
 
-                <!-- Products Sections -->
-                <!-- Note: Viewing details is usually Public, but if you want to force login on click, use handleProtectedAction -->
-                
-                <!-- MYSTERY BOX -->
+                <!-- 1. MYSTERY & SPECIAL OFFERS -->
                 <div v-if="mysteryBoxes.length > 0">
-                    <h2 class="section-title text-center text-[#1e3a8a] font-serif font-bold text-lg mt-4 mb-2">MYSTERY BOX</h2>
+                    <h2 class="section-title"><i class="fa-solid fa-gift text-purple-600"></i> MYSTERY BOX</h2>
                     <div class="grid grid-cols-2 gap-3">
                         <div v-for="item in mysteryBoxes" :key="item.id" @click="goToDetails(item.id)" class="flex flex-col items-center cursor-pointer">
                             <div class="product-card w-full aspect-square relative group rounded-xl overflow-hidden shadow-sm border border-gray-100 bg-white">
                                 <img :src="item.image" @error="handleImageError" class="w-full h-full object-cover">
                             </div>
-                            <h3 class="mt-2 font-bold text-xs text-[#1e3a8a] text-center">{{ item.name }}</h3>
+                            <h3 class="mt-2 font-bold text-xs text-gray-800 text-center">{{ item.name }}</h3>
                         </div>
                     </div>
                 </div>
 
-                <!-- SPECIAL OFFER -->
                 <div v-if="specialOffers.length > 0">
-                    <h2 class="section-title text-center text-[#1e3a8a] font-serif font-bold text-lg mt-4 mb-2">SPECIAL OFFER</h2>
+                    <h2 class="section-title"><i class="fa-solid fa-fire text-orange-500"></i> SPECIAL OFFERS</h2>
                     <div class="grid grid-cols-2 gap-3">
                         <div v-for="item in specialOffers" :key="item.id" @click="goToDetails(item.id)" class="product-card aspect-[4/3] relative rounded-xl overflow-hidden shadow-sm border border-gray-100 group cursor-pointer">
                             <img :src="item.image" @error="handleImageError" class="w-full h-full object-cover">
-                            <div class="absolute bottom-0 w-full bg-black/70 text-white text-[10px] text-center py-1.5 backdrop-blur-sm">{{ item.name }}</div>
+                            <div class="absolute bottom-0 w-full bg-gradient-to-t from-black/80 to-transparent text-white text-[10px] text-center py-2 font-bold">{{ item.name }}</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- FREE FIRE (Example of others) -->
-                <div v-if="freeFireItems.length > 0">
-                    <h2 class="section-title text-center text-[#1e3a8a] font-serif font-bold text-lg mt-4 mb-2">FREE FIRE</h2>
+                <!-- 2. GAMES (Free Fire & Ingame) -->
+                <div v-if="gameItems.length > 0">
+                    <h2 class="section-title"><i class="fa-solid fa-gamepad text-blue-600"></i> POPULAR GAMES</h2>
                     <div class="grid grid-cols-3 gap-3">
-                        <div v-for="item in freeFireItems" :key="item.id" @click="goToDetails(item.id)" class="bg-white p-2 rounded-xl shadow cursor-pointer">
-                            <img :src="item.image" @error="handleImageError" class="w-full h-16 object-contain mb-2">
-                            <h3 class="text-[10px] font-bold text-center">{{ item.name }}</h3>
+                        <div v-for="item in gameItems" :key="item.id" @click="goToDetails(item.id)" class="bg-white p-2 rounded-xl shadow-sm border border-gray-100 cursor-pointer active:scale-95 transition">
+                            <img :src="item.image" @error="handleImageError" class="w-full h-16 object-contain mb-2 rounded-md">
+                            <h3 class="text-[10px] font-bold text-center text-gray-700 leading-tight">{{ item.name }}</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. SHELLS & CARDS -->
+                <div v-if="otherItems.length > 0">
+                    <h2 class="section-title"><i class="fa-solid fa-ticket text-green-600"></i> CARDS & SUBSCRIPTION</h2>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div v-for="item in otherItems" :key="item.id" @click="goToDetails(item.id)" class="bg-white p-2 rounded-xl shadow-sm border border-gray-100 cursor-pointer active:scale-95 transition">
+                            <img :src="item.image" @error="handleImageError" class="w-full h-16 object-contain mb-2 rounded-md">
+                            <h3 class="text-[10px] font-bold text-center text-gray-700 leading-tight">{{ item.name }}</h3>
                         </div>
                     </div>
                 </div>
@@ -130,8 +146,6 @@
         <div class="fixed bottom-0 w-full bg-white border-t border-gray-200 z-50 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
             <div class="grid grid-cols-5 h-16 max-w-md mx-auto">
                 <a href="index.html" class="nav-item active"><i class="fa-solid fa-house"></i><span>Home</span></a>
-                
-                <!-- Protected Links -->
                 <button @click="handleProtectedAction('add-money.html')" class="nav-item bg-transparent border-0"><i class="fa-solid fa-wallet"></i><span>Add Money</span></button>
                 <button @click="handleProtectedAction('orders.html')" class="nav-item bg-transparent border-0"><i class="fa-solid fa-file-invoice"></i><span>My Orders</span></button>
                 <button @click="handleProtectedAction('codes.html')" class="nav-item bg-transparent border-0"><i class="fa-solid fa-gift"></i><span>My Codes</span></button>
@@ -166,30 +180,26 @@
         createApp({
             setup() {
                 const loading = ref(true);
-                const isLoggedIn = ref(false); // ট্র্যাক করবে ইউজার লগইন আছে কি না
+                const isLoggedIn = ref(false);
                 const userBalance = ref(0);
-                // ডিফল্ট অ্যাভাটার সেট করা
                 const userAvatar = ref('https://i.pravatar.cc/150?img=12');
                 const noticeMessage = ref("লোড হচ্ছে...");
                 const banners = ref([]);
                 
-                // Products Refs
+                // Categorized Products
                 const mysteryBoxes = ref([]);
                 const specialOffers = ref([]);
-                const freeFireItems = ref([]);
+                const gameItems = ref([]); // Free Fire + Ingame
+                const otherItems = ref([]); // Shells + Cards + Subscriptions
 
-                // 🔥 সিকিউরিটি চেক ফাংশন
                 const handleProtectedAction = (url) => {
                     if (isLoggedIn.value) {
                         window.location.href = url;
                     } else {
-                        // লগইন না থাকলে লগইন পেজে পাঠাবে
                         window.location.href = "login.html";
                     }
                 };
 
-                // প্রোডাক্ট ডিটেইলস পেজ - এখানে আপনি চাইলে লগইন চেক বসাতে পারেন, 
-                // তবে সাধারণত ডিটেইলস সবাই দেখতে পায়, অর্ডার করার সময় লগইন চায়।
                 const goToDetails = (id) => {
                     if (id) window.location.href = `details.html?id=${id}`;
                 };
@@ -200,7 +210,6 @@
                     onAuthStateChanged(auth, (user) => {
                         if (user) {
                             isLoggedIn.value = true;
-                            // রিয়েলটাইম ডাটা ফেচ
                             onSnapshot(doc(db, "users", user.uid), (doc) => {
                                 if (doc.exists()) {
                                     userBalance.value = doc.data().balance || 0;
@@ -210,26 +219,28 @@
                         } else {
                             isLoggedIn.value = false;
                             userBalance.value = 0;
-                            // লগআউট অবস্থায় ডিফল্ট ছবি
-                            userAvatar.value = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
                         }
                     });
                 };
 
                 const fetchData = async () => {
                     try {
-                        // নোটিশ এবং অন্যান্য ডাটা ফেচিং (আগের মতই)
                         try {
                             const nSnap = await getDoc(doc(db, "settings", "notice"));
                             if(nSnap.exists()) noticeMessage.value = nSnap.data().text;
                         } catch(e) {}
 
+                        // 🔥 NEW: Categories Sorting Logic 🔥
                         const productsSnap = await getDocs(collection(db, "products"));
                         productsSnap.forEach((doc) => {
                             const item = { id: doc.id, ...doc.data() };
-                            if (item.category === 'mystery') mysteryBoxes.value.push(item);
-                            else if (item.category === 'special') specialOffers.value.push(item);
-                            else if (item.category === 'freefire') freeFireItems.value.push(item);
+                            const cat = item.category;
+
+                            if (cat === 'mystery') mysteryBoxes.value.push(item);
+                            else if (cat === 'special') specialOffers.value.push(item);
+                            else if (cat === 'freefire' || cat === 'ingame') gameItems.value.push(item);
+                            else if (cat === 'shell' || cat === 'giftcard' || cat === 'subscription') otherItems.value.push(item);
+                            else gameItems.value.push(item); // Default fallback
                         });
 
                         const bannerSnap = await getDocs(collection(db, "banners"));
@@ -256,7 +267,7 @@
                 return {
                     loading, isLoggedIn, noticeMessage, banners, 
                     userBalance, userAvatar,
-                    mysteryBoxes, specialOffers, freeFireItems,
+                    mysteryBoxes, specialOffers, gameItems, otherItems,
                     goToDetails, handleImageError, handleProtectedAction
                 };
             }
