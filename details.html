@@ -1,4 +1,3 @@
-<!-- START OF FILE Product Details (Auto Payment Integrated) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -56,7 +55,6 @@
                     <h3 class="text-xl font-bold text-gray-800 mb-2">{{ popup.title }}</h3>
                     <p class="text-sm text-gray-500 mb-6 leading-relaxed">{{ popup.msg }}</p>
                     
-                    <!-- Confirm Buttons (Wallet Only) -->
                     <div v-if="popup.type === 'confirm'" class="flex gap-3">
                         <button @click="closePopup" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-bold">Cancel</button>
                         <button @click="processWalletOrder" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg">Confirm</button>
@@ -106,26 +104,33 @@
                     <h3 class="flex items-center font-bold text-gray-800 mb-3 border-b pb-2">
                         <div class="step-circle">1</div> Select Package
                     </h3>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div v-for="pack in packages" :key="pack.id" 
+                    
+                    <div v-if="packages.length > 0" class="grid grid-cols-2 gap-3">
+                        <div v-for="(pack, index) in packages" :key="index" 
                              @click="selectedPackage = pack"
-                             :class="selectedPackage?.id === pack.id ? 'active-package' : 'border border-gray-200'"
+                             :class="selectedPackage?.name === pack.name ? 'active-package' : 'border border-gray-200'"
                              class="p-3 rounded-lg text-center cursor-pointer hover:border-purple-300 transition relative bg-gray-50">
-                            <div v-if="selectedPackage?.id === pack.id" class="check-icon"><i class="fa-solid fa-check"></i></div>
+                            <div v-if="selectedPackage?.name === pack.name" class="check-icon"><i class="fa-solid fa-check"></i></div>
                             <div class="font-bold text-sm text-gray-700">{{ pack.name }}</div>
                             <div class="text-[#583cb3] font-bold text-base mt-1">৳ {{ pack.price }}</div>
                         </div>
                     </div>
+                    <div v-else class="text-center py-4 text-gray-400 text-sm">
+                        No packages available for this product.
+                    </div>
                 </div>
 
-                <!-- STEP 2: Account Info -->
+                <!-- STEP 2: Account Info (DYNAMIC LABEL) -->
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-4">
                     <h3 class="flex items-center font-bold text-gray-800 mb-3 border-b pb-2">
                         <div class="step-circle">2</div> Account Info
                     </h3>
                     <div class="mb-2">
-                        <label class="text-xs font-bold text-gray-600 block mb-1">Player ID (UID)</label>
-                        <input v-model="playerId" type="tel" placeholder="Enter UID (e.g. 12345678)" 
+                        <!-- Dynamic Label based on Category -->
+                        <label class="text-xs font-bold text-gray-600 block mb-1">
+                            {{ inputLabel }}
+                        </label>
+                        <input v-model="playerId" type="text" :placeholder="inputPlaceholder" 
                                class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-purple-500 transition font-bold tracking-wide">
                     </div>
                 </div>
@@ -181,7 +186,7 @@
                             </div>
                         </div>
 
-                        <!-- Admin Number Display (Auto Pay Style) -->
+                        <!-- Admin Number Display (Dynamic) -->
                         <div v-if="adminNumber" @click="copyNumber" class="bg-blue-50 border border-blue-200 border-dashed rounded-xl p-3 cursor-pointer active:scale-95 transition relative text-center">
                             <p class="text-[10px] text-blue-600 font-bold mb-1 uppercase">Send Money (Personal)</p>
                             <h3 class="text-xl font-black text-gray-800 tracking-wider">{{ adminNumber }}</h3>
@@ -204,16 +209,11 @@
                             <span class="text-purple-700">৳ {{ selectedPackage ? selectedPackage.price : 0 }}</span>
                         </div>
 
-                        <!-- Dynamic Button -->
                         <button @click="handleBuy" 
                                 :disabled="isButtonDisabled"
                                 :class="isButtonDisabled ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#583cb3] hover:bg-purple-800 shadow-lg'"
                                 class="w-full text-white py-3.5 rounded-xl font-bold text-base transition flex justify-center items-center gap-2 active:scale-95">
-                            
-                            <!-- Loader -->
                             <span v-if="verifying" class="loader border-white/30 border-t-white"></span>
-                            
-                            <!-- Text -->
                             <span v-else>
                                 {{ !isLoggedIn ? 'Login to Purchase' : (paymentMethod === 'wallet' ? 'Pay from Wallet' : 'Verify & Buy Now') }}
                             </span> 
@@ -249,12 +249,6 @@
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbygDTGvbG7sUTPAt2lO2iMsPHprZRlP7WjAwq4n4Q3D1SZduenpNPUaayf_c2VsTqC0Xw/exec"; 
         const CLIENT_API_KEY = "KEY_LUYAAAKNC_1770036903949"; 
 
-        const ADMIN_NUMBERS = {
-            bkash: "017XXXXXXXX",
-            nagad: "019XXXXXXXX",
-            rocket: "019XXXXXXXX"
-        };
-
         const firebaseConfig = {
           apiKey: "AIzaSyACUK207BRvtR5yc1UhYLS9FlMitVVlrrE",
           authDomain: "freetopup-fd263.firebaseapp.com",
@@ -285,6 +279,9 @@
                 const directGateway = ref('bkash');
                 const trxId = ref('');
                 
+                // Dynamic Admin Numbers
+                const adminNumbers = ref({ bkash: 'Loading...', nagad: 'Loading...', rocket: 'Loading...' });
+
                 const popup = ref({ show: false, type: '', title: '', msg: '', btnText: 'OK' });
 
                 const showPopup = (type, title, msg, btnText = "OK") => {
@@ -299,12 +296,11 @@
                 };
 
                 const adminNumber = computed(() => {
-                    // Try to get from code config first
-                    return ADMIN_NUMBERS[directGateway.value] || "";
+                    return adminNumbers.value[directGateway.value] || "";
                 });
 
                 const copyNumber = () => {
-                    if(adminNumber.value) {
+                    if(adminNumber.value && adminNumber.value !== 'Loading...') {
                         navigator.clipboard.writeText(adminNumber.value);
                         alert('Number copied!');
                     }
@@ -326,43 +322,60 @@
 
                 const fetchData = async (uid) => {
                     try {
+                        // 1. Fetch Product & Packages
                         const params = new URLSearchParams(window.location.search);
                         const id = params.get('id');
                         if (!id) window.location.href = 'index.html';
                         
                         const prodSnap = await getDoc(doc(db, "products", id));
                         if(prodSnap.exists()) {
-                            product.value = prodSnap.data();
-                            generatePackages(product.value.price);
+                            const data = prodSnap.data();
+                            product.value = data;
+                            
+                            // 🔥 FETCH PACKAGES DYNAMICALLY 🔥
+                            if(data.packages && Array.isArray(data.packages) && data.packages.length > 0) {
+                                packages.value = data.packages;
+                            } else {
+                                // Fallback for old products
+                                packages.value = [{ name: 'Default Pack', price: data.price }];
+                            }
                         }
 
+                        // 2. Fetch User Balance
                         if (uid) {
                             const userSnap = await getDoc(doc(db, "users", uid));
                             if(userSnap.exists()) userBalance.value = userSnap.data().balance || 0;
                         }
+
+                        // 3. Fetch Admin Numbers (Global)
+                        const settingsSnap = await getDoc(doc(db, "settings", "payment"));
+                        if(settingsSnap.exists()) {
+                            adminNumbers.value = settingsSnap.data();
+                        }
+
                     } catch(e) { console.error(e); } 
                     finally { loading.value = false; }
                 };
 
-                const generatePackages = (base) => {
-                    const p = Number(base) || 100;
-                    packages.value = [
-                        { id: 1, name: 'Small Pack (115 💎)', price: p },
-                        { id: 2, name: 'Medium Pack (240 💎)', price: Math.floor(p * 2.1) },
-                        { id: 3, name: 'Big Pack (610 💎)', price: Math.floor(p * 5.2) },
-                        { id: 4, name: 'Weekly Membership', price: 160 },
-                        { id: 5, name: 'Monthly Membership', price: 800 }
-                    ];
-                };
+                // 🔥 Dynamic Input Label Logic 🔥
+                const inputLabel = computed(() => {
+                    if(product.value.category === 'ingame') return 'Account Info (Email/Pass/Number)';
+                    if(product.value.category === 'giftcard') return 'Email Address to Receive Code';
+                    return 'Player ID (UID)';
+                });
 
-                // Button State Logic
+                const inputPlaceholder = computed(() => {
+                    if(product.value.category === 'ingame') return 'Enter Email & Password';
+                    if(product.value.category === 'giftcard') return 'Enter your email address';
+                    return 'Enter Player UID';
+                });
+
                 const isButtonDisabled = computed(() => {
                     if (!selectedPackage.value || !playerId.value) return true;
                     if (verifying.value) return true;
                     return false;
                 });
 
-                // Main Handle Buy Function
                 const handleBuy = async () => {
                     if (!isLoggedIn.value) {
                         window.location.href = 'login.html';
@@ -370,25 +383,20 @@
                     }
 
                     if(!selectedPackage.value) return showPopup('error', 'Select Package', 'Please choose a package.');
-                    if(!playerId.value) return showPopup('error', 'Missing UID', 'Enter Player ID.');
+                    if(!playerId.value) return showPopup('error', 'Missing Info', 'Enter required account info.');
 
                     if(paymentMethod.value === 'wallet') {
-                        // Wallet Logic
                         if(userBalance.value < selectedPackage.value.price) {
                             showPopup('error', 'Low Balance', 'Insufficient wallet balance.', 'Add Money');
                         } else {
                             showPopup('confirm', 'Confirm Wallet Pay', `Deduct ৳${selectedPackage.value.price} from wallet?`, 'Confirm');
                         }
                     } else {
-                        // Auto Payment Logic
                         if(!trxId.value || trxId.value.length < 6) return showPopup('error', 'Invalid TrxID', 'Please enter a valid TrxID.');
-                        
-                        // Start Verification
                         await verifyAndPlaceOrder();
                     }
                 };
 
-                // Wallet Order Process
                 const processWalletOrder = async () => {
                     popup.value.show = false;
                     const price = selectedPackage.value.price;
@@ -403,9 +411,15 @@
                             t.update(uRef, { balance: uDoc.data().balance - price });
                             const oRef = doc(collection(db, "orders"));
                             t.set(oRef, {
-                                userId: uid, packageName: selectedPackage.value.name, price,
-                                playerId: playerId.value, status: 'pending', 
-                                paymentMethod: 'wallet', createdAt: serverTimestamp()
+                                userId: uid, 
+                                packageName: selectedPackage.value.name, 
+                                price,
+                                playerId: playerId.value, 
+                                productName: product.value.name,
+                                category: product.value.category,
+                                status: 'pending', 
+                                paymentMethod: 'wallet', 
+                                createdAt: serverTimestamp()
                             });
                         });
                         showPopup('success', 'Order Placed', 'Order is pending for approval.', 'Go to Orders');
@@ -415,24 +429,23 @@
                     }
                 };
 
-                // Auto Verify Logic (Replaces manual direct pay)
                 const verifyAndPlaceOrder = async () => {
                     verifying.value = true;
                     try {
                         const amount = selectedPackage.value.price;
-                        // Call Google Script
                         const apiUrl = `${SCRIPT_URL}?trxID=${trxId.value.toUpperCase()}&apiKey=${CLIENT_API_KEY}&amount=${amount}`;
                         const response = await fetch(apiUrl);
                         const data = await response.json();
 
                         if (data.status === "success") {
-                            // Verified! Place Order Directly
                             await addDoc(collection(db, "orders"), {
                                 userId: userId.value,
                                 packageName: selectedPackage.value.name,
                                 price: amount,
                                 playerId: playerId.value,
-                                status: 'processing', // Auto verified, so processing
+                                productName: product.value.name,
+                                category: product.value.category,
+                                status: 'processing',
                                 paymentMethod: directGateway.value + '_auto',
                                 trxId: trxId.value.toUpperCase(),
                                 isAutoVerified: true,
@@ -458,7 +471,8 @@
                 return {
                     loading, verifying, isLoggedIn, product, packages, selectedPackage, playerId, userBalance,
                     paymentMethod, directGateway, adminNumber, trxId,
-                    handleBuy, processWalletOrder, popup, closePopup, copyNumber, handleImageError, isButtonDisabled
+                    handleBuy, processWalletOrder, popup, closePopup, copyNumber, handleImageError, isButtonDisabled,
+                    inputLabel, inputPlaceholder
                 };
             }
         }).mount('#app');
